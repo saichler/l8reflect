@@ -37,40 +37,40 @@ func init() {
 }
 
 func intUpdate(property *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.nilIsValid) {
-		updates.addUpdate(property, node, oldValue.Interface(), newValue.Interface())
+	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.isNilValid) {
+		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
 	return nil
 }
 
 func uintUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.nilIsValid) {
-		updates.addUpdate(instance, node, oldValue.Interface(), newValue.Interface())
+	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.isNilValid) {
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
 	return nil
 }
 
 func stringUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.nilIsValid) {
-		updates.addUpdate(instance, node, oldValue.Interface(), newValue.Interface())
+	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.isNilValid) {
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
 	return nil
 }
 
 func boolUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if newValue.Bool() && !oldValue.Bool() || updates.nilIsValid {
-		updates.addUpdate(instance, node, oldValue.Interface(), newValue.Interface())
+	if newValue.Bool() && !oldValue.Bool() || updates.isNilValid {
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
 	return nil
 }
 
 func floatUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.nilIsValid) {
-		updates.addUpdate(instance, node, oldValue.Interface(), newValue.Interface())
+	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.isNilValid) {
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
 	return nil
@@ -78,12 +78,12 @@ func floatUpdate(instance *property.Property, node *types.RNode, oldValue, newVa
 
 func ptrUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
-		updates.addUpdate(instance, node, nil, newValue.Interface())
+		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
 	}
-	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
-		updates.addUpdate(instance, node, oldValue, nil)
+	if !oldValue.IsNil() && newValue.IsNil() && updates.isNilValid {
+		updates.addUpdate(instance, oldValue, nil)
 		oldValue.Set(newValue)
 		return nil
 	}
@@ -121,17 +121,17 @@ func deepMapUpdate(instance *property.Property, node *types.RNode, oldValue, new
 
 func sliceOrMapUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
-		updates.addUpdate(instance, node, nil, newValue.Interface())
+		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
 	}
 	if oldValue.IsNil() && !newValue.IsNil() {
-		updates.addUpdate(instance, node, nil, newValue.Interface())
+		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
 	}
-	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
-		updates.addUpdate(instance, node, oldValue, nil)
+	if !oldValue.IsNil() && newValue.IsNil() && updates.isNilValid {
+		updates.addUpdate(instance, oldValue, nil)
 		oldValue.Set(newValue)
 		return nil
 	}
@@ -153,7 +153,7 @@ func sliceOrMapUpdate(instance *property.Property, node *types.RNode, oldValue, 
 
 	eq := reflect.DeepEqual(oldValue.Interface(), newValue.Interface())
 	if !eq {
-		updates.addUpdate(instance, node, oldValue, nil)
+		updates.addUpdate(instance, oldValue, nil)
 		oldValue.Set(newValue)
 	}
 

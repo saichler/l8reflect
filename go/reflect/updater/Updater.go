@@ -9,25 +9,23 @@ import (
 )
 
 type Updater struct {
-	nilIsValid   bool
-	property     *property.Property
 	changes      []*Change
 	introspector common.IIntrospect
+	isNilValid   bool
 }
 
-func NewUpdater(introspector common.IIntrospect, nilIsValid bool) *Updater {
-	updates := &Updater{}
-	updates.changes = make([]*Change, 0)
-	updates.introspector = introspector
-	updates.nilIsValid = nilIsValid
-	return updates
+func NewUpdater(introspector common.IIntrospect, isNilValid bool) *Updater {
+	upd := &Updater{}
+	upd.introspector = introspector
+	upd.isNilValid = isNilValid
+	return upd
 }
 
 func (this *Updater) Changes() []*Change {
 	return this.changes
 }
 
-func (this *Updater) Update(old, new interface{}, introspect common.IIntrospect) error {
+func (this *Updater) Update(old, new interface{}) error {
 	oldValue := reflect.ValueOf(old)
 	newValue := reflect.ValueOf(new)
 	if !oldValue.IsValid() || !newValue.IsValid() {
@@ -52,7 +50,7 @@ func update(instance *property.Property, node *types.RNode, oldValue, newValue r
 	if !newValue.IsValid() {
 		return nil
 	}
-	if newValue.Kind() == reflect.Ptr && newValue.IsNil() && !updates.nilIsValid {
+	if newValue.Kind() == reflect.Ptr && newValue.IsNil() && !updates.isNilValid {
 		return nil
 	}
 
@@ -64,9 +62,12 @@ func update(instance *property.Property, node *types.RNode, oldValue, newValue r
 	return comparator(instance, node, oldValue, newValue, updates)
 }
 
-func (this *Updater) addUpdate(instance *property.Property, node *types.RNode, oldValue, newValue interface{}) {
-	if !this.nilIsValid && newValue == nil {
+func (this *Updater) addUpdate(prop *property.Property, oldValue, newValue interface{}) {
+	if !this.isNilValid && newValue == nil {
 		return
 	}
-	this.changes = append(this.changes, NewChange(oldValue, newValue, instance))
+	if this.changes == nil {
+		this.changes = make([]*Change, 0)
+	}
+	this.changes = append(this.changes, NewChange(oldValue, newValue, prop))
 }
