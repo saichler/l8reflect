@@ -3,7 +3,7 @@ package common
 import (
 	"github.com/saichler/reflect/go/types"
 	"github.com/saichler/shared/go/share/interfaces"
-	"github.com/saichler/shared/go/share/string_utils"
+	strings2 "github.com/saichler/shared/go/share/strings"
 	"reflect"
 	"strings"
 )
@@ -48,7 +48,7 @@ func IgnoreName(fieldName string) bool {
 }
 
 func PropertyNodeKey(instanceId string) string {
-	buff := string_utils.New()
+	buff := strings2.New()
 	open := false
 	for _, c := range instanceId {
 		if c == '<' {
@@ -69,7 +69,7 @@ func InspectNodeKey(node *types.RNode) string {
 	if node.Parent == nil {
 		return strings.ToLower(node.TypeName)
 	}
-	buff := string_utils.New()
+	buff := strings2.New()
 	buff.Add(InspectNodeKey(node.Parent))
 	buff.Add(".")
 	buff.Add(strings.ToLower(node.FieldName))
@@ -82,7 +82,7 @@ func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interface
 	if fields == nil {
 		return ""
 	}
-	str := string_utils.New()
+	str := strings2.New()
 	str.TypesPrefix = true
 	for _, field := range fields {
 		v := value.FieldByName(field).Interface()
@@ -93,7 +93,8 @@ func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interface
 
 func PrimaryDecoratorFields(node *types.RNode, registry interfaces.IRegistry) []string {
 	decValue := node.Decorators[int32(types.DecoratorType_Primary)]
-	fields, ok := string_utils.InstanceOf(decValue, registry).([]string)
+	v, _ := strings2.InstanceOf(decValue, registry)
+	fields, ok := v.([]string)
 	if !ok {
 		return nil
 	}

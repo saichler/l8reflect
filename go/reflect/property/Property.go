@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/reflect/go/types"
-	"github.com/saichler/shared/go/share/string_utils"
+	strings2 "github.com/saichler/shared/go/share/strings"
 	"strings"
 )
 
@@ -75,7 +75,11 @@ func (this *Property) setKeyValue(propertyId string) (string, error) {
 	}
 
 	v := suffix[bbIndex+1 : len(suffix)-1]
-	this.key = string_utils.FromString(v, this.introspector.Registry()).Interface()
+	k, e := strings2.FromString(v, this.introspector.Registry())
+	if e != nil {
+		return "", e
+	}
+	this.key = k.Interface()
 	return prefix, nil
 }
 
@@ -83,7 +87,7 @@ func (this *Property) PropertyId() (string, error) {
 	if this.id != "" {
 		return this.id, nil
 	}
-	buff := string_utils.New()
+	buff := strings2.New()
 	if this.parent == nil {
 		buff.Add(strings.ToLower(this.node.TypeName))
 		buff.Add(this.node.CachedKey)
@@ -98,7 +102,7 @@ func (this *Property) PropertyId() (string, error) {
 	}
 
 	if this.key != nil {
-		keyStr := string_utils.New()
+		keyStr := strings2.New()
 		keyStr.TypesPrefix = true
 		buff.Add("<")
 		buff.Add(keyStr.StringOf(this.key))
@@ -126,7 +130,11 @@ func newProperty(node *types.RNode, propertyPath string, introspector common.IIn
 		index1 := strings.Index(propertyPath, "<")
 		index2 := strings.Index(propertyPath, ">")
 		if index1 != -1 && index2 != -1 && index2 > index1 {
-			property.key = string_utils.FromString(propertyPath[index1+1:index2], property.introspector.Registry()).Interface()
+			k, e := strings2.FromString(propertyPath[index1+1:index2], property.introspector.Registry())
+			if e != nil {
+				return nil, e
+			}
+			property.key = k.Interface()
 		}
 	}
 	return property, nil

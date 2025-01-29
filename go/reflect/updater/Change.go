@@ -2,7 +2,7 @@ package updater
 
 import (
 	"github.com/saichler/reflect/go/reflect/property"
-	"github.com/saichler/shared/go/share/string_utils"
+	"github.com/saichler/shared/go/share/strings"
 )
 
 type Change struct {
@@ -16,7 +16,7 @@ func (this *Change) String() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	str := string_utils.New(id)
+	str := strings.New(id)
 
 	str.Add(" - Old=").Add(str.StringOf(this.oldValue)).
 		Add(" New=").Add(str.StringOf(this.newValue))
