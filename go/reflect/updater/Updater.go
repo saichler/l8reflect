@@ -2,32 +2,32 @@ package updater
 
 import (
 	"errors"
-	"github.com/saichler/my.simple/go/common"
-	"github.com/saichler/my.simple/go/instance"
-	"github.com/saichler/my.simple/go/introspect/model"
+	"github.com/saichler/reflect/go/reflect/common"
+	"github.com/saichler/reflect/go/reflect/property"
+	"github.com/saichler/reflect/go/types"
 	"reflect"
 )
 
 type Updater struct {
-	nilIsValid bool
-	instance   *instance.Instance
-	changes    []*Change
-	introspect common.IIntrospect
+	nilIsValid   bool
+	property     *property.Property
+	changes      []*Change
+	introspector common.IIntrospect
 }
 
-func NewUpdater(introspect common.IIntrospect, nilIsValid bool) *Updater {
+func NewUpdater(introspector common.IIntrospect, nilIsValid bool) *Updater {
 	updates := &Updater{}
 	updates.changes = make([]*Change, 0)
-	updates.introspect = introspect
+	updates.introspector = introspector
 	updates.nilIsValid = nilIsValid
 	return updates
 }
 
-func (updates *Updater) Changes() []*Change {
-	return updates.changes
+func (this *Updater) Changes() []*Change {
+	return this.changes
 }
 
-func (updates *Updater) Update(old, new interface{}, introspect common.IIntrospect) error {
+func (this *Updater) Update(old, new interface{}, introspect common.IIntrospect) error {
 	oldValue := reflect.ValueOf(old)
 	newValue := reflect.ValueOf(new)
 	if !oldValue.IsValid() || !newValue.IsValid() {
@@ -37,18 +37,18 @@ func (updates *Updater) Update(old, new interface{}, introspect common.IIntrospe
 		oldValue = oldValue.Elem()
 		newValue = newValue.Elem()
 	}
-	node, _ := introspect.Node(oldValue.Type().Name())
+	node, _ := this.introspector.Node(oldValue.Type().Name())
 	if node == nil {
 		return errors.New("cannot find node for type " + oldValue.Type().Name() + ", please register it")
 	}
 
-	instance := instance.NewInstance(node, nil, common.PrimaryDecorator(node, oldValue), oldValue, introspect)
+	prop := property.NewProperty(node, nil, common.PrimaryDecorator(node, oldValue, this.introspector.Registry()), oldValue, this.introspector)
 
-	err := update(instance, node, oldValue, newValue, updates)
+	err := update(prop, node, oldValue, newValue, this)
 	return err
 }
 
-func update(instance *instance.Instance, node *model.Node, oldValue, newValue reflect.Value, updates *Updater) error {
+func update(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !newValue.IsValid() {
 		return nil
 	}
@@ -64,9 +64,9 @@ func update(instance *instance.Instance, node *model.Node, oldValue, newValue re
 	return comparator(instance, node, oldValue, newValue, updates)
 }
 
-func (updates *Updater) addUpdate(instance *instance.Instance, node *model.Node, oldValue, newValue interface{}) {
-	if !updates.nilIsValid && newValue == nil {
+func (this *Updater) addUpdate(instance *property.Property, node *types.RNode, oldValue, newValue interface{}) {
+	if !this.nilIsValid && newValue == nil {
 		return
 	}
-	updates.changes = append(updates.changes, NewChange(oldValue, newValue, instance))
+	this.changes = append(this.changes, NewChange(oldValue, newValue, instance))
 }

@@ -28,7 +28,7 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 }
 
 func PropertyOf(propertyId string, introspector common.IIntrospect) (*Property, error) {
-	propertyKey := common.NodeKey(propertyId)
+	propertyKey := common.PropertyNodeKey(propertyId)
 	node, ok := introspector.Node(propertyKey)
 	if !ok {
 		return nil, errors.New("Unknown attribute " + propertyKey)

@@ -1,36 +1,36 @@
 package updater
 
 import (
-	"github.com/saichler/my.simple/go/utils/logs"
-	"github.com/saichler/my.simple/go/utils/strng"
+	"github.com/saichler/reflect/go/reflect/property"
+	"github.com/saichler/shared/go/share/string_utils"
 )
 
 type Change struct {
-	instance *notifications.Instance
+	property *property.Property
 	oldValue interface{}
 	newValue interface{}
 }
 
-func (change *Change) String() string {
-	id, err := change.instance.InstanceId()
+func (this *Change) String() (string, error) {
+	id, err := this.property.PropertyId()
 	if err != nil {
-		logs.Error("Instance String fail: ", err)
+		return "", err
 	}
-	str := strng.New(id)
+	str := string_utils.New(id)
 
-	str.Add(" - Old=").Add(str.StringOf(change.oldValue)).
-		Add(" New=").Add(str.StringOf(change.newValue))
-	return str.String()
+	str.Add(" - Old=").Add(str.StringOf(this.oldValue)).
+		Add(" New=").Add(str.StringOf(this.newValue))
+	return str.String(), nil
 }
 
-func (change *Change) Apply(any interface{}) {
-	change.instance.Set(any, change.newValue)
+func (this *Change) Apply(any interface{}) {
+	this.property.Set(any, this.newValue)
 }
 
-func NewChange(old, new interface{}, instance *notifications.Instance) *Change {
+func NewChange(old, new interface{}, property *property.Property) *Change {
 	change := &Change{}
 	change.oldValue = old
 	change.newValue = new
-	change.instance = instance
+	change.property = property
 	return change
 }
