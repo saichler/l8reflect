@@ -6,30 +6,33 @@ import (
 	"reflect"
 )
 
-func (this *Property) Set(any interface{}, value interface{}) (interface{}, error) {
+func (this *Property) Set(any interface{}, value interface{}) (interface{}, interface{}, error) {
 	if this == nil {
-		return nil, errors.New("property is nil, cannot instantiate")
+		return nil, nil, errors.New("property is nil, cannot instantiate")
 	}
 	if this.parent == nil {
 		if any == nil {
 			info, err := this.introspector.Registry().Info(this.node.TypeName)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			newAny, err := info.NewInstance()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			any = newAny
 		}
 		if this.key != nil {
 			this.SetPrimaryKey(this.node, any, this.key)
 		}
-		return any, nil
+		return any, any, nil
 	}
-	parent, err := this.parent.Set(any, value)
+	parent, root, err := this.parent.Set(any, value)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	if any == nil {
+		any = root
 	}
 	parentValue := reflect.ValueOf(parent)
 	if parentValue.Kind() == reflect.Ptr {
@@ -38,21 +41,26 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, erro
 	myValue := parentValue.FieldByName(this.node.FieldName)
 	info, err := this.introspector.Registry().Info(this.node.TypeName)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	typ := info.Type()
 	if this.node.IsMap {
-		return this.mapSet(myValue)
+		v, e := this.mapSet(myValue)
+		return v, any, e
 	} else if this.node.IsSlice {
-		return this.sliceSet(myValue)
+		v, e := this.sliceSet(myValue)
+		return v, any, e
 	} else if this.introspector.Kind(this.node) == reflect.Struct {
 		if !myValue.IsValid() || myValue.IsNil() {
 			myValue.Set(reflect.New(typ))
 		}
-		return myValue.Interface(), err
+		return myValue.Interface(), any, err
+	} else if reflect.ValueOf(value).Kind() == reflect.Int32 {
+		myValue.SetInt(reflect.ValueOf(value).Int())
+		return value, any, err
 	} else {
 		myValue.Set(reflect.ValueOf(value))
-		return value, err
+		return value, any, err
 	}
 }
 
