@@ -24,7 +24,7 @@ func TestIntrospect(t *testing.T) {
 	}
 
 	nodes := in.Nodes(false, false)
-	expectedNodes := 16
+	expectedNodes := 17
 	if len(nodes) != expectedNodes {
 		log.Fail(t, "Expected length to be ", expectedNodes, " but got ", len(nodes))
 		return
@@ -37,7 +37,7 @@ func TestIntrospect(t *testing.T) {
 	}
 
 	nodes = in.Nodes(true, false)
-	if len(nodes) != 12 {
+	if len(nodes) != 13 {
 		log.Fail(t, "Expected length to be 13 leafs but got ", len(nodes))
 		return
 	}

@@ -34,6 +34,7 @@ func CreateTestModelInstance(index int) *tests.TestProto {
 		MySingle:           sub,
 		MyModelSlice:       []*tests.TestProtoSub{sub1, sub2},
 		MyString2ModelMap:  map[string]*tests.TestProtoSub{sub1.MyString: sub1, sub2.MyString: sub2},
+		MyEnum:             tests.TestEnum_ValueOne,
 	}
 	return i
 }

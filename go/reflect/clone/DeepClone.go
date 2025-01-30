@@ -16,57 +16,57 @@ func NewCloner() *Cloner {
 	return cloner
 }
 
-func (cloner *Cloner) initCloners() {
-	cloner.cloners = make(map[reflect.Kind]func(reflect.Value, string, map[string]reflect.Value) reflect.Value)
-	cloner.cloners[reflect.Int] = cloner.intCloner
-	cloner.cloners[reflect.Int32] = cloner.int32Cloner
-	cloner.cloners[reflect.Ptr] = cloner.ptrCloner
-	cloner.cloners[reflect.Struct] = cloner.structCloner
-	cloner.cloners[reflect.String] = cloner.stringCloner
-	cloner.cloners[reflect.Slice] = cloner.sliceCloner
-	cloner.cloners[reflect.Map] = cloner.mapCloner
-	cloner.cloners[reflect.Bool] = cloner.boolCloner
-	cloner.cloners[reflect.Int64] = cloner.int64Cloner
-	cloner.cloners[reflect.Uint] = cloner.uintCloner
-	cloner.cloners[reflect.Uint32] = cloner.uint32Cloner
-	cloner.cloners[reflect.Uint64] = cloner.uint64Cloner
-	cloner.cloners[reflect.Float32] = cloner.float32Cloner
-	cloner.cloners[reflect.Float64] = cloner.float64Cloner
+func (this *Cloner) initCloners() {
+	this.cloners = make(map[reflect.Kind]func(reflect.Value, string, map[string]reflect.Value) reflect.Value)
+	this.cloners[reflect.Int] = this.intCloner
+	this.cloners[reflect.Int32] = this.int32Cloner
+	this.cloners[reflect.Ptr] = this.ptrCloner
+	this.cloners[reflect.Struct] = this.structCloner
+	this.cloners[reflect.String] = this.stringCloner
+	this.cloners[reflect.Slice] = this.sliceCloner
+	this.cloners[reflect.Map] = this.mapCloner
+	this.cloners[reflect.Bool] = this.boolCloner
+	this.cloners[reflect.Int64] = this.int64Cloner
+	this.cloners[reflect.Uint] = this.uintCloner
+	this.cloners[reflect.Uint32] = this.uint32Cloner
+	this.cloners[reflect.Uint64] = this.uint64Cloner
+	this.cloners[reflect.Float32] = this.float32Cloner
+	this.cloners[reflect.Float64] = this.float64Cloner
 }
 
-func (Cloner *Cloner) Clone(any interface{}) interface{} {
+func (this *Cloner) Clone(any interface{}) interface{} {
 	value := reflect.ValueOf(any)
 	stopLoop := make(map[string]reflect.Value)
-	valueClone := Cloner.clone(value, "", stopLoop)
+	valueClone := this.clone(value, "", stopLoop)
 	return valueClone.Interface()
 }
 
-func (Cloner *Cloner) clone(value reflect.Value, fieldName string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) clone(value reflect.Value, fieldName string, stopLoop map[string]reflect.Value) reflect.Value {
 	if !value.IsValid() {
 		return value
 	}
 	kind := value.Kind()
-	cloner := Cloner.cloners[kind]
+	cloner := this.cloners[kind]
 	if cloner == nil {
 		panic("No cloner for kind:" + kind.String() + ":" + fieldName)
 	}
 	return cloner(value, fieldName, stopLoop)
 }
 
-func (Cloner *Cloner) sliceCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) sliceCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	if value.IsNil() {
 		return value
 	}
 	newSlice := reflect.MakeSlice(reflect.SliceOf(value.Index(0).Type()), value.Len(), value.Len())
 	for i := 0; i < value.Len(); i++ {
 		elem := value.Index(i)
-		elemClone := Cloner.clone(elem, name, stopLoop)
+		elemClone := this.clone(elem, name, stopLoop)
 		newSlice.Index(i).Set(elemClone)
 	}
 	return newSlice
 }
 
-func (Cloner *Cloner) ptrCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) ptrCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	if value.IsNil() {
 		return value
 	}
@@ -80,12 +80,12 @@ func (Cloner *Cloner) ptrCloner(value reflect.Value, name string, stopLoop map[s
 	newPtr := reflect.New(value.Elem().Type())
 	stopLoop[p] = newPtr
 
-	newPtr.Elem().Set(Cloner.clone(value.Elem(), name, stopLoop))
+	newPtr.Elem().Set(this.clone(value.Elem(), name, stopLoop))
 
 	return newPtr
 }
 
-func (Cloner *Cloner) structCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) structCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	cloneStruct := reflect.New(value.Type()).Elem()
 	structType := value.Type()
 	for i := 0; i < structType.NumField(); i++ {
@@ -94,7 +94,7 @@ func (Cloner *Cloner) structCloner(value reflect.Value, name string, stopLoop ma
 		if SkipFieldByName(fieldName) {
 			continue
 		}
-		cloned := Cloner.clone(fieldValue, structType.Field(i).Name, stopLoop)
+		cloned := this.clone(fieldValue, structType.Field(i).Name, stopLoop)
 		if cloned.Kind() == reflect.Int32 {
 			cloneStruct.Field(i).SetInt(cloned.Int())
 		} else {
@@ -104,7 +104,7 @@ func (Cloner *Cloner) structCloner(value reflect.Value, name string, stopLoop ma
 	return cloneStruct
 }
 
-func (Cloner *Cloner) mapCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) mapCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	if value.IsNil() {
 		return value
 	}
@@ -112,58 +112,58 @@ func (Cloner *Cloner) mapCloner(value reflect.Value, name string, stopLoop map[s
 	mapClone := reflect.MakeMapWithSize(value.Type(), len(mapKeys))
 	for _, key := range mapKeys {
 		mapElem := value.MapIndex(key)
-		mapElemClone := Cloner.clone(mapElem, name, stopLoop)
+		mapElemClone := this.clone(mapElem, name, stopLoop)
 		mapClone.SetMapIndex(key, mapElemClone)
 	}
 	return mapClone
 }
 
-func (Cloner *Cloner) intCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) intCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Int()
 	return reflect.ValueOf(int(i))
 }
 
-func (Cloner *Cloner) uintCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) uintCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Uint()
 	return reflect.ValueOf(uint(i))
 }
 
-func (Cloner *Cloner) uint32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) uint32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Uint()
 	return reflect.ValueOf(uint32(i))
 }
 
-func (Cloner *Cloner) uint64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) uint64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Uint()
 	return reflect.ValueOf(uint64(i))
 }
 
-func (Cloner *Cloner) float32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) float32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Float()
 	return reflect.ValueOf(float32(i))
 }
 
-func (Cloner *Cloner) float64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) float64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Float()
 	return reflect.ValueOf(float64(i))
 }
 
-func (Cloner *Cloner) boolCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) boolCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	b := value.Bool()
 	return reflect.ValueOf(b)
 }
 
-func (Cloner *Cloner) int32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) int32Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Int()
 	return reflect.ValueOf(int32(i))
 }
 
-func (Cloner *Cloner) int64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) int64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	i := value.Int()
 	return reflect.ValueOf(int64(i))
 }
 
-func (Cloner *Cloner) stringCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+func (this *Cloner) stringCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	s := value.String()
 	return reflect.ValueOf(s)
 }
