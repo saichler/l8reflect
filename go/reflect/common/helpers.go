@@ -1,9 +1,9 @@
 package common
 
 import (
-	"github.com/saichler/reflect/go/types"
 	"github.com/saichler/shared/go/share/interfaces"
 	strings2 "github.com/saichler/shared/go/share/strings"
+	"github.com/saichler/shared/go/types"
 	"reflect"
 	"strings"
 )

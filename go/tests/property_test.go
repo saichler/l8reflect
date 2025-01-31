@@ -2,16 +2,16 @@ package tests
 
 import (
 	"fmt"
-	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/reflect/go/reflect/inspect"
 	"github.com/saichler/reflect/go/reflect/property"
-	"github.com/saichler/reflect/go/types"
+	"github.com/saichler/shared/go/share/interfaces"
 	"github.com/saichler/shared/go/share/registry"
 	"github.com/saichler/shared/go/tests"
+	"github.com/saichler/shared/go/types"
 	"testing"
 )
 
-var _introspect common.IIntrospect
+var _introspect interfaces.IIntrospector
 
 func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
 	ins, err := property.PropertyOf(id, _introspect)

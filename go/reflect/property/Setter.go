@@ -2,7 +2,7 @@ package property
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/types"
+	"github.com/saichler/shared/go/types"
 	"reflect"
 )
 

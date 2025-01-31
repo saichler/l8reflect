@@ -2,7 +2,7 @@ package inspect
 
 import (
 	"github.com/saichler/reflect/go/reflect/common"
-	"github.com/saichler/reflect/go/types"
+	"github.com/saichler/shared/go/types"
 	"reflect"
 )
 

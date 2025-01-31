@@ -3,8 +3,9 @@ package property
 import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/common"
-	"github.com/saichler/reflect/go/types"
+	"github.com/saichler/shared/go/share/interfaces"
 	strings2 "github.com/saichler/shared/go/share/strings"
+	"github.com/saichler/shared/go/types"
 	"strings"
 )
 
@@ -14,10 +15,10 @@ type Property struct {
 	key          interface{}
 	value        interface{}
 	id           string
-	introspector common.IIntrospect
+	introspector interfaces.IIntrospector
 }
 
-func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector common.IIntrospect) *Property {
+func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector interfaces.IIntrospector) *Property {
 	property := &Property{}
 	property.parent = parent
 	property.node = node
@@ -27,7 +28,7 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	return property
 }
 
-func PropertyOf(propertyId string, introspector common.IIntrospect) (*Property, error) {
+func PropertyOf(propertyId string, introspector interfaces.IIntrospector) (*Property, error) {
 	propertyKey := common.PropertyNodeKey(propertyId)
 	node, ok := introspector.Node(propertyKey)
 	if !ok {
@@ -112,7 +113,7 @@ func (this *Property) PropertyId() (string, error) {
 	return this.id, nil
 }
 
-func newProperty(node *types.RNode, propertyPath string, introspector common.IIntrospect) (*Property, error) {
+func newProperty(node *types.RNode, propertyPath string, introspector interfaces.IIntrospector) (*Property, error) {
 	property := &Property{}
 	property.node = node
 	property.introspector = introspector

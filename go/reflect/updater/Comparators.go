@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/reflect/go/reflect/property"
-	"github.com/saichler/reflect/go/types"
+	"github.com/saichler/shared/go/types"
 	"reflect"
 )
 

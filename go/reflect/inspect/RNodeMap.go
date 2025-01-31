@@ -1,8 +1,8 @@
 package inspect
 
 import (
-	"github.com/saichler/reflect/go/types"
 	"github.com/saichler/shared/go/share/maps"
+	"github.com/saichler/shared/go/types"
 	"reflect"
 )
 

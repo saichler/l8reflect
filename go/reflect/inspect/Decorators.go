@@ -1,8 +1,8 @@
 package inspect
 
 import (
-	"github.com/saichler/reflect/go/types"
 	"github.com/saichler/shared/go/share/strings"
+	"github.com/saichler/shared/go/types"
 )
 
 func (this *Introspector) AddDecorator(decoratorType types.DecoratorType, any interface{}, node *types.RNode) {
