@@ -77,16 +77,16 @@ func InspectNodeKey(node *types.RNode) string {
 	return node.CachedKey
 }
 
-func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interfaces.IRegistry) string {
+func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interfaces.IRegistry) interface{} {
 	fields := PrimaryDecoratorFields(node, registry)
-	if fields == nil {
-		return ""
+	if fields == nil || len(fields) == 0 {
+		return nil
 	}
 	str := strings2.New()
-	str.TypesPrefix = true
 	for _, field := range fields {
 		v := value.FieldByName(field).Interface()
-		str.Add(str.StringOf(v))
+		v2 := str.StringOf(v)
+		str.Add(v2)
 	}
 	return str.String()
 }

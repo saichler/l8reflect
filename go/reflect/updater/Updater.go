@@ -41,8 +41,8 @@ func (this *Updater) Update(old, new interface{}) error {
 		return errors.New("cannot find node for type " + oldValue.Type().Name() + ", please register it")
 	}
 
-	prop := property.NewProperty(node, nil, common.PrimaryDecorator(node, oldValue, this.introspector.Registry()), oldValue, this.introspector)
-
+	pKey := common.PrimaryDecorator(node, oldValue, this.introspector.Registry())
+	prop := property.NewProperty(node, nil, pKey, oldValue, this.introspector)
 	err := update(prop, node, oldValue, newValue, this)
 	return err
 }

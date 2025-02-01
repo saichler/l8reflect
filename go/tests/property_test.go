@@ -1,9 +1,10 @@
 package tests
 
 import (
-	"fmt"
 	"github.com/saichler/reflect/go/reflect/inspect"
 	"github.com/saichler/reflect/go/reflect/property"
+	"github.com/saichler/reflect/go/reflect/updater"
+	"github.com/saichler/reflect/go/tests/utils"
 	"github.com/saichler/shared/go/share/interfaces"
 	"github.com/saichler/shared/go/share/registry"
 	"github.com/saichler/shared/go/tests"
@@ -16,26 +17,72 @@ var _introspect interfaces.IIntrospector
 func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
 	ins, err := property.PropertyOf(id, _introspect)
 	if err != nil {
-		t.Fail()
-		fmt.Println("failed with id: ", id, err)
+		log.Fail(t, "failed with id: ", id, err.Error())
 		return nil, false
 	}
 
 	v, err := ins.Get(root)
 	if err != nil {
-		t.Fail()
-		fmt.Println("failed with get: ", id, err)
+		log.Fail(t, "failed with get: ", id, err.Error())
 		return nil, false
 	}
 	return v, true
+}
+
+func TestPrimaryKey(t *testing.T) {
+	_introspect = inspect.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&tests.TestProto{})
+	if err != nil {
+		log.Fail(t, "failed with inspect: ", err.Error())
+		return
+	}
+	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	aside := utils.CreateTestModelInstance(1)
+	zside := utils.CreateTestModelInstance(1)
+	zside.MyEnum = tests.TestEnum_ValueTwo
+
+	upd := updater.NewUpdater(_introspect, false)
+	err = upd.Update(aside, zside)
+	if err != nil {
+		log.Fail(t, "failed with update: ", err.Error())
+		return
+	}
+	if len(upd.Changes()) != 1 {
+		log.Fail(t, "wrong number of changes: ", len(upd.Changes()))
+		return
+	}
+
+	pid := upd.Changes()[0].PropertyId()
+	n := upd.Changes()[0].NewValue()
+
+	p, e := property.PropertyOf(pid, _introspect)
+	if e != nil {
+		log.Fail(t, "failed with property: ", e.Error())
+		return
+	}
+
+	_, root, e := p.Set(nil, n)
+	if e != nil {
+		log.Fail(t, "failed with set: ", e.Error())
+		return
+	}
+
+	yside := root.(*tests.TestProto)
+	if yside.MyEnum != aside.MyEnum {
+		log.Fail(t, "wrong enum: ", yside.MyEnum)
+		return
+	}
+	if yside.MyString != aside.MyString {
+		log.Fail(t, "wrong string: ", yside.MyString)
+		return
+	}
 }
 
 func TestInstance(t *testing.T) {
 	_introspect = inspect.NewIntrospect(registry.NewRegistry())
 	node, err := _introspect.Inspect(&tests.TestProto{})
 	if err != nil {
-		fmt.Println("1", err)
-		t.Fail()
+		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
 	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
@@ -48,8 +95,8 @@ func TestInstance(t *testing.T) {
 
 	mytest := v.(*tests.TestProto)
 	if mytest.MyString != "Hello" {
-		t.Fail()
-		fmt.Println("Expected Hello but got ", mytest.MyString)
+		log.Fail(t, "wrong string: ", mytest.MyString)
+		return
 	}
 
 	mytest.MyFloat64 = 128.128
@@ -61,8 +108,7 @@ func TestInstance(t *testing.T) {
 
 	f := v.(float64)
 	if f != mytest.MyFloat64 {
-		t.Fail()
-		fmt.Println("float64 failed:", mytest.MyFloat64, "!=", f)
+		log.Fail(t, "wrong float64: ", f)
 		return
 	}
 
@@ -75,8 +121,7 @@ func TestInstance(t *testing.T) {
 	}
 	s := v.(string)
 	if s != mytest.MySingle.MyString {
-		t.Fail()
-		fmt.Println("sum model string failed:", mytest.MySingle.MyString, "!=", f)
+		log.Fail(t, "wrong string: ", s)
 		return
 	}
 

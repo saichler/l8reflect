@@ -100,7 +100,7 @@ func structUpdate(prop *property.Property, node *types.RNode, oldValue, newValue
 	for _, attr := range node.Attributes {
 		oldFldValue := oldValue.FieldByName(attr.FieldName)
 		newFldValue := newValue.FieldByName(attr.FieldName)
-		subInstance := property.NewProperty(attr, prop, "", oldFldValue, updates.introspector)
+		subInstance := property.NewProperty(attr, prop, nil, oldFldValue, updates.introspector)
 		err := update(subInstance, attr, oldFldValue, newFldValue, updates)
 		if err != nil {
 			return err

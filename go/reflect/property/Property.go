@@ -2,6 +2,7 @@ package property
 
 import (
 	"errors"
+	"fmt"
 	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/shared/go/share/interfaces"
 	strings2 "github.com/saichler/shared/go/share/strings"
@@ -23,6 +24,10 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	property.parent = parent
 	property.node = node
 	property.key = key
+	if key == "" {
+		panic("")
+		fmt.Println("key", key)
+	}
 	property.value = value
 	property.introspector = introspector
 	return property
@@ -101,8 +106,11 @@ func (this *Property) PropertyId() (string, error) {
 		buff.Add(".")
 		buff.Add(strings.ToLower(this.node.FieldName))
 	}
-
 	if this.key != nil {
+		if this.node.FieldName == "MyEnum" {
+			fmt.Println("key", this.key)
+			panic("")
+		}
 		keyStr := strings2.New()
 		keyStr.TypesPrefix = true
 		buff.Add("<")
