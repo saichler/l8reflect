@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"github.com/saichler/reflect/go/reflect/inspect"
 	"github.com/saichler/reflect/go/reflect/property"
 	"github.com/saichler/reflect/go/reflect/updater"
@@ -10,6 +11,7 @@ import (
 	"github.com/saichler/shared/go/tests"
 	"github.com/saichler/shared/go/types"
 	"testing"
+	"time"
 )
 
 var _introspect interfaces.IIntrospector
@@ -141,4 +143,30 @@ func TestInstance(t *testing.T) {
 		instance.Set(myOtherInstance,"Metadata")
 
 	*/
+}
+
+func TestSubStructProperty(t *testing.T) {
+	_introspect = inspect.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&tests.TestProto{})
+	if err != nil {
+		log.Fail(t, "failed with inspect: ", err.Error())
+		return
+	}
+	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+
+	aside := &tests.TestProto{MyString: "Hello"}
+	zside := &tests.TestProto{MyString: "Hello"}
+	yside := &tests.TestProto{MyString: "Hello"}
+	zside.MySingle = &tests.TestProtoSub{MyInt64: time.Now().Unix()}
+
+	putUpdater := updater.NewUpdater(_introspect, false)
+
+	putUpdater.Update(aside, zside)
+
+	changes := putUpdater.Changes()
+
+	for _, change := range changes {
+		change.Apply(yside)
+	}
+	fmt.Println(yside)
 }

@@ -52,7 +52,13 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		return v, any, e
 	} else if this.introspector.Kind(this.node) == reflect.Struct {
 		if !myValue.IsValid() || myValue.IsNil() {
-			myValue.Set(reflect.New(typ))
+			v := reflect.ValueOf(value)
+			if v.Kind() == reflect.Ptr &&
+				!v.IsNil() && v.Elem().Type().Name() == typ.Name() {
+				myValue.Set(reflect.ValueOf(value))
+			} else {
+				myValue.Set(reflect.New(typ))
+			}
 		}
 		return myValue.Interface(), any, err
 	} else if reflect.ValueOf(value).Kind() == reflect.Int32 {
