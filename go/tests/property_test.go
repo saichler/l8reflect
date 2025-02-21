@@ -80,6 +80,41 @@ func TestPrimaryKey(t *testing.T) {
 	}
 }
 
+func TestSetMap(t *testing.T) {
+	_introspect := inspect.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&tests.TestProto{})
+	if err != nil {
+		log.Fail(t, "failed with inspect: ", err.Error())
+		return
+	}
+	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	aside := utils.CreateTestModelInstance(1)
+	aside.MyString2ModelMap = nil
+	pid := "testproto<{24}root>.mystring2modelmap<{24}sub>.mystring"
+	//m:=tests.TestProtoSub{}
+	prop, err := property.PropertyOf(pid, _introspect)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+	_, _, err = prop.Set(aside, "hhhh")
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+	sub := aside.MyString2ModelMap["sub"]
+	if sub == nil {
+		log.Fail(t, "sub doesn't exist")
+	}
+	if sub.MyString != "hhhh" {
+		log.Fail(t, "sub MyString exist")
+		return
+	}
+
+	prop, _ = property.PropertyOf("testproto.mystring2modelmap", _introspect)
+	prop.Set(aside, nil)
+}
+
 func TestInstance(t *testing.T) {
 	_introspect = inspect.NewIntrospect(registry.NewRegistry())
 	node, err := _introspect.Inspect(&tests.TestProto{})

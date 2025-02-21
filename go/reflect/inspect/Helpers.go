@@ -4,6 +4,7 @@ import (
 	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/shared/go/types"
 	"reflect"
+	"strings"
 )
 
 func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _fieldName string) *types.RNode {
@@ -32,6 +33,11 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fie
 		clone.CachedKey = ""
 		nodePath := common.InspectNodeKey(clone)
 		this.pathToNode.Put(nodePath, clone)
+		if clone.Attributes != nil {
+			for k, v := range clone.Attributes {
+				this.pathToNode.Put(nodePath+"."+strings.ToLower(k), v)
+			}
+		}
 		return clone, true
 	}
 

@@ -110,9 +110,11 @@ func (this *Property) mapSet(myValue reflect.Value) (interface{}, error) {
 	typKey := info.Type()
 	if !myValue.IsValid() || myValue.IsNil() {
 		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
-		return myValue.Interface(), err
 	}
 	mapKey := reflect.ValueOf(this.key)
+	if !mapKey.IsValid() {
+		return myValue.Interface(), nil
+	}
 	oldMapValue := myValue.MapIndex(mapKey)
 	mapValue := reflect.ValueOf(this.value)
 	if this.introspector.Kind(this.node) == reflect.Struct && this.value == nil {

@@ -107,10 +107,6 @@ func (this *Property) PropertyId() (string, error) {
 		buff.Add(strings.ToLower(this.node.FieldName))
 	}
 	if this.key != nil {
-		if this.node.FieldName == "MyEnum" {
-			fmt.Println("key", this.key)
-			panic("")
-		}
 		keyStr := strings2.New()
 		keyStr.TypesPrefix = true
 		buff.Add("<")
