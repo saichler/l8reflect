@@ -110,6 +110,7 @@ func (this *Property) mapSet(myValue reflect.Value) (interface{}, error) {
 	typKey := info.Type()
 	if !myValue.IsValid() || myValue.IsNil() {
 		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
+		return myValue.Interface(), err
 	}
 	mapKey := reflect.ValueOf(this.key)
 	oldMapValue := myValue.MapIndex(mapKey)

@@ -86,6 +86,7 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsMap = true
+		subNode.KeyTypeName = _type.Key().Name()
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
 	} else {
