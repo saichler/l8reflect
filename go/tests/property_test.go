@@ -132,7 +132,29 @@ func TestSetMap(t *testing.T) {
 	}
 
 	prop, _ = property.PropertyOf("testproto.mystring2modelmap", _introspect)
-	prop.Set(aside, nil)
+	m := aside.MyString2ModelMap
+	_, _, err = prop.Set(aside, nil)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	if len(aside.MyString2ModelMap) != 0 {
+		log.Fail(t, "expected map to be empty")
+		return
+	}
+
+	_, _, err = prop.Set(aside, m)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	if len(aside.MyString2ModelMap) == 0 {
+		log.Fail(t, "expected map to be non-empty")
+		return
+	}
+
 }
 
 func TestInstance(t *testing.T) {

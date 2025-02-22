@@ -45,7 +45,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	}
 	typ := info.Type()
 	if this.node.IsMap {
-		v, e := this.mapSet(myValue)
+		v, e := this.mapSet(myValue, reflect.ValueOf(value))
 		return v, any, e
 	} else if this.node.IsSlice {
 		v, e := this.sliceSet(myValue)
@@ -69,7 +69,9 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		myValue.SetInt(reflect.ValueOf(value).Int())
 		return value, any, err
 	} else {
-		myValue.Set(reflect.ValueOf(value))
+		if value != nil {
+			myValue.Set(reflect.ValueOf(value))
+		}
 		return value, any, err
 	}
 }
@@ -101,7 +103,7 @@ func (this *Property) sliceSet(myValue reflect.Value) (interface{}, error) {
 	return sliceValue.Interface(), err
 }
 
-func (this *Property) mapSet(myValue reflect.Value) (interface{}, error) {
+func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (interface{}, error) {
 	info, err := this.introspector.Registry().Info(this.node.TypeName)
 	if err != nil {
 		return nil, err
@@ -115,8 +117,15 @@ func (this *Property) mapSet(myValue reflect.Value) (interface{}, error) {
 	if !myValue.IsValid() || myValue.IsNil() {
 		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
 	}
+
+	if newValue.IsValid() && myValue.Type() == newValue.Type() {
+		myValue.Set(newValue)
+		return myValue.Interface(), nil
+	}
+
 	mapKey := reflect.ValueOf(this.key)
 	if !mapKey.IsValid() {
+		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
 		return myValue.Interface(), nil
 	}
 	oldMapValue := myValue.MapIndex(mapKey)
