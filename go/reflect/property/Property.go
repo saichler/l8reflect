@@ -68,10 +68,16 @@ func (this *Property) setKeyValue(propertyId string) (string, error) {
 	if beIndex == -1 {
 		return "", nil
 	}
-	for dIndex < beIndex {
-		id = id[0:beIndex]
+
+	if dIndex > beIndex {
+		prefix := propertyId[0:dIndex]
+		return prefix, nil
+	}
+
+	bsIndex := strings.LastIndex(propertyId, "<")
+	if dIndex > bsIndex {
+		id = propertyId[:bsIndex]
 		dIndex = strings.LastIndex(id, ".")
-		beIndex = strings.LastIndex(id, ">")
 	}
 	prefix := propertyId[0:dIndex]
 	suffix := propertyId[dIndex+1:]
