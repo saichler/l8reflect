@@ -117,7 +117,7 @@ func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (int
 	if !myValue.IsValid() || myValue.IsNil() {
 		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
 	}
-
+	//comment
 	if newValue.IsValid() && myValue.Type() == newValue.Type() {
 		myValue.Set(newValue)
 		return myValue.Interface(), nil
