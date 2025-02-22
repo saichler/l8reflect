@@ -2,6 +2,7 @@ package property
 
 import (
 	"errors"
+	"github.com/saichler/shared/go/share/interfaces"
 	"github.com/saichler/shared/go/types"
 	"reflect"
 )
@@ -57,7 +58,17 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 				!v.IsNil() && v.Elem().Type().Name() == typ.Name() {
 				myValue.Set(reflect.ValueOf(value))
 			} else {
-				myValue.Set(reflect.New(typ))
+				newInstance := reflect.New(typ)
+				if v.Kind() == reflect.String {
+					serializer := info.Serializer(interfaces.STRING)
+					if serializer == nil {
+						inst, _ := serializer.Unmarshal([]byte(v.String()), typ.Name(), this.introspector.Registry())
+						if inst != nil {
+							newInstance = reflect.ValueOf(inst)
+						}
+					}
+				}
+				myValue.Set(newInstance)
 			}
 		}
 		return myValue.Interface(), any, err
