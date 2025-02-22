@@ -61,7 +61,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 				newInstance := reflect.New(typ)
 				if v.Kind() == reflect.String {
 					serializer := info.Serializer(interfaces.STRING)
-					if serializer == nil {
+					if serializer != nil {
 						inst, _ := serializer.Unmarshal([]byte(v.String()), typ.Name(), this.introspector.Registry())
 						if inst != nil {
 							newInstance = reflect.ValueOf(inst)
