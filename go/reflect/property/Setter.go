@@ -61,7 +61,11 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 			}
 		}
 		return myValue.Interface(), any, err
-	} else if reflect.ValueOf(value).Kind() == reflect.Int32 {
+	} else if reflect.ValueOf(value).Kind() == reflect.Int32 || myValue.Kind() == reflect.Int32 {
+		v := reflect.ValueOf(value)
+		if v.Kind() == reflect.String {
+			value = this.introspector.Registry().Enum(value.(string))
+		}
 		myValue.SetInt(reflect.ValueOf(value).Int())
 		return value, any, err
 	} else {

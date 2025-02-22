@@ -78,6 +78,26 @@ func TestPrimaryKey(t *testing.T) {
 		log.Fail(t, "wrong string: ", yside.MyString)
 		return
 	}
+
+	pid = "testproto.myenum"
+	prod, err := property.PropertyOf(pid, _introspect)
+	if err != nil {
+		log.Fail(t, "failed with property: ", err.Error())
+		return
+	}
+
+	_introspect.Registry().RegisterEnums(tests.TestEnum_value)
+
+	_, _, err = prod.Set(yside, "ValueOne")
+	if err != nil {
+		log.Fail(t, "failed with set: ", err.Error())
+		return
+	}
+
+	if yside.MyEnum != tests.TestEnum_ValueOne {
+		log.Fail(t, "wrong enum: ", yside.MyEnum)
+		return
+	}
 }
 
 func TestSetMap(t *testing.T) {
