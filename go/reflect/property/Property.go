@@ -2,7 +2,6 @@ package property
 
 import (
 	"errors"
-	"fmt"
 	"github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/shared/go/share/interfaces"
 	strings2 "github.com/saichler/shared/go/share/strings"
@@ -24,10 +23,6 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	property.parent = parent
 	property.node = node
 	property.key = key
-	if key == "" {
-		panic("")
-		fmt.Println("key", key)
-	}
 	property.value = value
 	property.introspector = introspector
 	return property
