@@ -1,9 +1,9 @@
 package common
 
 import (
-	"github.com/saichler/shared/go/share/interfaces"
 	strings2 "github.com/saichler/shared/go/share/strings"
-	"github.com/saichler/shared/go/types"
+	"github.com/saichler/types/go/common"
+	"github.com/saichler/types/go/types"
 	"reflect"
 	"strings"
 )
@@ -77,7 +77,7 @@ func InspectNodeKey(node *types.RNode) string {
 	return node.CachedKey
 }
 
-func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interfaces.IRegistry) interface{} {
+func PrimaryDecorator(node *types.RNode, value reflect.Value, registry common.IRegistry) interface{} {
 	fields := PrimaryDecoratorFields(node, registry)
 	if fields == nil || len(fields) == 0 {
 		return nil
@@ -91,7 +91,7 @@ func PrimaryDecorator(node *types.RNode, value reflect.Value, registry interface
 	return str.String()
 }
 
-func PrimaryDecoratorFields(node *types.RNode, registry interfaces.IRegistry) []string {
+func PrimaryDecoratorFields(node *types.RNode, registry common.IRegistry) []string {
 	decValue := node.Decorators[int32(types.DecoratorType_Primary)]
 	v, _ := strings2.InstanceOf(decValue, registry)
 	fields, ok := v.([]string)

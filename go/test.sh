@@ -9,7 +9,7 @@ rm -rf vendor
 
 # fetch dependencies
 go mod init
-GOPROXY=direct go mod tidy
+GOPROXY=direct GOPRIVATE=github.com go mod tidy
 go mod vendor
 
 # Run unit tests with coverage

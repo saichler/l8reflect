@@ -4,9 +4,9 @@ import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/clone"
 	"github.com/saichler/reflect/go/reflect/common"
-	"github.com/saichler/shared/go/share/interfaces"
 	"github.com/saichler/shared/go/share/maps"
-	"github.com/saichler/shared/go/types"
+	"github.com/saichler/types/go/common"
+	"github.com/saichler/types/go/types"
 	"reflect"
 	"strings"
 )
@@ -14,12 +14,12 @@ import (
 type Introspector struct {
 	pathToNode *RNodeMap
 	typeToNode *RNodeMap
-	registry   interfaces.IRegistry
+	registry   common.IRegistry
 	cloner     *clone.Cloner
 	tableViews *maps.SyncMap
 }
 
-func NewIntrospect(registry interfaces.IRegistry) *Introspector {
+func NewIntrospect(registry common.IRegistry) *Introspector {
 	instrospector := &Introspector{}
 	instrospector.registry = registry
 	instrospector.cloner = clone.NewCloner()
@@ -29,7 +29,7 @@ func NewIntrospect(registry interfaces.IRegistry) *Introspector {
 	return instrospector
 }
 
-func (this *Introspector) Registry() interfaces.IRegistry {
+func (this *Introspector) Registry() common.IRegistry {
 	return this.registry
 }
 
