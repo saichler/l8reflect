@@ -2,7 +2,7 @@ package updater
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/common"
+	common2 "github.com/saichler/reflect/go/reflect/common"
 	"github.com/saichler/reflect/go/reflect/property"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
@@ -41,7 +41,7 @@ func (this *Updater) Update(old, new interface{}) error {
 		return errors.New("cannot find node for type " + oldValue.Type().Name() + ", please register it")
 	}
 
-	pKey := common.PrimaryDecorator(node, oldValue, this.introspector.Registry())
+	pKey := common2.PrimaryDecorator(node, oldValue, this.introspector.Registry())
 	prop := property.NewProperty(node, nil, pKey, oldValue, this.introspector)
 	err := update(prop, node, oldValue, newValue, this)
 	return err
