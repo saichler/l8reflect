@@ -2,8 +2,8 @@ package updating
 
 import (
 	"errors"
-	common2 "github.com/saichler/reflect/go/reflect/common"
-	"github.com/saichler/reflect/go/reflect/property"
+	common2 "github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
 	"reflect"

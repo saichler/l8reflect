@@ -2,7 +2,7 @@ package introspecting
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/clone"
+	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/shared/go/share/maps"
 	"github.com/saichler/types/go/types"
@@ -14,7 +14,7 @@ type Introspector struct {
 	pathToNode *RNodeMap
 	typeToNode *RNodeMap
 	registry   helping.IRegistry
-	cloner     *clones.Cloner
+	cloner     *cloning.Cloner
 	tableViews *maps.SyncMap
 }
 

@@ -2,8 +2,8 @@ package updating
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/common"
-	"github.com/saichler/reflect/go/reflect/property"
+	"github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/types/go/types"
 	"reflect"
 )
@@ -142,7 +142,7 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 	//If this is a struct, we need to check if we need to do deep update
 	//and not just copy the new slice/map to the old slice/map
 	if updates.introspector.Kind(node) == reflect.Struct {
-		if utils.DeepDecorator(node) {
+		if helping.DeepDecorator(node) {
 			if node.IsSlice {
 				return deepSliceUpdate(instance, node, oldValue, newValue, updates)
 			} else if node.IsMap {
