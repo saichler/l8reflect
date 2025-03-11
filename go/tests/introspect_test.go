@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"github.com/saichler/reflect/go/reflect/inspect"
+	"github.com/saichler/reflect/go/reflect/introspecting
 	"github.com/saichler/shared/go/share/logger"
 	"github.com/saichler/shared/go/share/registry"
-	"github.com/saichler/shared/go/tests"
+	"github.com/saichler/types/go/testtypes"
 	"testing"
 	"time"
 )
@@ -13,9 +13,9 @@ var log = logger.NewLoggerDirectImpl(&logger.FmtLogMethod{})
 
 func TestIntrospect(t *testing.T) {
 	defer time.Sleep(time.Second)
-	m := &tests.TestProto{}
+	m := &testtypes.TestProto{}
 
-	in := inspect.NewIntrospect(registry.NewRegistry())
+	in := introspecting.NewIntrospect(registry.NewRegistry())
 
 	_, err := in.Inspect(m)
 	if err != nil {
@@ -48,7 +48,7 @@ func TestIntrospect(t *testing.T) {
 		return
 	}
 
-	_, ok = in.NodeByValue(&tests.TestProtoSub{})
+	_, ok = in.NodeByValue(&testtypes.TestProtoSub{})
 	if !ok {
 		log.Fail(t, "Could not fetch node by type")
 		return

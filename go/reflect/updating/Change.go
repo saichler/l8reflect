@@ -1,4 +1,4 @@
-package updater
+package updating
 
 import (
 	"github.com/saichler/reflect/go/reflect/property"
@@ -6,7 +6,7 @@ import (
 )
 
 type Change struct {
-	property *property.Property
+	property *properties.Property
 	oldValue interface{}
 	newValue interface{}
 }
@@ -40,7 +40,7 @@ func (this *Change) NewValue() interface{} {
 	return this.newValue
 }
 
-func NewChange(old, new interface{}, property *property.Property) *Change {
+func NewChange(old, new interface{}, property *properties.Property) *Change {
 	change := &Change{}
 	change.oldValue = old
 	change.newValue = new

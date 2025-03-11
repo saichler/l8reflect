@@ -2,13 +2,13 @@ package tests
 
 import (
 	"fmt"
-	"github.com/saichler/reflect/go/reflect/inspect"
-	"github.com/saichler/reflect/go/reflect/property"
-	"github.com/saichler/reflect/go/reflect/updater"
+	"github.com/saichler/reflect/go/reflect/introspecting"
+	"github.com/saichler/reflect/go/reflect/properties"
+	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
 	"github.com/saichler/shared/go/share/registry"
-	"github.com/saichler/shared/go/tests"
 	"github.com/saichler/types/go/common"
+	"github.com/saichler/types/go/testtypes"
 	"github.com/saichler/types/go/types"
 	"testing"
 	"time"
@@ -17,7 +17,7 @@ import (
 var _introspect common.IIntrospector
 
 func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
-	ins, err := property.PropertyOf(id, _introspect)
+	ins, err := properties.PropertyOf(id, _introspect)
 	if err != nil {
 		log.Fail(t, "failed with id: ", id, err.Error())
 		return nil, false
@@ -32,8 +32,8 @@ func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
 }
 
 func TestPrimaryKey(t *testing.T) {
-	_introspect = inspect.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&tests.TestProto{})
+	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -41,9 +41,9 @@ func TestPrimaryKey(t *testing.T) {
 	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
 	aside := utils.CreateTestModelInstance(1)
 	zside := utils.CreateTestModelInstance(1)
-	zside.MyEnum = tests.TestEnum_ValueTwo
+	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
-	upd := updater.NewUpdater(_introspect, false)
+	upd := updating.NewUpdater(_introspect, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, "failed with update: ", err.Error())
@@ -57,7 +57,7 @@ func TestPrimaryKey(t *testing.T) {
 	pid := upd.Changes()[0].PropertyId()
 	n := upd.Changes()[0].NewValue()
 
-	p, e := property.PropertyOf(pid, _introspect)
+	p, e := properties.PropertyOf(pid, _introspect)
 	if e != nil {
 		log.Fail(t, "failed with property: ", e.Error())
 		return
@@ -69,7 +69,7 @@ func TestPrimaryKey(t *testing.T) {
 		return
 	}
 
-	yside := root.(*tests.TestProto)
+	yside := root.(*testtypes.TestProto)
 	if yside.MyEnum != aside.MyEnum {
 		log.Fail(t, "wrong enum: ", yside.MyEnum)
 		return
@@ -80,13 +80,13 @@ func TestPrimaryKey(t *testing.T) {
 	}
 
 	pid = "testproto.myenum"
-	prod, err := property.PropertyOf(pid, _introspect)
+	prod, err := properties.PropertyOf(pid, _introspect)
 	if err != nil {
 		log.Fail(t, "failed with property: ", err.Error())
 		return
 	}
 
-	_introspect.Registry().RegisterEnums(tests.TestEnum_value)
+	_introspect.Registry().RegisterEnums(testtypes.TestEnum_value)
 
 	_, _, err = prod.Set(yside, "ValueOne")
 	if err != nil {
@@ -94,15 +94,15 @@ func TestPrimaryKey(t *testing.T) {
 		return
 	}
 
-	if yside.MyEnum != tests.TestEnum_ValueOne {
+	if yside.MyEnum != testtypes.TestEnum_ValueOne {
 		log.Fail(t, "wrong enum: ", yside.MyEnum)
 		return
 	}
 }
 
 func TestSetMap(t *testing.T) {
-	_introspect := inspect.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&tests.TestProto{})
+	_introspect := introspecting.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -111,8 +111,8 @@ func TestSetMap(t *testing.T) {
 	aside := utils.CreateTestModelInstance(1)
 	aside.MyString2ModelMap = nil
 	pid := "testproto<{24}root>.mystring2modelmap<{24}sub>.mystring"
-	//m:=tests.TestProtoSub{}
-	prop, err := property.PropertyOf(pid, _introspect)
+	//m:=testtypes.TestProtoSub{}
+	prop, err := properties.PropertyOf(pid, _introspect)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -131,7 +131,7 @@ func TestSetMap(t *testing.T) {
 		return
 	}
 
-	prop, _ = property.PropertyOf("testproto.mystring2modelmap", _introspect)
+	prop, _ = properties.PropertyOf("testproto.mystring2modelmap", _introspect)
 	m := aside.MyString2ModelMap
 	_, _, err = prop.Set(aside, nil)
 	if err != nil {
@@ -158,8 +158,8 @@ func TestSetMap(t *testing.T) {
 }
 
 func TestInstance(t *testing.T) {
-	_introspect = inspect.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&tests.TestProto{})
+	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -172,7 +172,7 @@ func TestInstance(t *testing.T) {
 		return
 	}
 
-	mytest := v.(*tests.TestProto)
+	mytest := v.(*testtypes.TestProto)
 	if mytest.MyString != "Hello" {
 		log.Fail(t, "wrong string: ", mytest.MyString)
 		return
@@ -191,7 +191,7 @@ func TestInstance(t *testing.T) {
 		return
 	}
 
-	mytest.MySingle = &tests.TestProtoSub{MyString: "Hello"}
+	mytest.MySingle = &testtypes.TestProtoSub{MyString: "Hello"}
 
 	id = "testproto.mysingle.mystring"
 	v, ok = propertyOf(id, mytest, t)
@@ -223,20 +223,20 @@ func TestInstance(t *testing.T) {
 }
 
 func TestSubStructProperty(t *testing.T) {
-	_introspect = inspect.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&tests.TestProto{})
+	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
+	node, err := _introspect.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
 	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
 
-	aside := &tests.TestProto{MyString: "Hello"}
-	zside := &tests.TestProto{MyString: "Hello"}
-	yside := &tests.TestProto{MyString: "Hello"}
-	zside.MySingle = &tests.TestProtoSub{MyInt64: time.Now().Unix()}
+	aside := &testtypes.TestProto{MyString: "Hello"}
+	zside := &testtypes.TestProto{MyString: "Hello"}
+	yside := &testtypes.TestProto{MyString: "Hello"}
+	zside.MySingle = &testtypes.TestProtoSub{MyInt64: time.Now().Unix()}
 
-	putUpdater := updater.NewUpdater(_introspect, false)
+	putUpdater := updating.NewUpdater(_introspect, false)
 
 	putUpdater.Update(aside, zside)
 

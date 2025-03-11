@@ -1,4 +1,4 @@
-package common
+package helping
 
 import (
 	strings2 "github.com/saichler/shared/go/share/strings"

@@ -1,4 +1,4 @@
-package inspect
+package introspecting
 
 import (
 	"github.com/saichler/shared/go/share/strings"

@@ -1,4 +1,4 @@
-package updater
+package updating
 
 import (
 	"errors"
@@ -42,12 +42,12 @@ func (this *Updater) Update(old, new interface{}) error {
 	}
 
 	pKey := common2.PrimaryDecorator(node, oldValue, this.introspector.Registry())
-	prop := property.NewProperty(node, nil, pKey, oldValue, this.introspector)
+	prop := properties.NewProperty(node, nil, pKey, oldValue, this.introspector)
 	err := update(prop, node, oldValue, newValue, this)
 	return err
 }
 
-func update(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func update(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !newValue.IsValid() {
 		return nil
 	}
@@ -63,7 +63,7 @@ func update(instance *property.Property, node *types.RNode, oldValue, newValue r
 	return comparator(instance, node, oldValue, newValue, updates)
 }
 
-func (this *Updater) addUpdate(prop *property.Property, oldValue, newValue interface{}) {
+func (this *Updater) addUpdate(prop *properties.Property, oldValue, newValue interface{}) {
 	if !this.isNilValid && newValue == nil {
 		return
 	}

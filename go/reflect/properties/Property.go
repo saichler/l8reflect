@@ -1,10 +1,9 @@
-package property
+package properties
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/common"
+	"github.com/saichler/reflect/go/reflect/helping"
 	strings2 "github.com/saichler/shared/go/share/strings"
-	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
 	"strings"
 )
@@ -15,10 +14,10 @@ type Property struct {
 	key          interface{}
 	value        interface{}
 	id           string
-	introspector common.IIntrospector
+	introspector helping.IIntrospector
 }
 
-func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector common.IIntrospector) *Property {
+func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector helping.IIntrospector) *Property {
 	property := &Property{}
 	property.parent = parent
 	property.node = node
@@ -28,8 +27,8 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	return property
 }
 
-func PropertyOf(propertyId string, introspector common.IIntrospector) (*Property, error) {
-	propertyKey := common.PropertyNodeKey(propertyId)
+func PropertyOf(propertyId string, introspector helping.IIntrospector) (*Property, error) {
+	propertyKey := helping.PropertyNodeKey(propertyId)
 	node, ok := introspector.Node(propertyKey)
 	if !ok {
 		return nil, errors.New("Unknown attribute " + propertyKey)
@@ -118,7 +117,7 @@ func (this *Property) PropertyId() (string, error) {
 	return this.id, nil
 }
 
-func newProperty(node *types.RNode, propertyPath string, introspector common.IIntrospector) (*Property, error) {
+func newProperty(node *types.RNode, propertyPath string, introspector helping.IIntrospector) (*Property, error) {
 	property := &Property{}
 	property.node = node
 	property.introspector = introspector

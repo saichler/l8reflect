@@ -1,7 +1,7 @@
-package inspect
+package introspecting
 
 import (
-	"github.com/saichler/reflect/go/reflect/common"
+	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/types/go/types"
 	"reflect"
 	"strings"
@@ -26,12 +26,12 @@ func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _f
 
 func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fieldName string) (*types.RNode, bool) {
 	exist, ok := this.typeToNode.Get(_type.Name())
-	if ok && !common.IsLeaf(exist) {
+	if ok && !helping.IsLeaf(exist) {
 		clone := this.cloner.Clone(exist).(*types.RNode)
 		clone.Parent = _parent
 		clone.FieldName = _fieldName
 		clone.CachedKey = ""
-		nodePath := common.InspectNodeKey(clone)
+		nodePath := helping.InspectNodeKey(clone)
 		this.pathToNode.Put(nodePath, clone)
 		if clone.Attributes != nil {
 			for k, v := range clone.Attributes {
@@ -42,7 +42,7 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fie
 	}
 
 	node := this.addAttribute(_parent, _type, _fieldName)
-	nodePath := common.InspectNodeKey(node)
+	nodePath := helping.InspectNodeKey(node)
 	_, ok = this.pathToNode.Get(nodePath)
 	if ok {
 		return nil, false
@@ -62,7 +62,7 @@ func (this *Introspector) inspectStruct(_type reflect.Type, _parent *types.RNode
 	this.registry.RegisterType(_type)
 	for index := 0; index < _type.NumField(); index++ {
 		field := _type.Field(index)
-		if common.IgnoreName(field.Name) {
+		if helping.IgnoreName(field.Name) {
 			continue
 		}
 		if field.Type.Kind() == reflect.Slice {

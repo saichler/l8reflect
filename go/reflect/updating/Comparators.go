@@ -1,4 +1,4 @@
-package updater
+package updating
 
 import (
 	"errors"
@@ -8,10 +8,10 @@ import (
 	"reflect"
 )
 
-var comparators map[reflect.Kind]func(*property.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error
+var comparators map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error
 
 func init() {
-	comparators = make(map[reflect.Kind]func(*property.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error)
+	comparators = make(map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error)
 	comparators[reflect.Int] = intUpdate
 	comparators[reflect.Int32] = intUpdate
 	comparators[reflect.Int64] = intUpdate
@@ -36,7 +36,7 @@ func init() {
 	comparators[reflect.Map] = sliceOrMapUpdate
 }
 
-func intUpdate(property *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func intUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.isNilValid) {
 		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -44,7 +44,7 @@ func intUpdate(property *property.Property, node *types.RNode, oldValue, newValu
 	return nil
 }
 
-func uintUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func uintUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.isNilValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -52,7 +52,7 @@ func uintUpdate(instance *property.Property, node *types.RNode, oldValue, newVal
 	return nil
 }
 
-func stringUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func stringUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.isNilValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -60,7 +60,7 @@ func stringUpdate(instance *property.Property, node *types.RNode, oldValue, newV
 	return nil
 }
 
-func boolUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if newValue.Bool() && !oldValue.Bool() || updates.isNilValid {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -68,7 +68,7 @@ func boolUpdate(instance *property.Property, node *types.RNode, oldValue, newVal
 	return nil
 }
 
-func floatUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func floatUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.isNilValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -76,7 +76,7 @@ func floatUpdate(instance *property.Property, node *types.RNode, oldValue, newVa
 	return nil
 }
 
-func ptrUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func ptrUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
@@ -93,14 +93,14 @@ func ptrUpdate(instance *property.Property, node *types.RNode, oldValue, newValu
 	return update(instance, node, oldValue.Elem(), newValue.Elem(), updates)
 }
 
-func structUpdate(prop *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func structUpdate(prop *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Type().Name() != newValue.Type().Name() {
 		return errors.New("Mismatch type, old=" + oldValue.Type().Name() + ", new=" + newValue.Type().Name())
 	}
 	for _, attr := range node.Attributes {
 		oldFldValue := oldValue.FieldByName(attr.FieldName)
 		newFldValue := newValue.FieldByName(attr.FieldName)
-		subInstance := property.NewProperty(attr, prop, nil, oldFldValue, updates.introspector)
+		subInstance := properties.NewProperty(attr, prop, nil, oldFldValue, updates.introspector)
 		err := update(subInstance, attr, oldFldValue, newFldValue, updates)
 		if err != nil {
 			return err
@@ -109,17 +109,17 @@ func structUpdate(prop *property.Property, node *types.RNode, oldValue, newValue
 	return nil
 }
 
-func deepSliceUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	//TODO - implement deep slice update
 	return nil
 }
 
-func deepMapUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	//TODO - implement deep map update
 	return nil
 }
 
-func sliceOrMapUpdate(instance *property.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
@@ -142,7 +142,7 @@ func sliceOrMapUpdate(instance *property.Property, node *types.RNode, oldValue, 
 	//If this is a struct, we need to check if we need to do deep update
 	//and not just copy the new slice/map to the old slice/map
 	if updates.introspector.Kind(node) == reflect.Struct {
-		if common.DeepDecorator(node) {
+		if utils.DeepDecorator(node) {
 			if node.IsSlice {
 				return deepSliceUpdate(instance, node, oldValue, newValue, updates)
 			} else if node.IsMap {

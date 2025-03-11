@@ -1,26 +1,26 @@
 package utils
 
 import (
-	"github.com/saichler/shared/go/tests"
+	"github.com/saichler/types/go/testtypes"
 	"strconv"
 	"time"
 )
 
-func CreateTestModelInstance(index int) *tests.TestProto {
+func CreateTestModelInstance(index int) *testtypes.TestProto {
 	tag := strconv.Itoa(index)
-	sub := &tests.TestProtoSub{
+	sub := &testtypes.TestProtoSub{
 		MyString: "string-sub-" + tag,
 		MyInt64:  time.Now().Unix(),
 	}
-	sub1 := &tests.TestProtoSub{
+	sub1 := &testtypes.TestProtoSub{
 		MyString: "string-sub-1-" + tag,
 		MyInt64:  time.Now().Unix(),
 	}
-	sub2 := &tests.TestProtoSub{
+	sub2 := &testtypes.TestProtoSub{
 		MyString: "string-sub-2-" + tag,
 		MyInt64:  time.Now().Unix(),
 	}
-	i := &tests.TestProto{
+	i := &testtypes.TestProto{
 		MyString:           "string-" + tag,
 		MyFloat64:          123456.123456,
 		MyBool:             true,
@@ -32,9 +32,9 @@ func CreateTestModelInstance(index int) *tests.TestProto {
 		MyInt32ToInt64Map:  map[int32]int64{1: 11, 2: 22, 3: 33, 4: 44, int32(index): int64(index * 10)},
 		MyString2StringMap: map[string]string{"a": "aa", "b": "bb", "c": "cc", tag: tag + tag},
 		MySingle:           sub,
-		MyModelSlice:       []*tests.TestProtoSub{sub1, sub2},
-		MyString2ModelMap:  map[string]*tests.TestProtoSub{sub1.MyString: sub1, sub2.MyString: sub2},
-		MyEnum:             tests.TestEnum_ValueOne,
+		MyModelSlice:       []*testtypes.TestProtoSub{sub1, sub2},
+		MyString2ModelMap:  map[string]*testtypes.TestProtoSub{sub1.MyString: sub1, sub2.MyString: sub2},
+		MyEnum:             testtypes.TestEnum_ValueOne,
 	}
 	return i
 }

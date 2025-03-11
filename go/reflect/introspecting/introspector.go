@@ -1,11 +1,10 @@
-package inspect
+package introspecting
 
 import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/clone"
-	"github.com/saichler/reflect/go/reflect/common"
+	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/shared/go/share/maps"
-	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
 	"reflect"
 	"strings"
@@ -14,22 +13,22 @@ import (
 type Introspector struct {
 	pathToNode *RNodeMap
 	typeToNode *RNodeMap
-	registry   common.IRegistry
-	cloner     *clone.Cloner
+	registry   helping.IRegistry
+	cloner     *clones.Cloner
 	tableViews *maps.SyncMap
 }
 
-func NewIntrospect(registry common.IRegistry) *Introspector {
+func NewIntrospect(registry helping.IRegistry) *Introspector {
 	instrospector := &Introspector{}
 	instrospector.registry = registry
-	instrospector.cloner = clone.NewCloner()
+	instrospector.cloner = clones.NewCloner()
 	instrospector.pathToNode = NewIntrospectNodeMap()
 	instrospector.typeToNode = NewIntrospectNodeMap()
 	instrospector.tableViews = maps.NewSyncMap()
 	return instrospector
 }
 
-func (this *Introspector) Registry() common.IRegistry {
+func (this *Introspector) Registry() helping.IRegistry {
 	return this.registry
 }
 
@@ -38,7 +37,7 @@ func (this *Introspector) Inspect(any interface{}) (*types.RNode, error) {
 		return nil, errors.New("Cannot introspect a nil value")
 	}
 
-	_, t := common.ValueAndType(any)
+	_, t := helping.ValueAndType(any)
 	if t.Kind() == reflect.Slice && t.Kind() == reflect.Map {
 		t = t.Elem().Elem()
 	}
@@ -75,10 +74,10 @@ func (this *Introspector) NodeByTypeName(name string) (*types.RNode, bool) {
 func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*types.RNode {
 	filter := func(any interface{}) bool {
 		n := any.(*types.RNode)
-		if onlyLeafs && !common.IsLeaf(n) {
+		if onlyLeafs && !helping.IsLeaf(n) {
 			return false
 		}
-		if onlyRoots && !common.IsRoot(n) {
+		if onlyRoots && !helping.IsRoot(n) {
 			return false
 		}
 		return true
@@ -102,7 +101,7 @@ func (this *Introspector) Clone(any interface{}) interface{} {
 func (this *Introspector) addTableView(node *types.RNode) {
 	tv := &types.TableView{Table: node, Columns: make([]*types.RNode, 0), SubTables: make([]*types.RNode, 0)}
 	for _, attr := range node.Attributes {
-		if common.IsLeaf(attr) {
+		if helping.IsLeaf(attr) {
 			tv.Columns = append(tv.Columns, attr)
 		} else {
 			tv.SubTables = append(tv.SubTables, attr)

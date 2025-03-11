@@ -2,26 +2,26 @@ package tests
 
 import (
 	"fmt"
-	"github.com/saichler/reflect/go/reflect/clone"
-	"github.com/saichler/reflect/go/reflect/inspect"
-	"github.com/saichler/reflect/go/reflect/updater"
+	"github.com/saichler/reflect/go/reflect/cloning"
+	"github.com/saichler/reflect/go/reflect/introspecting"
+	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
 	"github.com/saichler/shared/go/share/registry"
-	"github.com/saichler/shared/go/tests"
+	"github.com/saichler/types/go/testtypes"
 	"testing"
 )
 
 func TestUpdater(t *testing.T) {
-	in := inspect.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&tests.TestProto{})
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updater.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false)
 	aside := utils.CreateTestModelInstance(0)
-	zside := &tests.TestProto{MyString: "updated"}
-	uside := in.Clone(aside).(*tests.TestProto)
+	zside := &testtypes.TestProto{MyString: "updated"}
+	uside := in.Clone(aside).(*testtypes.TestProto)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -57,16 +57,16 @@ func TestUpdater(t *testing.T) {
 }
 
 func TestEnum(t *testing.T) {
-	in := inspect.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&tests.TestProto{})
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updater.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false)
 	aside := utils.CreateTestModelInstance(0)
-	zside := clone.NewCloner().Clone(aside).(*tests.TestProto)
-	zside.MyEnum = tests.TestEnum_ValueTwo
+	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
 	err = upd.Update(aside, zside)
 	if err != nil {
