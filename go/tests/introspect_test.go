@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"github.com/saichler/reflect/go/reflect/introspecting
+	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/shared/go/share/logger"
 	"github.com/saichler/shared/go/share/registry"
 	"github.com/saichler/types/go/testtypes"
