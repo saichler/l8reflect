@@ -78,3 +78,31 @@ func TestEnum(t *testing.T) {
 		return
 	}
 }
+
+func TestSubMap(t *testing.T) {
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+	upd := updating.NewUpdater(in, false)
+	aside := utils.CreateTestModelInstance(0)
+	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	zside.MySingle.MySubs["sub"].Int32Map[0]++
+
+	err = upd.Update(aside, zside)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	if zside.MySingle.MySubs["sub"].Int32Map[0] != aside.MySingle.MySubs["sub"].Int32Map[0] {
+		log.Fail(t, aside.MySingle.MySubs["sub"].Int32Map[0])
+		return
+	}
+
+	if len(upd.Changes()) == 0 {
+		log.Fail(t, "Expected changes")
+	}
+}

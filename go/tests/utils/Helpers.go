@@ -11,7 +11,12 @@ func CreateTestModelInstance(index int) *testtypes.TestProto {
 	sub := &testtypes.TestProtoSub{
 		MyString: "string-sub-" + tag,
 		MyInt64:  time.Now().Unix(),
+		MySubs:   make(map[string]*testtypes.TestProtoSubSub),
 	}
+	sub.MySubs["sub"] = &testtypes.TestProtoSubSub{MyString: "sub", Int32Map: make(map[int32]int32)}
+	sub.MySubs["sub"].Int32Map[0] = 0
+	sub.MySubs["sub"].Int32Map[1] = 0
+
 	sub1 := &testtypes.TestProtoSub{
 		MyString: "string-sub-1-" + tag,
 		MyInt64:  time.Now().Unix(),
@@ -19,7 +24,11 @@ func CreateTestModelInstance(index int) *testtypes.TestProto {
 	sub2 := &testtypes.TestProtoSub{
 		MyString: "string-sub-2-" + tag,
 		MyInt64:  time.Now().Unix(),
+		MySubs:   make(map[string]*testtypes.TestProtoSubSub),
 	}
+	sub2.MySubs["sub2"] = &testtypes.TestProtoSubSub{MyString: "sub2-string-sub", Int32Map: make(map[int32]int32)}
+	sub2.MySubs["sub2"].Int32Map[0] = 0
+	sub2.MySubs["sub2"].Int32Map[1] = 0
 	i := &testtypes.TestProto{
 		MyString:           "string-" + tag,
 		MyFloat64:          123456.123456,
