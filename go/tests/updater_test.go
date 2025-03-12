@@ -105,4 +105,6 @@ func TestSubMap(t *testing.T) {
 	if len(upd.Changes()) == 0 {
 		log.Fail(t, "Expected changes")
 	}
+
+	fmt.Println(upd.Changes()[0].PropertyId())
 }

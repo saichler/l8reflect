@@ -156,7 +156,7 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 
 	eq := reflect.DeepEqual(oldIns, newIns)
 	if !eq {
-		updates.addUpdate(instance, oldValue, newIns)
+		updates.addUpdate(instance, oldIns, newIns)
 		oldValue.Set(newValue)
 	}
 
