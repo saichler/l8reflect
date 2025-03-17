@@ -138,6 +138,9 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 	if oldValue.IsNil() && newValue.IsNil() {
 		return nil
 	}
+	if newValue.IsNil() && !updates.isNilValid {
+		return nil
+	}
 
 	//If this is a struct, we need to check if we need to do deep update
 	//and not just copy the new slice/map to the old slice/map

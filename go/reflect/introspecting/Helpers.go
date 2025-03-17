@@ -59,6 +59,7 @@ func (this *Introspector) inspectStruct(_type reflect.Type, _parent *types.RNode
 	if isClone {
 		return localNode
 	}
+	localNode.IsStruct = true
 	this.registry.RegisterType(_type)
 	for index := 0; index < _type.NumField(); index++ {
 		field := _type.Field(index)
@@ -92,6 +93,7 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsMap = true
+		subNode.IsStruct = true
 		subNode.KeyTypeName = _type.Key().Name()
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
@@ -106,6 +108,7 @@ func (this *Introspector) inspectSlice(_type reflect.Type, _parent *types.RNode,
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsSlice = true
+		subNode.IsStruct = true
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
 	} else {
