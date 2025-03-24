@@ -61,6 +61,9 @@ func stringUpdate(instance *properties.Property, node *types.RNode, oldValue, ne
 }
 
 func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+	if newValue.Bool() == oldValue.Bool() {
+		return nil
+	}
 	if newValue.Bool() && !oldValue.Bool() || updates.isNilValid {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
