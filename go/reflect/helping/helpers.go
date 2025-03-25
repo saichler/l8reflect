@@ -100,11 +100,3 @@ func PrimaryDecoratorFields(node *types.RNode, registry common.IRegistry) []stri
 	}
 	return fields
 }
-
-func DeepDecorator(node *types.RNode) bool {
-	decValue := node.Decorators[int32(types.DecoratorType_Deep)]
-	if decValue == "" {
-		return false
-	}
-	return true
-}

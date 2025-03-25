@@ -17,7 +17,10 @@ func addDecorator(decoratorType types.DecoratorType, any interface{}, node *type
 
 func decoratorOf(decoratorType types.DecoratorType, node *types.RNode) interface{} {
 	decValue := node.Decorators[int32(decoratorType)]
-	v, _ := strings.InstanceOf(decValue, nil)
+	v, err := strings.InstanceOf(decValue, nil)
+	if err != nil {
+		panic(err)
+	}
 	return v
 }
 
@@ -33,6 +36,10 @@ func AddDeepDecorator(rnode *types.RNode) {
 	addDecorator(types.DecoratorType_Deep, "true", rnode)
 }
 
-func DeepDecorator(rnode *types.RNode) interface{} {
-	return decoratorOf(types.DecoratorType_Deep, rnode)
+func DeepDecorator(rnode *types.RNode) bool {
+	dec, _ := decoratorOf(types.DecoratorType_Deep, rnode).(string)
+	if dec != "" {
+		return true
+	}
+	return false
 }
