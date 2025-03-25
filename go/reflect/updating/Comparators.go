@@ -127,7 +127,7 @@ func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, n
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
 			oldValue.SetMapIndex(key, newKeyValue)
 		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
-			subProperty := properties.NewProperty(node, instance, key.Interface(), newKeyValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent(), key.Interface(), newKeyValue.Interface(), updates.introspector)
 			structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
 		}
 	}

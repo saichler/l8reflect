@@ -4,7 +4,6 @@ import (
 	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/types/go/types"
 	"reflect"
-	"strings"
 )
 
 func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _fieldName string) *types.RNode {
@@ -24,20 +23,24 @@ func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _f
 	return subNode
 }
 
+func (this *Introspector) fixClone(clone *types.RNode, parent *types.RNode, fieldName string) {
+	clone.Parent = parent
+	clone.FieldName = fieldName
+	clone.CachedKey = ""
+	nodePath := helping.InspectNodeKey(clone)
+	this.pathToNode.Put(nodePath, clone)
+	if clone.Attributes != nil {
+		for k, v := range clone.Attributes {
+			this.fixClone(v, clone, k)
+		}
+	}
+}
+
 func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fieldName string) (*types.RNode, bool) {
 	exist, ok := this.typeToNode.Get(_type.Name())
 	if ok && !helping.IsLeaf(exist) {
 		clone := this.cloner.Clone(exist).(*types.RNode)
-		clone.Parent = _parent
-		clone.FieldName = _fieldName
-		clone.CachedKey = ""
-		nodePath := helping.InspectNodeKey(clone)
-		this.pathToNode.Put(nodePath, clone)
-		if clone.Attributes != nil {
-			for k, v := range clone.Attributes {
-				this.pathToNode.Put(nodePath+"."+strings.ToLower(k), v)
-			}
-		}
+		this.fixClone(clone, _parent, _fieldName)
 		return clone, true
 	}
 
