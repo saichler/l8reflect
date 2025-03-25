@@ -5,7 +5,7 @@ import (
 	"github.com/saichler/types/go/types"
 )
 
-func (this *Introspector) addDecorator(decoratorType types.DecoratorType, any interface{}, node *types.RNode) {
+func addDecorator(decoratorType types.DecoratorType, any interface{}, node *types.RNode) {
 	s := strings.New()
 	s.TypesPrefix = true
 	str := s.StringOf(any)
@@ -15,24 +15,24 @@ func (this *Introspector) addDecorator(decoratorType types.DecoratorType, any in
 	node.Decorators[int32(decoratorType)] = str
 }
 
-func (this *Introspector) decoratorOf(decoratorType types.DecoratorType, node *types.RNode) interface{} {
+func decoratorOf(decoratorType types.DecoratorType, node *types.RNode) interface{} {
 	decValue := node.Decorators[int32(decoratorType)]
-	v, _ := strings.InstanceOf(decValue, this.registry)
+	v, _ := strings.InstanceOf(decValue, nil)
 	return v
 }
 
-func (this *Introspector) AddPrimaryKeyDecorator(rnode *types.RNode, fields ...string) {
-	this.addDecorator(types.DecoratorType_Primary, fields, rnode)
+func AddPrimaryKeyDecorator(rnode *types.RNode, fields ...string) {
+	addDecorator(types.DecoratorType_Primary, fields, rnode)
 }
 
-func (this *Introspector) PrimaryKeyDecorator(rnode *types.RNode) interface{} {
-	return this.decoratorOf(types.DecoratorType_Primary, rnode)
+func PrimaryKeyDecorator(rnode *types.RNode) interface{} {
+	return decoratorOf(types.DecoratorType_Primary, rnode)
 }
 
-func (this *Introspector) AddDeepDecorator(rnode *types.RNode) {
-	this.addDecorator(types.DecoratorType_Deep, "true", rnode)
+func AddDeepDecorator(rnode *types.RNode) {
+	addDecorator(types.DecoratorType_Deep, "true", rnode)
 }
 
-func (this *Introspector) DeepDecorator(rnode *types.RNode) interface{} {
-	return this.decoratorOf(types.DecoratorType_Deep, rnode)
+func DeepDecorator(rnode *types.RNode) interface{} {
+	return decoratorOf(types.DecoratorType_Deep, rnode)
 }

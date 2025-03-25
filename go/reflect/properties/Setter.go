@@ -2,6 +2,7 @@ package properties
 
 import (
 	"errors"
+	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
 	"reflect"
@@ -173,7 +174,7 @@ func (this *Property) SetPrimaryKey(node *types.RNode, any interface{}, anyKey i
 		value = value.Elem()
 	}
 
-	f := this.introspector.PrimaryKeyDecorator(node)
+	f := introspecting.PrimaryKeyDecorator(node)
 	if f != nil {
 		fields := f.([]string)
 		for i, attr := range fields {
