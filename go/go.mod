@@ -3,8 +3,8 @@ module github.com/saichler/reflect/go
 go 1.23.2
 
 require (
-	github.com/saichler/shared/go v0.0.0-20250311194431-666c46978b49
-	github.com/saichler/types/go v0.0.0-20250317151948-b4989260e7d5
+	github.com/saichler/shared/go v0.0.0-20250325020725-e996ba087e15
+	github.com/saichler/types/go v0.0.0-20250325134933-86c939284dcb
 )
 
 require (

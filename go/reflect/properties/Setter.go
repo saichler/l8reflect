@@ -173,7 +173,7 @@ func (this *Property) SetPrimaryKey(node *types.RNode, any interface{}, anyKey i
 		value = value.Elem()
 	}
 
-	f := this.introspector.DecoratorOf(types.DecoratorType_Primary, node)
+	f := this.introspector.PrimaryKeyDecorator(node)
 	if f != nil {
 		fields := f.([]string)
 		for i, attr := range fields {

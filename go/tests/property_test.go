@@ -9,7 +9,6 @@ import (
 	"github.com/saichler/shared/go/share/registry"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/testtypes"
-	"github.com/saichler/types/go/types"
 	"testing"
 	"time"
 )
@@ -38,7 +37,7 @@ func TestPrimaryKey(t *testing.T) {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
-	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	_introspect.AddPrimaryKeyDecorator(node, "MyString")
 	aside := utils.CreateTestModelInstance(1)
 	zside := utils.CreateTestModelInstance(1)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
@@ -107,7 +106,7 @@ func TestSetMap(t *testing.T) {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
-	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	_introspect.AddPrimaryKeyDecorator(node, "MyString")
 	aside := utils.CreateTestModelInstance(1)
 	aside.MyString2ModelMap = nil
 	pid := "testproto<{24}root>.mystring2modelmap<{24}sub>.mystring"
@@ -164,7 +163,7 @@ func TestInstance(t *testing.T) {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
-	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	_introspect.AddPrimaryKeyDecorator(node, "MyString")
 
 	id := "testproto<{24}Hello>"
 	v, ok := propertyOf(id, nil, t)
@@ -229,7 +228,7 @@ func TestSubStructProperty(t *testing.T) {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
 	}
-	_introspect.AddDecorator(types.DecoratorType_Primary, []string{"MyString"}, node)
+	_introspect.AddPrimaryKeyDecorator(node, "MyString")
 
 	aside := &testtypes.TestProto{MyString: "Hello"}
 	zside := &testtypes.TestProto{MyString: "Hello"}
