@@ -113,12 +113,24 @@ func structUpdate(prop *properties.Property, node *types.RNode, oldValue, newVal
 }
 
 func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	//TODO - implement deep slice update
-	return nil
+	panic("Implement me")
 }
 
 func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	//TODO - implement deep map update
+	newKeys := newValue.MapKeys()
+	for _, key := range newKeys {
+		oldKeyValue := oldValue.MapIndex(key)
+		newKeyValue := newValue.MapIndex(key)
+		if !oldKeyValue.IsValid() ||
+			(oldKeyValue.Kind() == reflect.Ptr && oldKeyValue.IsNil()) {
+			subProperty := properties.NewProperty(node, instance, key.Interface(), newKeyValue.Interface(), updates.introspector)
+			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
+			oldValue.SetMapIndex(key, newKeyValue)
+		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
+			subProperty := properties.NewProperty(node, instance, key.Interface(), newKeyValue.Interface(), updates.introspector)
+			structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
+		}
+	}
 	return nil
 }
 
@@ -147,7 +159,7 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 
 	//If this is a struct, we need to check if we need to do deep update
 	//and not just copy the new slice/map to the old slice/map
-	if updates.introspector.Kind(node) == reflect.Struct {
+	if node.IsStruct {
 		if introspecting.DeepDecorator(node) {
 			if node.IsSlice {
 				return deepSliceUpdate(instance, node, oldValue, newValue, updates)

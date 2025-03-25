@@ -108,3 +108,74 @@ func TestSubMap(t *testing.T) {
 
 	fmt.Println(upd.Changes()[0].PropertyId())
 }
+
+func TestSubMapDeep(t *testing.T) {
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
+	rnode, _ := in.Node("testproto.mystring2modelmap")
+	introspecting.AddDeepDecorator(rnode)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+	upd := updating.NewUpdater(in, false)
+	aside := utils.CreateTestModelInstance(0)
+	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+
+	err = upd.Update(aside, zside)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	newone := aside.MyString2ModelMap["newone"]
+	if newone == nil {
+		log.Fail(t, "new one is nil")
+		return
+	}
+
+	for _, chg := range upd.Changes() {
+		fmt.Println(chg.PropertyId())
+		chg.Apply(yside)
+	}
+
+	newone = yside.MyString2ModelMap["newone"]
+	if newone == nil {
+		log.Fail(t, "new one is nil")
+		return
+	}
+
+	aside = utils.CreateTestModelInstance(0)
+	zside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	yside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	aside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	
+	zside.MyString2ModelMap["newone"].MyString = "newer"
+	upd = updating.NewUpdater(in, false)
+	err = upd.Update(aside, zside)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	newone = aside.MyString2ModelMap["newone"]
+	if newone.MyString != "newer" {
+		log.Fail(t, "Expected newer")
+		return
+	}
+
+	for _, chg := range upd.Changes() {
+		fmt.Println(chg.PropertyId())
+		chg.Apply(yside)
+	}
+
+	newone = yside.MyString2ModelMap["newone"]
+	if newone.MyString != "newer" {
+		log.Fail(t, "expected newer")
+		return
+	}
+}
