@@ -95,6 +95,9 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _
 		subNode.IsMap = true
 		subNode.IsStruct = true
 		subNode.KeyTypeName = _type.Key().Name()
+		if _parent.Attributes == nil {
+			_parent.Attributes = make(map[string]*types.RNode)
+		}
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
 	} else {
@@ -109,6 +112,9 @@ func (this *Introspector) inspectSlice(_type reflect.Type, _parent *types.RNode,
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsSlice = true
 		subNode.IsStruct = true
+		if _parent.Attributes == nil {
+			_parent.Attributes = make(map[string]*types.RNode)
+		}
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
 	} else {
