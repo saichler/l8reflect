@@ -2,6 +2,7 @@ package updating
 
 import (
 	"errors"
+	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/types/go/types"
@@ -9,6 +10,7 @@ import (
 )
 
 var comparators map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error
+var deepEqual = cloning.NewDeepEqual()
 
 func init() {
 	comparators = make(map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error)
@@ -127,6 +129,9 @@ func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, n
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
 			oldValue.SetMapIndex(key, newKeyValue)
 		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
+			if deepEqual.Equal(oldKeyValue.Interface(), newKeyValue.Interface()) {
+				continue
+			}
 			subProperty := properties.NewProperty(node, instance.Parent(), key.Interface(), newKeyValue.Interface(), updates.introspector)
 			structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
 		}
@@ -172,8 +177,7 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 	oldIns := oldValue.Interface()
 	newIns := newValue.Interface()
 
-	eq := reflect.DeepEqual(oldIns, newIns)
-	if !eq {
+	if !deepEqual.Equal(oldIns, newIns) {
 		updates.addUpdate(instance, oldIns, newIns)
 		oldValue.Set(newValue)
 	}

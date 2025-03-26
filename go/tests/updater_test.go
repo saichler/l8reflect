@@ -7,6 +7,7 @@ import (
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
+	"github.com/saichler/serializer/go/serialize/object"
 	"github.com/saichler/shared/go/share/registry"
 	"github.com/saichler/types/go/testtypes"
 	"testing"
@@ -32,10 +33,9 @@ func TestUpdater(t *testing.T) {
 	changes := upd.Changes()
 
 	if len(changes) != 1 {
-		t.Fail()
-		fmt.Println("Expected 1 change but got ", len(upd.Changes()))
+		log.Fail(t, "Expected 1 change but got ", len(upd.Changes()))
 		for _, c := range changes {
-			fmt.Println(c.String())
+			log.Info(c.String())
 		}
 		return
 	}
@@ -249,6 +249,112 @@ func TestSubMapDeep(t *testing.T) {
 	val = xside.MyString2ModelMap["newone"].MySubs["newsub"].MyString
 	if val != "newersub" {
 		log.Fail(t, "expected newersub")
+		return
+	}
+}
+
+func checkEQ(aside, zside interface{}, t *testing.T) bool {
+	de := cloning.NewDeepEqual()
+	if de.Equal(aside, zside) {
+		log.Info("Equale")
+		return true
+	} else {
+		log.Fail(t, "Not Equale")
+		log.Error(aside)
+		log.Error(zside)
+	}
+	return false
+}
+
+func TestSubMapDeepAlwaysChanging(t *testing.T) {
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
+
+	rnode, _ := in.Node("testproto.mystring2modelmap")
+	introspecting.AddDeepDecorator(rnode)
+
+	/*
+		rnode, _ = in.Node("testproto.mystring2modelmap.mysubs")
+		introspecting.AddDeepDecorator(rnode)
+
+		rnode, _ = in.Node("testproto.mystring2modelmap.mysubs.mystring")
+		introspecting.AddDeepDecorator(rnode)
+	*/
+
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	aside := utils.CreateTestModelInstance(0)
+	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	xside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+
+	zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	aside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+	xside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+
+	zside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+	aside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+	yside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+	xside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+
+	zside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+	aside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+	aside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+	yside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+	yside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+	xside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+	xside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+
+	if !checkEQ(zside.MyString2ModelMap, xside.MyString2ModelMap, t) {
+		log.Fail(t, "Init data isn't good")
+		return
+	}
+
+	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
+
+	upd := updating.NewUpdater(in, false)
+	err = upd.Update(aside, zside)
+
+	if len(upd.Changes()) == 0 {
+		log.Fail(t, "Expected changes")
+		return
+	}
+
+	for _, chg := range upd.Changes() {
+		chg.Apply(yside)
+		prop, e := properties.PropertyOf(chg.PropertyId(), in)
+		if e != nil {
+			panic(e)
+		}
+		obj := object.NewEncode([]byte{}, 0)
+		obj.Add(chg.NewValue())
+		data := obj.Data()
+		obj = object.NewDecode(data, 0, "", in.Registry())
+		val, e := obj.Get()
+		fmt.Println(val)
+		_, _, e = prop.Set(xside, val)
+		if e != nil {
+			panic(e)
+		}
+	}
+
+	if !checkEQ(zside.MyString2ModelMap, aside.MyString2ModelMap, t) {
+		log.Fail(t, "Not EQ aside")
+		return
+	}
+
+	if !checkEQ(zside.MyString2ModelMap, yside.MyString2ModelMap, t) {
+		log.Fail(t, "Not EQ yside")
+		return
+	}
+
+	if !checkEQ(zside.MyString2ModelMap, xside.MyString2ModelMap, t) {
+		log.Fail(t, "Not EQ xside")
 		return
 	}
 }
