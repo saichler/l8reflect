@@ -115,7 +115,24 @@ func structUpdate(prop *properties.Property, node *types.RNode, oldValue, newVal
 }
 
 func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	panic("Implement me")
+	if oldValue.Len() != newValue.Len() {
+		oldValue.Set(newValue)
+		updates.addUpdate(instance, oldValue, newValue)
+		return nil
+	}
+	for i := 0; i < oldValue.Len(); i++ {
+		oldIndexValue := oldValue.Index(i)
+		newIndexValue := newValue.Index(i)
+		if oldIndexValue.IsValid() && newIndexValue.IsValid() {
+			if deepEqual.Equal(oldIndexValue.Interface(), newIndexValue.Interface()) {
+				continue
+			}
+			subProperty := properties.NewProperty(node, instance.Parent(), i, newIndexValue.Interface(), updates.introspector)
+			err := structUpdate(subProperty, node, oldIndexValue.Elem(), newIndexValue.Elem(), updates)
+			return err
+		}
+	}
+	return nil
 }
 
 func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
@@ -133,9 +150,22 @@ func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, n
 				continue
 			}
 			subProperty := properties.NewProperty(node, instance.Parent(), key.Interface(), newKeyValue.Interface(), updates.introspector)
-			structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
+			err := structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
+			return err
 		}
 	}
+
+	oldKeys := oldValue.MapKeys()
+	for _, key := range oldKeys {
+		newKeyValue := newValue.MapIndex(key)
+		oldKeyValue := oldValue.MapIndex(key)
+		if !newKeyValue.IsValid() {
+			subProperty := properties.NewProperty(node, instance, key.Interface(), newKeyValue.Interface(), updates.introspector)
+			updates.addUpdate(subProperty, oldKeyValue.Interface(), nil)
+			oldValue.SetMapIndex(key, reflect.Value{})
+		}
+	}
+
 	return nil
 }
 
@@ -162,10 +192,12 @@ func sliceOrMapUpdate(instance *properties.Property, node *types.RNode, oldValue
 		return nil
 	}
 
-	//If this is a struct, we need to check if we need to do deep update
-	//and not just copy the new slice/map to the old slice/map
 	if node.IsStruct {
-		if introspecting.DeepDecorator(node) {
+		//By default we do nested inspection of map & slices when the node is struct
+		//it is possible to disable that with a decorator so map & slice
+		//will be copied fully if not eq
+		noDeepInspection := introspecting.NoNestedInspection(node)
+		if !noDeepInspection {
 			if node.IsSlice {
 				return deepSliceUpdate(instance, node, oldValue, newValue, updates)
 			} else if node.IsMap {

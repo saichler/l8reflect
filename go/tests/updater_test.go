@@ -114,15 +114,6 @@ func TestSubMapDeep(t *testing.T) {
 	in := introspecting.NewIntrospect(registry.NewRegistry())
 	_, err := in.Inspect(&testtypes.TestProto{})
 
-	rnode, _ := in.Node("testproto.mystring2modelmap")
-	introspecting.AddDeepDecorator(rnode)
-
-	rnode, _ = in.Node("testproto.mystring2modelmap.mysubs")
-	introspecting.AddDeepDecorator(rnode)
-
-	rnode, _ = in.Node("testproto.mystring2modelmap.mysubs.mystring")
-	introspecting.AddDeepDecorator(rnode)
-
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -269,17 +260,6 @@ func checkEQ(aside, zside interface{}, t *testing.T) bool {
 func TestSubMapDeepAlwaysChanging(t *testing.T) {
 	in := introspecting.NewIntrospect(registry.NewRegistry())
 	_, err := in.Inspect(&testtypes.TestProto{})
-
-	rnode, _ := in.Node("testproto.mystring2modelmap")
-	introspecting.AddDeepDecorator(rnode)
-
-	/*
-		rnode, _ = in.Node("testproto.mystring2modelmap.mysubs")
-		introspecting.AddDeepDecorator(rnode)
-
-		rnode, _ = in.Node("testproto.mystring2modelmap.mysubs.mystring")
-		introspecting.AddDeepDecorator(rnode)
-	*/
 
 	if err != nil {
 		log.Fail(t, err.Error())

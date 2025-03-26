@@ -32,12 +32,12 @@ func PrimaryKeyDecorator(rnode *types.RNode) interface{} {
 	return decoratorOf(types.DecoratorType_Primary, rnode)
 }
 
-func AddDeepDecorator(rnode *types.RNode) {
-	addDecorator(types.DecoratorType_Deep, "true", rnode)
+func AddNoNestedInspection(rnode *types.RNode) {
+	addDecorator(types.DecoratorType_NoNestedInspection, "t", rnode)
 }
 
-func DeepDecorator(rnode *types.RNode) bool {
-	dec, _ := decoratorOf(types.DecoratorType_Deep, rnode).(string)
+func NoNestedInspection(rnode *types.RNode) bool {
+	dec, _ := decoratorOf(types.DecoratorType_NoNestedInspection, rnode).(string)
 	if dec != "" {
 		return true
 	}
