@@ -1,14 +1,14 @@
 module github.com/saichler/reflect/go
 
-go 1.23.2
+go 1.24.1
 
 require (
-	github.com/saichler/serializer/go v0.0.0-20250312171751-f16ab3ede337
-	github.com/saichler/shared/go v0.0.0-20250325020725-e996ba087e15
-	github.com/saichler/types/go v0.0.0-20250326132210-ce876b6f72ae
+	github.com/saichler/serializer/go v0.0.0-20250327160353-103bfec50ff3
+	github.com/saichler/shared/go v0.0.0-20250327144546-dc40bb3ea146
+	github.com/saichler/types/go v0.0.0-20250327153211-3c77946114ce
 )
 
 require (
 	github.com/google/uuid v1.6.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )

@@ -314,7 +314,7 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 		obj := object.NewEncode([]byte{}, 0)
 		obj.Add(chg.NewValue())
 		data := obj.Data()
-		obj = object.NewDecode(data, 0, "", in.Registry())
+		obj = object.NewDecode(data, 0, in.Registry())
 		val, e := obj.Get()
 		fmt.Println(val)
 		_, _, e = prop.Set(xside, val)
