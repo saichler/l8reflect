@@ -128,7 +128,14 @@ func (this *Property) Get(any interface{}) (interface{}, error) {
 	if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
 		return nil, nil
 	}
-	return values[0].Interface(), nil
+	if len(values) == 1 {
+		return values[0].Interface(), nil
+	}
+	result := make([]interface{}, len(values))
+	for i, v := range values {
+		result[i] = v.Interface()
+	}
+	return result, nil
 }
 
 func (this *Property) GetAsValues(any interface{}) []reflect.Value {
