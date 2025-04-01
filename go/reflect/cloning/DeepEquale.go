@@ -1,7 +1,6 @@
 package cloning
 
 import (
-	"fmt"
 	"reflect"
 )
 
@@ -172,7 +171,6 @@ func (this *DeepEqual) mapComp(aSideValue, zSideValue reflect.Value) bool {
 		zSideV := zSideValue.MapIndex(key)
 		eq := this.equal(aSideV, zSideV)
 		if !eq {
-			fmt.Println(aSideV.Interface(), ":", zSideV.Interface())
 			return false
 		}
 	}
