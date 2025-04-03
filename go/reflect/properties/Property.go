@@ -37,7 +37,7 @@ func PropertyOf(propertyId string, introspector common.IIntrospector) (*Property
 	return newProperty(node, propertyId, introspector)
 }
 
-func (this *Property) Parent() *Property {
+func (this *Property) Parent() common.IProperty {
 	return this.parent
 }
 

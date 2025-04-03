@@ -127,7 +127,7 @@ func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue,
 			if deepEqual.Equal(oldIndexValue.Interface(), newIndexValue.Interface()) {
 				continue
 			}
-			subProperty := properties.NewProperty(node, instance.Parent(), i, newIndexValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), i, newIndexValue.Interface(), updates.introspector)
 			err := structUpdate(subProperty, node, oldIndexValue.Elem(), newIndexValue.Elem(), updates)
 			return err
 		}
@@ -142,14 +142,14 @@ func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, n
 		newKeyValue := newValue.MapIndex(key)
 		if !oldKeyValue.IsValid() ||
 			(oldKeyValue.Kind() == reflect.Ptr && oldKeyValue.IsNil()) {
-			subProperty := properties.NewProperty(node, instance.Parent(), key.Interface(), newKeyValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.introspector)
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
 			oldValue.SetMapIndex(key, newKeyValue)
 		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
 			if deepEqual.Equal(oldKeyValue.Interface(), newKeyValue.Interface()) {
 				continue
 			}
-			subProperty := properties.NewProperty(node, instance.Parent(), key.Interface(), newKeyValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.introspector)
 			err := structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
 			return err
 		}
