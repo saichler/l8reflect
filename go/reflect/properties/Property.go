@@ -6,6 +6,7 @@ import (
 	strings2 "github.com/saichler/shared/go/share/strings"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
+	"reflect"
 	"strings"
 )
 
@@ -88,6 +89,13 @@ func (this *Property) setKeyValue(propertyId string) (string, error) {
 	}
 	this.key = k.Interface()
 	return prefix, nil
+}
+
+func (this *Property) IsString() bool {
+	if this.node.TypeName == reflect.String.String() {
+		return true
+	}
+	return false
 }
 
 func (this *Property) PropertyId() (string, error) {
