@@ -126,6 +126,7 @@ func (this *Property) sliceSet(myValue reflect.Value) (interface{}, error) {
 
 func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (interface{}, error) {
 	info, err := this.introspector.Registry().Info(this.node.TypeName)
+
 	if err != nil {
 		return nil, err
 	}
@@ -151,14 +152,18 @@ func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (int
 	}
 	oldMapValue := myValue.MapIndex(mapKey)
 	mapValue := reflect.ValueOf(this.value)
-	if this.introspector.Kind(this.node) == reflect.Struct && this.value == nil {
+	if this.node.IsStruct && this.value == nil {
 		if oldMapValue.IsValid() && !oldMapValue.IsNil() {
 			mapValue = oldMapValue
 		} else {
 			mapValue = reflect.New(typ)
 		}
 	}
-	myValue.SetMapIndex(mapKey, mapValue)
+	if newValue.Kind() == reflect.Ptr && newValue.Elem().Type().Name() == this.node.TypeName {
+		myValue.SetMapIndex(mapKey, newValue)
+	} else {
+		myValue.SetMapIndex(mapKey, mapValue)
+	}
 	return mapValue.Interface(), err
 }
 

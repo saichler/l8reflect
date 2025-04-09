@@ -338,3 +338,159 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 		return
 	}
 }
+
+func TestSubMapAdd(t *testing.T) {
+	in := introspecting.NewIntrospect(registry.NewRegistry())
+	_, err := in.Inspect(&testtypes.TestProto{})
+
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	key1 := "lv1"
+	key2 := "lv2"
+	key3 := "newone"
+
+	upd := updating.NewUpdater(in, false)
+	aside := utils.CreateTestModelInstance(0)
+	aside.MyString2ModelMap[key1] = &testtypes.TestProtoSub{MyString: key1}
+	aside.MyString2ModelMap[key1].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+	aside.MyString2ModelMap[key1].MySubs[key2] = &testtypes.TestProtoSubSub{MyString: key2}
+	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	xside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	zside.MyString2ModelMap[key1].MySubs[key3] = &testtypes.TestProtoSubSub{MyString: key3}
+
+	err = upd.Update(aside, zside)
+	if err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+
+	newone := aside.MyString2ModelMap[key1].MySubs[key3]
+	if newone == nil {
+		log.Fail(t, "new one is nil")
+		return
+	}
+
+	for _, chg := range upd.Changes() {
+		fmt.Println(chg.PropertyId())
+		chg.Apply(yside)
+		p, _ := properties.PropertyOf(chg.PropertyId(), in)
+		p.Set(xside, chg.NewValue())
+	}
+
+	ynewone := yside.MyString2ModelMap[key1].MySubs[key3]
+	if newone == nil {
+		log.Fail(t, "new one is nil")
+		return
+	}
+	xnewone := xside.MyString2ModelMap[key1].MySubs[key3]
+	if newone == nil {
+		log.Fail(t, "new one is nil")
+		return
+	}
+	if ynewone.MyString != xnewone.MyString {
+		log.Fail(t, "Expected to be eq")
+		return
+	}
+	/*
+		aside = utils.CreateTestModelInstance(0)
+		zside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+		yside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+		zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+		aside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+		yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+
+		zside.MyString2ModelMap["newone"].MyString = "newer"
+		upd = updating.NewUpdater(in, false)
+		err = upd.Update(aside, zside)
+		if err != nil {
+			log.Fail(t, err.Error())
+			return
+		}
+
+		newone = aside.MyString2ModelMap["newone"]
+		if newone.MyString != "newer" {
+			log.Fail(t, "Expected newer")
+			return
+		}
+
+		for _, chg := range upd.Changes() {
+			chg.Apply(yside)
+		}
+
+		newone = yside.MyString2ModelMap["newone"]
+		if newone.MyString != "newer" {
+			log.Fail(t, "expected newer")
+			return
+		}
+
+		aside = utils.CreateTestModelInstance(0)
+		zside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+		yside = cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+		xside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+
+		zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+		aside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+		yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+		xside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
+
+		zside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+		aside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+		yside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+		xside.MyString2ModelMap["newone"].MySubs = make(map[string]*testtypes.TestProtoSubSub)
+
+		zside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+		zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+		aside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+		aside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+		yside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+		yside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+		xside.MyString2ModelMap["newone"].MySubs["newsub"] = &testtypes.TestProtoSubSub{}
+		xside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newsub"
+
+		zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
+
+		upd = updating.NewUpdater(in, false)
+		err = upd.Update(aside, zside)
+		if err != nil {
+			log.Fail(t, err.Error())
+			return
+		}
+
+		val := aside.MyString2ModelMap["newone"].MySubs["newsub"].MyString
+		if val != "newersub" {
+			log.Fail(t, "expected newersub")
+			return
+		}
+
+		pid := ""
+
+		for _, chg := range upd.Changes() {
+			pid = chg.PropertyId()
+			chg.Apply(yside)
+		}
+
+		val = yside.MyString2ModelMap["newone"].MySubs["newsub"].MyString
+		if val != "newersub" {
+			log.Fail(t, "expected newersub")
+			return
+		}
+
+		prop, err := properties.PropertyOf(pid, in)
+		if err != nil {
+			log.Fail(t, err.Error())
+			return
+		}
+
+		prop.Set(xside, "newersub")
+		val = xside.MyString2ModelMap["newone"].MySubs["newsub"].MyString
+		if val != "newersub" {
+			log.Fail(t, "expected newersub")
+			return
+		}
+
+	*/
+}
