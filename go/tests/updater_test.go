@@ -311,7 +311,7 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 		if e != nil {
 			panic(e)
 		}
-		obj := object.NewEncode([]byte{}, 0)
+		obj := object.NewEncode()
 		obj.Add(chg.NewValue())
 		data := obj.Data()
 		obj = object.NewDecode(data, 0, in.Registry())
