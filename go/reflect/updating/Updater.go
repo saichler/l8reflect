@@ -72,3 +72,13 @@ func (this *Updater) addUpdate(prop *properties.Property, oldValue, newValue int
 	}
 	this.changes = append(this.changes, NewChange(oldValue, newValue, prop))
 }
+
+func (this *Updater) forceUpdate(prop *properties.Property, oldValue, newValue interface{}) {
+	if newValue == nil {
+		newValue = "nil"
+	}
+	if this.changes == nil {
+		this.changes = make([]*Change, 0)
+	}
+	this.changes = append(this.changes, NewChange(oldValue, newValue, prop))
+}

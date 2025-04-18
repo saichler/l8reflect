@@ -161,7 +161,7 @@ func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, n
 		oldKeyValue := oldValue.MapIndex(key)
 		if !newKeyValue.IsValid() {
 			subProperty := properties.NewProperty(node, instance, key.Interface(), nil, updates.introspector)
-			updates.addUpdate(subProperty, oldKeyValue.Interface(), nil)
+			updates.forceUpdate(subProperty, oldKeyValue.Interface(), nil)
 			oldValue.SetMapIndex(key, reflect.Value{})
 		}
 	}
