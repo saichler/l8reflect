@@ -117,7 +117,7 @@ func structUpdate(prop *properties.Property, node *types.RNode, oldValue, newVal
 func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Len() != newValue.Len() {
 		oldValue.Set(newValue)
-		updates.addUpdate(instance, oldValue, newValue)
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		return nil
 	}
 	for i := 0; i < oldValue.Len(); i++ {
@@ -136,6 +136,11 @@ func deepSliceUpdate(instance *properties.Property, node *types.RNode, oldValue,
 }
 
 func deepMapUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+	if oldValue.Len() > newValue.Len() {
+		oldValue.Set(newValue)
+		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
+		return nil
+	}
 	newKeys := newValue.MapKeys()
 	for _, key := range newKeys {
 		oldKeyValue := oldValue.MapIndex(key)
