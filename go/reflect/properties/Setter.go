@@ -137,7 +137,11 @@ func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (int
 	}
 	typKey := info.Type()
 	if !myValue.IsValid() || myValue.IsNil() {
-		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
+		if this.node.IsStruct {
+			myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
+		} else {
+			myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, typ)))
+		}
 	}
 	//comment
 	if newValue.IsValid() && myValue.Type() == newValue.Type() {
