@@ -106,6 +106,7 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _
 	} else {
 		subNode, _ := this.addNode(_type.Elem(), _parent, _fieldName)
 		subNode.IsMap = true
+		subNode.KeyTypeName = _type.Key().Name()
 		return subNode
 	}
 }
