@@ -141,6 +141,7 @@ func (this *Property) IsLeaf() bool {
 
 func newProperty(node *types.RNode, propertyPath string, introspector common.IIntrospector) (*Property, error) {
 	property := &Property{}
+	property.isLeaf = true
 	property.node = node
 	property.introspector = introspector
 	if node.Parent != nil {
@@ -153,6 +154,7 @@ func newProperty(node *types.RNode, propertyPath string, introspector common.IIn
 			return nil, err
 		}
 		property.parent = pi
+		pi.isLeaf = false
 	} else {
 		index1 := strings.Index(propertyPath, "<")
 		index2 := strings.Index(propertyPath, ">")

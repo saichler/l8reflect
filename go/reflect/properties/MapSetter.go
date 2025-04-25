@@ -47,7 +47,7 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 	nKeyValue := newMapValue
 
 	//This map entry was marked for deletion so delete it
-	if nKeyValue.Kind() == reflect.String && nKeyValue.String() == common.Deleted_Entry {
+	if this.isLeaf && nKeyValue.Kind() == reflect.String && nKeyValue.String() == common.Deleted_Entry {
 		myMapValue.SetMapIndex(mapKey, reflect.Value{})
 		return myMapValue.Interface(), err
 	}
