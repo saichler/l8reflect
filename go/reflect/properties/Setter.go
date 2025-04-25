@@ -59,7 +59,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		v, e := this.mapSet(myValue, reflect.ValueOf(value))
 		return v, any, e
 	} else if this.node.IsSlice {
-		v, e := this.sliceSet(myValue)
+		v, e := this.sliceSet(myValue, reflect.ValueOf(value))
 		return v, any, e
 	} else if this.introspector.Kind(this.node) == reflect.Struct {
 		if !myValue.IsValid() || myValue.IsNil() {
@@ -95,80 +95,6 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		}
 		return value, any, err
 	}
-}
-
-func (this *Property) sliceSet(myValue reflect.Value) (interface{}, error) {
-	index := this.key.(int)
-	info, err := this.introspector.Registry().Info(this.node.TypeName)
-	if err != nil {
-		return nil, err
-	}
-	typ := info.Type()
-	if !myValue.IsValid() || myValue.IsNil() {
-		myValue.Set(reflect.MakeSlice(reflect.SliceOf(reflect.PtrTo(typ)), index+1, index+1))
-	}
-
-	if index >= myValue.Len() {
-		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PtrTo(typ)), index+1, index+1)
-		for i := 0; i < myValue.Len(); i++ {
-			newSlice.Index(i).Set(myValue.Index(i))
-		}
-		myValue.Set(newSlice)
-	}
-
-	sliceValue := reflect.ValueOf(this.value)
-	if this.introspector.Kind(this.node) == reflect.Struct && this.value == nil {
-		sliceValue = reflect.New(typ)
-	}
-	myValue.Index(index).Set(sliceValue)
-	return sliceValue.Interface(), err
-}
-
-func (this *Property) mapSet(myValue reflect.Value, newValue reflect.Value) (interface{}, error) {
-	info, err := this.introspector.Registry().Info(this.node.TypeName)
-
-	if err != nil {
-		return nil, err
-	}
-	typ := info.Type()
-	info, err = this.introspector.Registry().Info(this.node.KeyTypeName)
-	if err != nil {
-		return nil, err
-	}
-	typKey := info.Type()
-	if !myValue.IsValid() || myValue.IsNil() {
-		if this.node.IsStruct {
-			myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
-		} else {
-			myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, typ)))
-		}
-	}
-	//comment
-	if newValue.IsValid() && myValue.Type() == newValue.Type() {
-		myValue.Set(newValue)
-		return myValue.Interface(), nil
-	}
-
-	mapKey := reflect.ValueOf(this.key)
-	if !mapKey.IsValid() {
-		myValue.Set(reflect.MakeMap(reflect.MapOf(typKey, reflect.PtrTo(typ))))
-		return myValue.Interface(), nil
-	}
-	oldMapValue := myValue.MapIndex(mapKey)
-	mapValue := reflect.ValueOf(this.value)
-	if this.node.IsStruct && this.value == nil {
-		if oldMapValue.IsValid() && !oldMapValue.IsNil() {
-			mapValue = oldMapValue
-		} else {
-			mapValue = reflect.New(typ)
-		}
-	}
-	if newValue.Kind() == reflect.Ptr && newValue.Elem().Type().Name() == this.node.TypeName {
-		myValue.SetMapIndex(mapKey, newValue)
-	} else {
-		myValue.SetMapIndex(mapKey, mapValue)
-	}
-	return mapValue.Interface(), err
 }
 
 func (this *Property) SetPrimaryKey(node *types.RNode, any interface{}, anyKey interface{}) {

@@ -10,6 +10,7 @@ import (
 )
 
 var log = logger.NewLoggerDirectImpl(&logger.FmtLogMethod{})
+var flog = logger.NewLoggerDirectImpl(logger.NewFileLogMethod("./test.log"))
 
 func TestIntrospect(t *testing.T) {
 	defer time.Sleep(time.Second)

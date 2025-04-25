@@ -22,7 +22,8 @@ func TestUpdater(t *testing.T) {
 	}
 	upd := updating.NewUpdater(in, false)
 	aside := utils.CreateTestModelInstance(0)
-	zside := &testtypes.TestProto{MyString: "updated"}
+	zside := utils.CreateTestModelInstance(0)
+	zside.MyString = "updated"
 	uside := in.Clone(aside).(*testtypes.TestProto)
 	err = upd.Update(aside, zside)
 	if err != nil {

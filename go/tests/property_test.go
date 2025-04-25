@@ -116,6 +116,9 @@ func TestSetMap(t *testing.T) {
 		log.Fail(t, err.Error())
 		return
 	}
+
+	fmt.Println(prop.PropertyId())
+
 	_, _, err = prop.Set(aside, "hhhh")
 	if err != nil {
 		log.Fail(t, err.Error())

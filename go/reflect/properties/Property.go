@@ -17,6 +17,7 @@ type Property struct {
 	value        interface{}
 	id           string
 	introspector common.IIntrospector
+	isLeaf       bool
 }
 
 func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector common.IIntrospector) *Property {
@@ -26,6 +27,10 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	property.key = key
 	property.value = value
 	property.introspector = introspector
+	property.isLeaf = true
+	if parent != nil {
+		parent.isLeaf = false
+	}
 	return property
 }
 
@@ -52,6 +57,10 @@ func (this *Property) Key() interface{} {
 
 func (this *Property) Value() interface{} {
 	return this.value
+}
+
+func (this *Property) Introspector() common.IIntrospector {
+	return this.introspector
 }
 
 func (this *Property) setKeyValue(propertyId string) (string, error) {
@@ -124,6 +133,10 @@ func (this *Property) PropertyId() (string, error) {
 	}
 	this.id = buff.String()
 	return this.id, nil
+}
+
+func (this *Property) IsLeaf() bool {
+	return this.isLeaf
 }
 
 func newProperty(node *types.RNode, propertyPath string, introspector common.IIntrospector) (*Property, error) {
