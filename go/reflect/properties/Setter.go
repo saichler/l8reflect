@@ -41,14 +41,15 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		parentValue = parentValue.Elem()
 	}
 
-	/*
-		//Special case for setting a value to the map
-		if this.node.IsMap && parentValue.Kind() == reflect.Map {
+	//Special case for setting a value to the map
+	if this.node.IsMap && parentValue.Kind() == reflect.Map {
+		if this.IsLeaf() {
 			parentValue.SetMapIndex(reflect.ValueOf(this.key), reflect.ValueOf(this.value))
-			return this.value, any, nil
-		} else if parentValue.Kind() == reflect.Map {
-			parentValue = parentValue.MapIndex(reflect.ValueOf(this.key))
-		}*/
+		}
+		return this.value, any, nil
+	} else if parentValue.Kind() == reflect.Map {
+		parentValue = parentValue.MapIndex(reflect.ValueOf(this.key))
+	}
 
 	myValue := parentValue.FieldByName(this.node.FieldName)
 	info, err := this.introspector.Registry().Info(this.node.TypeName)
