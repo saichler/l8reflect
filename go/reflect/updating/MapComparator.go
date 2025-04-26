@@ -1,7 +1,6 @@
 package updating
 
 import (
-	"fmt"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/types/go/common"
 	"github.com/saichler/types/go/types"
@@ -55,15 +54,16 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 		}
 	}
 
-	oldKeys := oldValue.MapKeys()
-	for _, key := range oldKeys {
-		newKeyValue := newValue.MapIndex(key)
-		oldKeyValue := oldValue.MapIndex(key)
-		if !newKeyValue.IsValid() {
-			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.introspector)
-			fmt.Println(subProperty.PropertyId())
-			updates.addUpdate(subProperty, oldKeyValue.Interface(), common.Deleted_Entry)
-			oldValue.SetMapIndex(key, reflect.Value{})
+	if updates.newItemIsFull {
+		oldKeys := oldValue.MapKeys()
+		for _, key := range oldKeys {
+			newKeyValue := newValue.MapIndex(key)
+			oldKeyValue := oldValue.MapIndex(key)
+			if !newKeyValue.IsValid() {
+				subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.introspector)
+				updates.addUpdate(subProperty, oldKeyValue.Interface(), common.Deleted_Entry)
+				oldValue.SetMapIndex(key, reflect.Value{})
+			}
 		}
 	}
 	return nil

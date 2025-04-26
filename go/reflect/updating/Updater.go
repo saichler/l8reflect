@@ -10,15 +10,17 @@ import (
 )
 
 type Updater struct {
-	changes      []*Change
-	introspector common.IIntrospector
-	isNilValid   bool
+	changes       []*Change
+	introspector  common.IIntrospector
+	isNilValid    bool
+	newItemIsFull bool
 }
 
-func NewUpdater(introspector common.IIntrospector, isNilValid bool) *Updater {
+func NewUpdater(introspector common.IIntrospector, isNilValid, newItemIsFull bool) *Updater {
 	upd := &Updater{}
 	upd.introspector = introspector
 	upd.isNilValid = isNilValid
+	upd.newItemIsFull = newItemIsFull
 	return upd
 }
 
