@@ -1,7 +1,6 @@
 package properties
 
 import (
-	"fmt"
 	"github.com/saichler/types/go/common"
 	"reflect"
 )
@@ -65,7 +64,6 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 				myMapValue.SetMapIndex(mapKey, newMapValue)
 				oKeyValue = newMapValue
 			} else {
-				fmt.Println(newMapValue.Interface(), newMapValue.Kind())
 				o, _ := vInfo.NewInstance()
 				oKeyValue = reflect.ValueOf(o)
 				myMapValue.SetMapIndex(mapKey, oKeyValue)
