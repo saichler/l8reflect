@@ -58,6 +58,11 @@ func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Valu
 	}
 
 	oIndexValue := myValue.Index(index)
+
+	if this.node.IsStruct && !this.IsLeaf() {
+		return oIndexValue.Interface(), nil
+	}
+
 	nIndexValue := newSliceValue.Index(index)
 
 	//If this is not a leaf property
