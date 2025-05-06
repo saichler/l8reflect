@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/saichler/l8test/go/infra/t_resources"
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/reflect/go/reflect/properties"
@@ -22,7 +23,7 @@ func TestUpdater(t *testing.T) {
 	}
 	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
-	zside := utils.CreateTestModelInstance(0)
+	zside := t_resources.CloneTestModel(aside)
 	zside.MyString = "updated"
 	uside := in.Clone(aside).(*testtypes.TestProto)
 	err = upd.Update(aside, zside)
@@ -90,8 +91,10 @@ func TestSubMap(t *testing.T) {
 	}
 	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
-	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
-	zside.MySingle.MySubs["sub"].Int32Map[0]++
+	zside := t_resources.CloneTestModel(aside)
+	for _, sub := range zside.MySingle.MySubs {
+		sub.Int32Map[0]++
+	}
 
 	err = upd.Update(aside, zside)
 	if err != nil {
@@ -99,9 +102,12 @@ func TestSubMap(t *testing.T) {
 		return
 	}
 
-	if zside.MySingle.MySubs["sub"].Int32Map[0] != aside.MySingle.MySubs["sub"].Int32Map[0] {
-		log.Fail(t, aside.MySingle.MySubs["sub"].Int32Map[0])
-		return
+	for k, zsub := range zside.MySingle.MySubs {
+		asub := aside.MySingle.MySubs[k]
+		if zsub.Int32Map[0] != asub.Int32Map[0] {
+			log.Fail(t, "Does not match", asub.Int32Map[0])
+			return
+		}
 	}
 
 	if len(upd.Changes()) == 0 {

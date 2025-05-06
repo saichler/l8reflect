@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"github.com/saichler/l8test/go/infra/t_resources"
 	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
@@ -39,7 +40,7 @@ func TestPrimaryKey(t *testing.T) {
 	}
 	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 	aside := utils.CreateTestModelInstance(1)
-	zside := utils.CreateTestModelInstance(1)
+	zside := t_resources.CloneTestModel(aside)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
 	upd := updating.NewUpdater(_introspect, false, false)
