@@ -20,7 +20,7 @@ func TestUpdater(t *testing.T) {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := utils.CreateTestModelInstance(0)
 	zside.MyString = "updated"
@@ -65,7 +65,7 @@ func TestEnum(t *testing.T) {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
@@ -88,7 +88,7 @@ func TestSubMap(t *testing.T) {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MySingle.MySubs["sub"].Int32Map[0]++
@@ -119,7 +119,7 @@ func TestSubMapDeep(t *testing.T) {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
@@ -156,7 +156,7 @@ func TestSubMapDeep(t *testing.T) {
 	yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
 
 	zside.MyString2ModelMap["newone"].MyString = "newer"
-	upd = updating.NewUpdater(in, false)
+	upd = updating.NewUpdater(in, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -205,7 +205,7 @@ func TestSubMapDeep(t *testing.T) {
 
 	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-	upd = updating.NewUpdater(in, false)
+	upd = updating.NewUpdater(in, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -298,7 +298,7 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 
 	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	err = upd.Update(aside, zside)
 
 	if len(upd.Changes()) == 0 {
@@ -353,7 +353,7 @@ func TestSubMapAdd(t *testing.T) {
 	key2 := "lv2"
 	key3 := "newone"
 
-	upd := updating.NewUpdater(in, false)
+	upd := updating.NewUpdater(in, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	aside.MyString2ModelMap[key1] = &testtypes.TestProtoSub{MyString: key1}
 	aside.MyString2ModelMap[key1].MySubs = make(map[string]*testtypes.TestProtoSubSub)
@@ -405,7 +405,7 @@ func TestSubMapAdd(t *testing.T) {
 		yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
 
 		zside.MyString2ModelMap["newone"].MyString = "newer"
-		upd = updating.NewUpdater(in, false)
+		upd = updating.NewUpdater(in,false,false)
 		err = upd.Update(aside, zside)
 		if err != nil {
 			log.Fail(t, err.Error())
@@ -454,7 +454,7 @@ func TestSubMapAdd(t *testing.T) {
 
 		zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-		upd = updating.NewUpdater(in, false)
+		upd = updating.NewUpdater(in,false,false)
 		err = upd.Update(aside, zside)
 		if err != nil {
 			log.Fail(t, err.Error())

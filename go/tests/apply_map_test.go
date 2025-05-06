@@ -17,7 +17,7 @@ func patchUpdateApply(o, n, z *testtypes.TestProto, t *testing.T) bool {
 		return false
 	}
 
-	u := updating.NewUpdater(in, false)
+	u := updating.NewUpdater(in, false, true)
 	err = u.Update(o, n)
 	if err != nil {
 		log.Fail(t, err.Error())

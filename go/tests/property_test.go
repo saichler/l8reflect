@@ -42,7 +42,7 @@ func TestPrimaryKey(t *testing.T) {
 	zside := utils.CreateTestModelInstance(1)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
-	upd := updating.NewUpdater(_introspect, false)
+	upd := updating.NewUpdater(_introspect, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, "failed with update: ", err.Error())
@@ -238,7 +238,7 @@ func TestSubStructProperty(t *testing.T) {
 	yside := &testtypes.TestProto{MyString: "Hello"}
 	zside.MySingle = &testtypes.TestProtoSub{MyInt64: time.Now().Unix()}
 
-	putUpdater := updating.NewUpdater(_introspect, false)
+	putUpdater := updating.NewUpdater(_introspect, false, false)
 
 	putUpdater.Update(aside, zside)
 
