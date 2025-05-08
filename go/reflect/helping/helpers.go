@@ -1,9 +1,9 @@
 package helping
 
 import (
-	strings2 "github.com/saichler/shared/go/share/strings"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 	"strings"
 )
@@ -77,7 +77,7 @@ func InspectNodeKey(node *types.RNode) string {
 	return node.CachedKey
 }
 
-func PrimaryDecorator(node *types.RNode, value reflect.Value, registry common.IRegistry) interface{} {
+func PrimaryDecorator(node *types.RNode, value reflect.Value, registry ifs.IRegistry) interface{} {
 	fields := PrimaryDecoratorFields(node, registry)
 	if fields == nil || len(fields) == 0 {
 		return nil
@@ -91,7 +91,7 @@ func PrimaryDecorator(node *types.RNode, value reflect.Value, registry common.IR
 	return str.String()
 }
 
-func PrimaryDecoratorFields(node *types.RNode, registry common.IRegistry) []string {
+func PrimaryDecoratorFields(node *types.RNode, registry ifs.IRegistry) []string {
 	decValue := node.Decorators[int32(types.DecoratorType_Primary)]
 	v, _ := strings2.InstanceOf(decValue, registry)
 	fields, ok := v.([]string)

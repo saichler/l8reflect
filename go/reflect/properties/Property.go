@@ -3,9 +3,9 @@ package properties
 import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/helping"
-	strings2 "github.com/saichler/shared/go/share/strings"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 	"strings"
 )
@@ -16,11 +16,11 @@ type Property struct {
 	key          interface{}
 	value        interface{}
 	id           string
-	introspector common.IIntrospector
+	introspector ifs.IIntrospector
 	isLeaf       bool
 }
 
-func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector common.IIntrospector) *Property {
+func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector ifs.IIntrospector) *Property {
 	property := &Property{}
 	property.parent = parent
 	property.node = node
@@ -34,7 +34,7 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	return property
 }
 
-func PropertyOf(propertyId string, introspector common.IIntrospector) (*Property, error) {
+func PropertyOf(propertyId string, introspector ifs.IIntrospector) (*Property, error) {
 	propertyKey := helping.PropertyNodeKey(propertyId)
 	node, ok := introspector.Node(propertyKey)
 	if !ok {
@@ -43,7 +43,7 @@ func PropertyOf(propertyId string, introspector common.IIntrospector) (*Property
 	return newProperty(node, propertyId, introspector)
 }
 
-func (this *Property) Parent() common.IProperty {
+func (this *Property) Parent() ifs.IProperty {
 	return this.parent
 }
 
@@ -59,7 +59,7 @@ func (this *Property) Value() interface{} {
 	return this.value
 }
 
-func (this *Property) Introspector() common.IIntrospector {
+func (this *Property) Introspector() ifs.IIntrospector {
 	return this.introspector
 }
 
@@ -139,7 +139,7 @@ func (this *Property) IsLeaf() bool {
 	return this.isLeaf
 }
 
-func newProperty(node *types.RNode, propertyPath string, introspector common.IIntrospector) (*Property, error) {
+func newProperty(node *types.RNode, propertyPath string, introspector ifs.IIntrospector) (*Property, error) {
 	property := &Property{}
 	property.isLeaf = true
 	property.node = node

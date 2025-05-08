@@ -1,13 +1,13 @@
 package properties
 
 import (
-	"github.com/saichler/types/go/common"
+	"github.com/saichler/l8types/go/ifs"
 	"reflect"
 )
 
 func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value) (interface{}, error) {
-	var vInfo common.IInfo
-	var kInfo common.IInfo
+	var vInfo ifs.IInfo
+	var kInfo ifs.IInfo
 	var err error
 
 	vInfo, err = this.introspector.Registry().Info(this.node.TypeName)
@@ -46,7 +46,7 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 	nKeyValue := newMapValue
 
 	//This map entry was marked for deletion so delete it
-	if this.isLeaf && nKeyValue.Kind() == reflect.String && nKeyValue.String() == common.Deleted_Entry {
+	if this.isLeaf && nKeyValue.Kind() == reflect.String && nKeyValue.String() == ifs.Deleted_Entry {
 		myMapValue.SetMapIndex(mapKey, reflect.Value{})
 		return myMapValue.Interface(), err
 	}

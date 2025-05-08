@@ -2,7 +2,7 @@ package tests
 
 import (
 	"github.com/saichler/reflect/go/tests/utils"
-	"github.com/saichler/types/go/testtypes"
+	"github.com/saichler/l8types/go/testtypes"
 	"testing"
 )
 

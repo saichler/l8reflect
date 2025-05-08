@@ -1,8 +1,8 @@
 package introspecting
 
 import (
-	"github.com/saichler/shared/go/share/maps"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8utils/go/utils/maps"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 

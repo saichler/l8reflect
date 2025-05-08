@@ -1,8 +1,8 @@
 package introspecting
 
 import (
-	"github.com/saichler/shared/go/share/strings"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/l8types/go/types"
 )
 
 func addDecorator(decoratorType types.DecoratorType, any interface{}, node *types.RNode) {

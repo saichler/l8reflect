@@ -2,8 +2,8 @@ package updating
 
 import (
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 
@@ -74,7 +74,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 		}
 		subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), size,
 			nil, updates.introspector)
-		updates.addUpdate(subProperty, nil, common.Deleted_Entry)
+		updates.addUpdate(subProperty, nil, ifs.Deleted_Entry)
 		oldValue.Set(newSlice)
 	} else if size > oldValue.Len() {
 		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), size, size)

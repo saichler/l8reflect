@@ -3,7 +3,7 @@ package updating
 import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 

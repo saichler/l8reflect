@@ -2,7 +2,7 @@ package updating
 
 import (
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/shared/go/share/strings"
+	"github.com/saichler/l8utils/go/utils/strings"
 )
 
 type Change struct {

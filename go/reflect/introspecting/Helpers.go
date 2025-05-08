@@ -2,7 +2,7 @@ package introspecting
 
 import (
 	"github.com/saichler/reflect/go/reflect/helping"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 

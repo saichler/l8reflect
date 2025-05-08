@@ -4,19 +4,19 @@ import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 
 type Updater struct {
 	changes       []*Change
-	introspector  common.IIntrospector
+	introspector  ifs.IIntrospector
 	isNilValid    bool
 	newItemIsFull bool
 }
 
-func NewUpdater(introspector common.IIntrospector, isNilValid, newItemIsFull bool) *Updater {
+func NewUpdater(introspector ifs.IIntrospector, isNilValid, newItemIsFull bool) *Updater {
 	upd := &Updater{}
 	upd.introspector = introspector
 	upd.isNilValid = isNilValid

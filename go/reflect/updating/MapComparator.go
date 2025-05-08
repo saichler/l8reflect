@@ -2,8 +2,8 @@ package updating
 
 import (
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 
@@ -61,7 +61,7 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 			oldKeyValue := oldValue.MapIndex(key)
 			if !newKeyValue.IsValid() {
 				subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.introspector)
-				updates.addUpdate(subProperty, oldKeyValue.Interface(), common.Deleted_Entry)
+				updates.addUpdate(subProperty, oldKeyValue.Interface(), ifs.Deleted_Entry)
 				oldValue.SetMapIndex(key, reflect.Value{})
 			}
 		}

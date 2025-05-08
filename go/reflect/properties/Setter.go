@@ -3,8 +3,8 @@ package properties
 import (
 	"errors"
 	"github.com/saichler/reflect/go/reflect/introspecting"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/types"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 
@@ -72,7 +72,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 			} else {
 				newInstance := reflect.New(typ)
 				if v.Kind() == reflect.String {
-					serializer := info.Serializer(common.STRING)
+					serializer := info.Serializer(ifs.STRING)
 					if serializer != nil {
 						inst, _ := serializer.Unmarshal([]byte(v.String()), this.introspector.Registry())
 						if inst != nil {

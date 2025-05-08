@@ -7,14 +7,14 @@ import (
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
-	"github.com/saichler/shared/go/share/registry"
-	"github.com/saichler/types/go/common"
-	"github.com/saichler/types/go/testtypes"
+	"github.com/saichler/l8utils/go/utils/registry"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/testtypes"
 	"testing"
 	"time"
 )
 
-var _introspect common.IIntrospector
+var _introspect ifs.IIntrospector
 
 func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
 	ins, err := properties.PropertyOf(id, _introspect)

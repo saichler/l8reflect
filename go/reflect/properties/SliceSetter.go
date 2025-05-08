@@ -1,7 +1,7 @@
 package properties
 
 import (
-	"github.com/saichler/types/go/common"
+	"github.com/saichler/l8types/go/ifs"
 	"reflect"
 )
 
@@ -29,7 +29,7 @@ func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Valu
 
 	//If elements were delete from the slice,
 	//reduce the size of the slice
-	if newSliceValue.Kind() == reflect.String && newSliceValue.String() == common.Deleted_Entry {
+	if newSliceValue.Kind() == reflect.String && newSliceValue.String() == ifs.Deleted_Entry {
 		var newSlice reflect.Value
 		if this.node.IsStruct {
 			newSlice = reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(info.Type())), index, index)
