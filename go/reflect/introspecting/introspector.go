@@ -2,11 +2,11 @@ package introspecting
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/reflect/helping"
-	"github.com/saichler/l8utils/go/utils/maps"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/l8utils/go/utils/maps"
+	"github.com/saichler/reflect/go/reflect/cloning"
+	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
 	"strings"
 )
@@ -122,4 +122,23 @@ func (this *Introspector) TableView(name string) (*types.TableView, bool) {
 func (this *Introspector) TableViews() []*types.TableView {
 	list := this.tableViews.ValuesAsList(reflect.TypeOf(&types.TableView{}), nil)
 	return list.([]*types.TableView)
+}
+
+func (this *Introspector) Clean(typeName string) bool {
+	node, ok := this.NodeByTypeName(typeName)
+	if !ok {
+		return ok
+	}
+	return this.clean(node)
+}
+
+func (this *Introspector) clean(node *types.RNode) bool {
+	if node.Attributes != nil {
+		for _, attr := range node.Attributes {
+			this.clean(attr)
+		}
+	}
+	this.typeToNode.Del(node.TypeName)
+	this.pathToNode.Del(helping.NodeCacheKey(node))
+	return true
 }

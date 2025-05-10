@@ -1,8 +1,8 @@
 package introspecting
 
 import (
-	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
 )
 
@@ -27,7 +27,7 @@ func (this *Introspector) fixClone(clone *types.RNode, parent *types.RNode, fiel
 	clone.Parent = parent
 	clone.FieldName = fieldName
 	clone.CachedKey = ""
-	nodePath := helping.InspectNodeKey(clone)
+	nodePath := helping.NodeCacheKey(clone)
 	this.pathToNode.Put(nodePath, clone)
 	if clone.Attributes != nil {
 		for k, v := range clone.Attributes {
@@ -45,7 +45,7 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fie
 	}
 
 	node := this.addAttribute(_parent, _type, _fieldName)
-	nodePath := helping.InspectNodeKey(node)
+	nodePath := helping.NodeCacheKey(node)
 	_, ok = this.pathToNode.Get(nodePath)
 	if ok {
 		return nil, false

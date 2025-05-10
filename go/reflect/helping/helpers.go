@@ -1,9 +1,9 @@
 package helping
 
 import (
-	strings2 "github.com/saichler/l8utils/go/utils/strings"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
 	"reflect"
 	"strings"
 )
@@ -62,7 +62,7 @@ func PropertyNodeKey(instanceId string) string {
 	return buff.String()
 }
 
-func InspectNodeKey(node *types.RNode) string {
+func NodeCacheKey(node *types.RNode) string {
 	if node.CachedKey != "" {
 		return node.CachedKey
 	}
@@ -70,7 +70,7 @@ func InspectNodeKey(node *types.RNode) string {
 		return strings.ToLower(node.TypeName)
 	}
 	buff := strings2.New()
-	buff.Add(InspectNodeKey(node.Parent))
+	buff.Add(NodeCacheKey(node.Parent))
 	buff.Add(".")
 	buff.Add(strings.ToLower(node.FieldName))
 	node.CachedKey = buff.String()

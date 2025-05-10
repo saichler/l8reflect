@@ -1,8 +1,8 @@
 package introspecting
 
 import (
-	"github.com/saichler/l8utils/go/utils/maps"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/l8utils/go/utils/maps"
 	"reflect"
 )
 
@@ -41,4 +41,9 @@ func (this *RNodeMap) NodesList(filter func(v interface{}) bool) []*types.RNode 
 
 func (this *RNodeMap) Iterate(do func(k, v interface{})) {
 	this.impl.Iterate(do)
+}
+
+func (this *RNodeMap) Del(key string) bool {
+	_, ok := this.impl.Delete(key)
+	return ok
 }
