@@ -124,15 +124,15 @@ func (this *Introspector) TableViews() []*types.TableView {
 	return list.([]*types.TableView)
 }
 
-func (this *Introspector) Clean(typeName string) bool {
+func (this *Introspector) Clean(typeName string) {
 	node, ok := this.NodeByTypeName(typeName)
 	if !ok {
-		return ok
+		return
 	}
-	return this.clean(node)
+	this.clean(node)
 }
 
-func (this *Introspector) clean(node *types.RNode) bool {
+func (this *Introspector) clean(node *types.RNode) {
 	if node.Attributes != nil {
 		for _, attr := range node.Attributes {
 			this.clean(attr)
@@ -140,5 +140,4 @@ func (this *Introspector) clean(node *types.RNode) bool {
 	}
 	this.typeToNode.Del(node.TypeName)
 	this.pathToNode.Del(helping.NodeCacheKey(node))
-	return true
 }
