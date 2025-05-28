@@ -3,21 +3,29 @@ package tests
 import (
 	"fmt"
 	"github.com/saichler/l8test/go/infra/t_resources"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/testtypes"
+	"github.com/saichler/l8utils/go/utils/registry"
+	"github.com/saichler/l8utils/go/utils/resources"
 	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
-	"github.com/saichler/l8utils/go/utils/registry"
-	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/l8types/go/testtypes"
 	"testing"
 	"time"
 )
 
-var _introspect ifs.IIntrospector
+func newResources() ifs.IResources {
+	res := resources.NewResources(log)
+	res.Set(registry.NewRegistry())
+	in := introspecting.NewIntrospect(res.Registry())
+	res.Set(in)
+	return res
+}
 
-func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
-	ins, err := properties.PropertyOf(id, _introspect)
+func propertyOf(id string, root interface{}, t *testing.T, res ifs.IResources) (interface{}, bool) {
+
+	ins, err := properties.PropertyOf(id, res)
 	if err != nil {
 		log.Fail(t, "failed with id: ", id, err.Error())
 		return nil, false
@@ -32,8 +40,8 @@ func propertyOf(id string, root interface{}, t *testing.T) (interface{}, bool) {
 }
 
 func TestPrimaryKey(t *testing.T) {
-	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -43,7 +51,7 @@ func TestPrimaryKey(t *testing.T) {
 	zside := t_resources.CloneTestModel(aside)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
-	upd := updating.NewUpdater(_introspect, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, "failed with update: ", err.Error())
@@ -57,7 +65,7 @@ func TestPrimaryKey(t *testing.T) {
 	pid := upd.Changes()[0].PropertyId()
 	n := upd.Changes()[0].NewValue()
 
-	p, e := properties.PropertyOf(pid, _introspect)
+	p, e := properties.PropertyOf(pid, res)
 	if e != nil {
 		log.Fail(t, "failed with property: ", e.Error())
 		return
@@ -80,13 +88,13 @@ func TestPrimaryKey(t *testing.T) {
 	}
 
 	pid = "testproto.myenum"
-	prod, err := properties.PropertyOf(pid, _introspect)
+	prod, err := properties.PropertyOf(pid, res)
 	if err != nil {
 		log.Fail(t, "failed with property: ", err.Error())
 		return
 	}
 
-	_introspect.Registry().RegisterEnums(testtypes.TestEnum_value)
+	res.Registry().RegisterEnums(testtypes.TestEnum_value)
 
 	_, _, err = prod.Set(yside, "ValueOne")
 	if err != nil {
@@ -101,8 +109,8 @@ func TestPrimaryKey(t *testing.T) {
 }
 
 func TestSetMap(t *testing.T) {
-	_introspect := introspecting.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -112,7 +120,7 @@ func TestSetMap(t *testing.T) {
 	aside.MyString2ModelMap = nil
 	pid := "testproto<{24}root>.mystring2modelmap<{24}sub>.mystring"
 	//m:=testtypes.TestProtoSub{}
-	prop, err := properties.PropertyOf(pid, _introspect)
+	prop, err := properties.PropertyOf(pid, res)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -134,7 +142,7 @@ func TestSetMap(t *testing.T) {
 		return
 	}
 
-	prop, _ = properties.PropertyOf("testproto.mystring2modelmap", _introspect)
+	prop, _ = properties.PropertyOf("testproto.mystring2modelmap", res)
 	m := aside.MyString2ModelMap
 	_, _, err = prop.Set(aside, nil)
 	if err != nil {
@@ -161,8 +169,8 @@ func TestSetMap(t *testing.T) {
 }
 
 func TestInstance(t *testing.T) {
-	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -170,7 +178,7 @@ func TestInstance(t *testing.T) {
 	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 
 	id := "testproto<{24}Hello>"
-	v, ok := propertyOf(id, nil, t)
+	v, ok := propertyOf(id, nil, t, res)
 	if !ok {
 		return
 	}
@@ -183,7 +191,7 @@ func TestInstance(t *testing.T) {
 
 	mytest.MyFloat64 = 128.128
 	id = "testproto.myfloat64"
-	v, ok = propertyOf(id, mytest, t)
+	v, ok = propertyOf(id, mytest, t, res)
 	if !ok {
 		return
 	}
@@ -197,7 +205,7 @@ func TestInstance(t *testing.T) {
 	mytest.MySingle = &testtypes.TestProtoSub{MyString: "Hello"}
 
 	id = "testproto.mysingle.mystring"
-	v, ok = propertyOf(id, mytest, t)
+	v, ok = propertyOf(id, mytest, t, res)
 	if !ok {
 		return
 	}
@@ -226,8 +234,8 @@ func TestInstance(t *testing.T) {
 }
 
 func TestSubStructProperty(t *testing.T) {
-	_introspect = introspecting.NewIntrospect(registry.NewRegistry())
-	node, err := _introspect.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, "failed with inspect: ", err.Error())
 		return
@@ -239,7 +247,7 @@ func TestSubStructProperty(t *testing.T) {
 	yside := &testtypes.TestProto{MyString: "Hello"}
 	zside.MySingle = &testtypes.TestProtoSub{MyInt64: time.Now().Unix()}
 
-	putUpdater := updating.NewUpdater(_introspect, false, false)
+	putUpdater := updating.NewUpdater(res, false, false)
 
 	putUpdater.Update(aside, zside)
 

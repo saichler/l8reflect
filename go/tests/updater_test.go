@@ -3,29 +3,27 @@ package tests
 import (
 	"fmt"
 	"github.com/saichler/l8test/go/infra/t_resources"
+	"github.com/saichler/l8types/go/testtypes"
 	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
 	"github.com/saichler/serializer/go/serialize/object"
-	"github.com/saichler/l8utils/go/utils/registry"
-	"github.com/saichler/l8types/go/testtypes"
 	"testing"
 )
 
 func TestUpdater(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := t_resources.CloneTestModel(aside)
 	zside.MyString = "updated"
-	uside := in.Clone(aside).(*testtypes.TestProto)
+	uside := res.Introspector().Clone(aside).(*testtypes.TestProto)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -60,13 +58,13 @@ func TestUpdater(t *testing.T) {
 }
 
 func TestEnum(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
@@ -83,13 +81,13 @@ func TestEnum(t *testing.T) {
 }
 
 func TestSubMap(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := t_resources.CloneTestModel(aside)
 	for _, sub := range zside.MySingle.MySubs {
@@ -118,14 +116,14 @@ func TestSubMap(t *testing.T) {
 }
 
 func TestSubMapDeep(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
 	}
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
@@ -162,7 +160,7 @@ func TestSubMapDeep(t *testing.T) {
 	yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
 
 	zside.MyString2ModelMap["newone"].MyString = "newer"
-	upd = updating.NewUpdater(in, false, false)
+	upd = updating.NewUpdater(res, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -211,7 +209,7 @@ func TestSubMapDeep(t *testing.T) {
 
 	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-	upd = updating.NewUpdater(in, false, false)
+	upd = updating.NewUpdater(res, false, false)
 	err = upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -237,7 +235,7 @@ func TestSubMapDeep(t *testing.T) {
 		return
 	}
 
-	prop, err := properties.PropertyOf(pid, in)
+	prop, err := properties.PropertyOf(pid, res)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -265,8 +263,8 @@ func checkEQ(aside, zside interface{}, t *testing.T) bool {
 }
 
 func TestSubMapDeepAlwaysChanging(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -304,7 +302,7 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 
 	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	err = upd.Update(aside, zside)
 
 	if len(upd.Changes()) == 0 {
@@ -314,14 +312,14 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 
 	for _, chg := range upd.Changes() {
 		chg.Apply(yside)
-		prop, e := properties.PropertyOf(chg.PropertyId(), in)
+		prop, e := properties.PropertyOf(chg.PropertyId(), res)
 		if e != nil {
 			panic(e)
 		}
 		obj := object.NewEncode()
 		obj.Add(chg.NewValue())
 		data := obj.Data()
-		obj = object.NewDecode(data, 0, in.Registry())
+		obj = object.NewDecode(data, 0, res.Registry())
 		val, e := obj.Get()
 		fmt.Println(val)
 		_, _, e = prop.Set(xside, val)
@@ -347,8 +345,8 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 }
 
 func TestSubMapAdd(t *testing.T) {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -359,7 +357,7 @@ func TestSubMapAdd(t *testing.T) {
 	key2 := "lv2"
 	key3 := "newone"
 
-	upd := updating.NewUpdater(in, false, false)
+	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	aside.MyString2ModelMap[key1] = &testtypes.TestProtoSub{MyString: key1}
 	aside.MyString2ModelMap[key1].MySubs = make(map[string]*testtypes.TestProtoSubSub)
@@ -384,7 +382,7 @@ func TestSubMapAdd(t *testing.T) {
 	for _, chg := range upd.Changes() {
 		fmt.Println(chg.PropertyId())
 		chg.Apply(yside)
-		p, _ := properties.PropertyOf(chg.PropertyId(), in)
+		p, _ := properties.PropertyOf(chg.PropertyId(), res)
 		p.Set(xside, chg.NewValue())
 	}
 
@@ -411,7 +409,7 @@ func TestSubMapAdd(t *testing.T) {
 		yside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
 
 		zside.MyString2ModelMap["newone"].MyString = "newer"
-		upd = updating.NewUpdater(in,false,false)
+		upd = updating.NewUpdater(res,false,false)
 		err = upd.Update(aside, zside)
 		if err != nil {
 			log.Fail(t, err.Error())
@@ -460,7 +458,7 @@ func TestSubMapAdd(t *testing.T) {
 
 		zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
-		upd = updating.NewUpdater(in,false,false)
+		upd = updating.NewUpdater(res,false,false)
 		err = upd.Update(aside, zside)
 		if err != nil {
 			log.Fail(t, err.Error())
@@ -486,7 +484,7 @@ func TestSubMapAdd(t *testing.T) {
 			return
 		}
 
-		prop, err := properties.PropertyOf(pid, in)
+		prop, err := properties.PropertyOf(pid, res)
 		if err != nil {
 			log.Fail(t, err.Error())
 			return

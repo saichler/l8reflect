@@ -1,25 +1,23 @@
 package tests
 
 import (
-	"github.com/saichler/reflect/go/reflect/introspecting"
+	"github.com/saichler/l8types/go/testtypes"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/reflect/go/reflect/updating"
 	"github.com/saichler/reflect/go/tests/utils"
 	"github.com/saichler/serializer/go/serialize/object"
-	"github.com/saichler/l8utils/go/utils/registry"
-	"github.com/saichler/l8types/go/testtypes"
 	"testing"
 )
 
 func patchUpdateProperty(o, n, z *testtypes.TestProto, t *testing.T) bool {
-	in := introspecting.NewIntrospect(registry.NewRegistry())
-	_, err := in.Inspect(&testtypes.TestProto{})
+	res := newResources()
+	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 	if err != nil {
 		log.Fail(t, err.Error())
 		return false
 	}
 
-	u := updating.NewUpdater(in, false, true)
+	u := updating.NewUpdater(res, false, true)
 	err = u.Update(o, n)
 	if err != nil {
 		log.Fail(t, err.Error())
@@ -32,12 +30,12 @@ func patchUpdateProperty(o, n, z *testtypes.TestProto, t *testing.T) bool {
 		oObj.Add(c.OldValue())
 		nObj := object.NewEncode()
 		nObj.Add(c.NewValue())
-		prop, err := properties.PropertyOf(pid, in)
+		prop, err := properties.PropertyOf(pid, res)
 		if err != nil {
 			log.Fail(t, err.Error())
 			return false
 		}
-		pObj := object.NewDecode(nObj.Data(), 0, in.Registry())
+		pObj := object.NewDecode(nObj.Data(), 0, res.Registry())
 		v, _ := pObj.Get()
 		_, _, err = prop.Set(z, v)
 	}
