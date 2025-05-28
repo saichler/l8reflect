@@ -105,13 +105,13 @@ func (this *Property) Get(any interface{}) (interface{}, error) {
 		if this == nil {
 			panic("nil this")
 		}
-		if this.introspector == nil {
-			panic("nil introspect")
+		if this.resources == nil {
+			panic("nil resources")
 		}
-		if this.introspector.Registry() == nil {
+		if this.resources.Registry() == nil {
 			panic("nil registry")
 		}
-		info, err := this.introspector.Registry().Info(this.node.TypeName)
+		info, err := this.resources.Registry().Info(this.node.TypeName)
 		if err != nil {
 			return nil, err
 		}

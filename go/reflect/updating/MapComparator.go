@@ -1,9 +1,9 @@
 package updating
 
 import (
-	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/reflect/go/reflect/properties"
 	"reflect"
 )
 
@@ -29,7 +29,7 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 
 		if !oldKeyValue.IsValid() {
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(),
-				newKeyValue.Interface(), updates.introspector)
+				newKeyValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
 			oldValue.SetMapIndex(key, newKeyValue)
 			continue
@@ -39,14 +39,14 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 			if deepEqual.Equal(oldKeyValue.Interface(), newKeyValue.Interface()) {
 				continue
 			}
-			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
 			oldValue.SetMapIndex(key, newKeyValue)
 		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
 			if deepEqual.Equal(oldKeyValue.Interface(), newKeyValue.Interface()) {
 				continue
 			}
-			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.introspector)
+			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.resources)
 			err := structUpdate(subProperty, node, oldKeyValue.Elem(), newKeyValue.Elem(), updates)
 			if err != nil {
 				return err
@@ -60,7 +60,7 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 			newKeyValue := newValue.MapIndex(key)
 			oldKeyValue := oldValue.MapIndex(key)
 			if !newKeyValue.IsValid() {
-				subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.introspector)
+				subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.resources)
 				updates.addUpdate(subProperty, oldKeyValue.Interface(), ifs.Deleted_Entry)
 				oldValue.SetMapIndex(key, reflect.Value{})
 			}

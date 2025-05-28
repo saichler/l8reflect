@@ -10,12 +10,12 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 	var kInfo ifs.IInfo
 	var err error
 
-	vInfo, err = this.introspector.Registry().Info(this.node.TypeName)
+	vInfo, err = this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {
 		return nil, err
 	}
 
-	kInfo, err = this.introspector.Registry().Info(this.node.KeyTypeName)
+	kInfo, err = this.resources.Registry().Info(this.node.KeyTypeName)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,7 @@ func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Valu
 	}
 
 	index := this.key.(int)
-	info, err := this.introspector.Registry().Info(this.node.TypeName)
+	info, err := this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {
 		return nil, err
 	}

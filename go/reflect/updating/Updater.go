@@ -2,23 +2,23 @@ package updating
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/helping"
-	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/reflect/go/reflect/properties"
 	"reflect"
 )
 
 type Updater struct {
 	changes       []*Change
-	introspector  ifs.IIntrospector
+	resources     ifs.IResources
 	isNilValid    bool
 	newItemIsFull bool
 }
 
-func NewUpdater(introspector ifs.IIntrospector, isNilValid, newItemIsFull bool) *Updater {
+func NewUpdater(resources ifs.IResources, isNilValid, newItemIsFull bool) *Updater {
 	upd := &Updater{}
-	upd.introspector = introspector
+	upd.resources = resources
 	upd.isNilValid = isNilValid
 	upd.newItemIsFull = newItemIsFull
 	return upd
@@ -38,13 +38,13 @@ func (this *Updater) Update(old, new interface{}) error {
 		oldValue = oldValue.Elem()
 		newValue = newValue.Elem()
 	}
-	node, _ := this.introspector.Node(oldValue.Type().Name())
+	node, _ := this.resources.Introspector().Node(oldValue.Type().Name())
 	if node == nil {
 		return errors.New("cannot find node for type " + oldValue.Type().Name() + ", please register it")
 	}
 
-	pKey := helping.PrimaryDecorator(node, oldValue, this.introspector.Registry())
-	prop := properties.NewProperty(node, nil, pKey, oldValue, this.introspector)
+	pKey := helping.PrimaryDecorator(node, oldValue, this.resources.Registry())
+	prop := properties.NewProperty(node, nil, pKey, oldValue, this.resources)
 	err := update(prop, node, oldValue, newValue, this)
 	return err
 }

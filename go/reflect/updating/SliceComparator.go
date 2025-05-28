@@ -1,9 +1,9 @@
 package updating
 
 import (
-	"github.com/saichler/reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/reflect/go/reflect/properties"
 	"reflect"
 )
 
@@ -35,12 +35,12 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 				continue
 			}
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), i,
-				newIndexValue.Interface(), updates.introspector)
+				newIndexValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newIndexValue.Interface())
 			oldIndexValue.Set(newIndexValue)
 		} else if !oldIndexValue.IsValid() || oldIndexValue.IsNil() {
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property),
-				i, newIndexValue.Interface(), updates.introspector)
+				i, newIndexValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newIndexValue.Interface())
 			oldIndexValue.Set(newIndexValue)
 		} else if oldIndexValue.IsValid() && newIndexValue.IsValid() {
@@ -48,7 +48,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 				continue
 			}
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property),
-				i, newIndexValue.Interface(), updates.introspector)
+				i, newIndexValue.Interface(), updates.resources)
 			err := structUpdate(subProperty, node, oldIndexValue.Elem(), newIndexValue.Elem(), updates)
 			if err != nil {
 				return err
@@ -56,7 +56,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 		}
 	}
 
-	vInfo, err := instance.Introspector().Registry().Info(instance.Node().TypeName)
+	vInfo, err := instance.Resources().Registry().Info(instance.Node().TypeName)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 			newSlice.Index(i).Set(oldValue.Index(i))
 		}
 		subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), size,
-			nil, updates.introspector)
+			nil, updates.resources)
 		updates.addUpdate(subProperty, nil, ifs.Deleted_Entry)
 		oldValue.Set(newSlice)
 	} else if size > oldValue.Len() {
@@ -85,7 +85,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 			newV := newValue.Index(i)
 			newSlice.Index(i).Set(newV)
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), i,
-				newV.Interface(), updates.introspector)
+				newV.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newV.Interface())
 		}
 		oldValue.Set(newSlice)

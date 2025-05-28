@@ -2,9 +2,9 @@ package properties
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/introspecting"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	"github.com/saichler/reflect/go/reflect/introspecting"
 	"reflect"
 )
 
@@ -14,7 +14,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	}
 	if this.parent == nil {
 		if any == nil {
-			info, err := this.introspector.Registry().Info(this.node.TypeName)
+			info, err := this.resources.Registry().Info(this.node.TypeName)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -52,7 +52,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	}
 
 	myValue := parentValue.FieldByName(this.node.FieldName)
-	info, err := this.introspector.Registry().Info(this.node.TypeName)
+	info, err := this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -63,7 +63,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	} else if this.node.IsSlice {
 		v, e := this.sliceSet(myValue, reflect.ValueOf(value))
 		return v, any, e
-	} else if this.introspector.Kind(this.node) == reflect.Struct {
+	} else if this.resources.Introspector().Kind(this.node) == reflect.Struct {
 		if !myValue.IsValid() || myValue.IsNil() {
 			v := reflect.ValueOf(value)
 			if v.Kind() == reflect.Ptr &&
@@ -74,7 +74,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 				if v.Kind() == reflect.String {
 					serializer := info.Serializer(ifs.STRING)
 					if serializer != nil {
-						inst, _ := serializer.Unmarshal([]byte(v.String()), this.introspector.Registry())
+						inst, _ := serializer.Unmarshal([]byte(v.String()), this.Resources())
 						if inst != nil {
 							newInstance = reflect.ValueOf(inst)
 						}
@@ -87,7 +87,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	} else if reflect.ValueOf(value).Kind() == reflect.Int32 || myValue.Kind() == reflect.Int32 {
 		v := reflect.ValueOf(value)
 		if v.Kind() == reflect.String {
-			value = this.introspector.Registry().Enum(value.(string))
+			value = this.resources.Registry().Enum(value.(string))
 		}
 		myValue.SetInt(reflect.ValueOf(value).Int())
 		return value, any, err

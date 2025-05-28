@@ -2,31 +2,31 @@ package properties
 
 import (
 	"errors"
-	"github.com/saichler/reflect/go/reflect/helping"
-	strings2 "github.com/saichler/l8utils/go/utils/strings"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
 	"strings"
 )
 
 type Property struct {
-	parent       *Property
-	node         *types.RNode
-	key          interface{}
-	value        interface{}
-	id           string
-	introspector ifs.IIntrospector
-	isLeaf       bool
+	parent    *Property
+	node      *types.RNode
+	key       interface{}
+	value     interface{}
+	id        string
+	isLeaf    bool
+	resources ifs.IResources
 }
 
-func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, introspector ifs.IIntrospector) *Property {
+func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, resources ifs.IResources) *Property {
 	property := &Property{}
 	property.parent = parent
 	property.node = node
 	property.key = key
 	property.value = value
-	property.introspector = introspector
+	property.resources = resources
 	property.isLeaf = true
 	if parent != nil {
 		parent.isLeaf = false
@@ -34,13 +34,13 @@ func NewProperty(node *types.RNode, parent *Property, key interface{}, value int
 	return property
 }
 
-func PropertyOf(propertyId string, introspector ifs.IIntrospector) (*Property, error) {
+func PropertyOf(propertyId string, resources ifs.IResources) (*Property, error) {
 	propertyKey := helping.PropertyNodeKey(propertyId)
-	node, ok := introspector.Node(propertyKey)
+	node, ok := resources.Introspector().Node(propertyKey)
 	if !ok {
 		return nil, errors.New("Unknown attribute " + propertyKey)
 	}
-	return newProperty(node, propertyId, introspector)
+	return newProperty(node, propertyId, resources)
 }
 
 func (this *Property) Parent() ifs.IProperty {
@@ -59,8 +59,8 @@ func (this *Property) Value() interface{} {
 	return this.value
 }
 
-func (this *Property) Introspector() ifs.IIntrospector {
-	return this.introspector
+func (this *Property) Resources() ifs.IResources {
+	return this.resources
 }
 
 func (this *Property) setKeyValue(propertyId string) (string, error) {
@@ -92,7 +92,7 @@ func (this *Property) setKeyValue(propertyId string) (string, error) {
 	}
 
 	v := suffix[bbIndex+1 : len(suffix)-1]
-	k, e := strings2.FromString(v, this.introspector.Registry())
+	k, e := strings2.FromString(v, this.resources.Registry())
 	if e != nil {
 		return "", e
 	}
@@ -139,17 +139,17 @@ func (this *Property) IsLeaf() bool {
 	return this.isLeaf
 }
 
-func newProperty(node *types.RNode, propertyPath string, introspector ifs.IIntrospector) (*Property, error) {
+func newProperty(node *types.RNode, propertyPath string, resources ifs.IResources) (*Property, error) {
 	property := &Property{}
 	property.isLeaf = true
 	property.node = node
-	property.introspector = introspector
+	property.resources = resources
 	if node.Parent != nil {
 		prefix, err := property.setKeyValue(propertyPath)
 		if err != nil {
 			return nil, err
 		}
-		pi, err := newProperty(node.Parent, prefix, introspector)
+		pi, err := newProperty(node.Parent, prefix, resources)
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +159,7 @@ func newProperty(node *types.RNode, propertyPath string, introspector ifs.IIntro
 		index1 := strings.Index(propertyPath, "<")
 		index2 := strings.Index(propertyPath, ">")
 		if index1 != -1 && index2 != -1 && index2 > index1 {
-			k, e := strings2.FromString(propertyPath[index1+1:index2], property.introspector.Registry())
+			k, e := strings2.FromString(propertyPath[index1+1:index2], property.resources.Registry())
 			if e != nil {
 				return nil, e
 			}
