@@ -1,8 +1,10 @@
 package properties
 
 import (
-	"github.com/saichler/l8types/go/ifs"
+	"errors"
 	"reflect"
+
+	"github.com/saichler/l8types/go/ifs"
 )
 
 func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value) (interface{}, error) {
@@ -34,6 +36,9 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 		if !newMapValue.IsValid() {
 			myMapValue.SetZero()
 		} else {
+			if newMapValue.Kind() != reflect.Map {
+				return nil, errors.New("invalid map type " + newMapValue.Kind().String() + " for map " + myMapValue.Type().String())
+			}
 			myMapValue.Set(newMapValue)
 		}
 		return myMapValue.Interface(), nil
