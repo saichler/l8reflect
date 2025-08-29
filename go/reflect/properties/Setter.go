@@ -95,12 +95,10 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	} else {
 		if value != nil {
 			v := reflect.ValueOf(value)
-			if v.Kind() == reflect.Slice && v.Type().Elem().Kind() == reflect.Uint8 && myValue.Kind() == reflect.String {
-				value = string(value.([]byte))
-			} else if v.Kind() == reflect.Int && myValue.Kind() == reflect.Int64 {
-				value = int64(value.(int))
+			if v.Kind() != myValue.Kind() {
+				v = ConvertValue(myValue, v)
 			}
-			myValue.Set(reflect.ValueOf(value))
+			myValue.Set(v)
 		}
 		return value, any, err
 	}
