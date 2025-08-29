@@ -57,7 +57,7 @@ func (this *Cloner) sliceCloner(value reflect.Value, name string, stopLoop map[s
 	if value.IsNil() {
 		return value
 	}
-	newSlice := reflect.MakeSlice(reflect.SliceOf(value.Index(0).Type()), value.Len(), value.Len())
+	newSlice := reflect.MakeSlice(reflect.SliceOf(value.Type().Elem()), value.Len(), value.Len())
 	for i := 0; i < value.Len(); i++ {
 		elem := value.Index(i)
 		elemClone := this.clone(elem, name, stopLoop)
