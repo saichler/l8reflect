@@ -2,10 +2,11 @@ package properties
 
 import (
 	"errors"
+	"reflect"
+
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/introspecting"
-	"reflect"
 )
 
 func (this *Property) Set(any interface{}, value interface{}) (interface{}, interface{}, error) {
@@ -93,6 +94,12 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		return value, any, err
 	} else {
 		if value != nil {
+			v := reflect.ValueOf(value)
+			if v.Kind() == reflect.Slice && v.Type().Elem().Kind() == reflect.Uint8 && myValue.Kind() == reflect.String {
+				value = string(value.([]byte))
+			} else if v.Kind() == reflect.Int && myValue.Kind() == reflect.Int64 {
+				value = int64(value.(int))
+			}
 			myValue.Set(reflect.ValueOf(value))
 		}
 		return value, any, err
