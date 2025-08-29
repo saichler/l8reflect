@@ -8,17 +8,17 @@ import (
 func ConvertValue(target, source reflect.Value) reflect.Value {
 	targetKind := target.Kind()
 	sourceKind := source.Kind()
-	
+
 	// Handle numeric conversions
 	if isNumeric(targetKind) && isNumeric(sourceKind) {
 		return convertNumeric(target, source)
 	}
-	
+
 	// Handle string conversion
 	if targetKind == reflect.String {
 		return reflect.ValueOf(convertToString(source))
 	}
-	
+
 	// Return source unchanged if no conversion needed
 	return source
 }
@@ -26,8 +26,8 @@ func ConvertValue(target, source reflect.Value) reflect.Value {
 func isNumeric(kind reflect.Kind) bool {
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		 reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		 reflect.Float32, reflect.Float64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
 		return true
 	}
 	return false
@@ -36,7 +36,7 @@ func isNumeric(kind reflect.Kind) bool {
 func convertNumeric(target, source reflect.Value) reflect.Value {
 	targetKind := target.Kind()
 	sourceKind := source.Kind()
-	
+
 	// Get the numeric value as float64 for conversion
 	var numValue float64
 	switch sourceKind {
@@ -49,7 +49,7 @@ func convertNumeric(target, source reflect.Value) reflect.Value {
 	default:
 		return source
 	}
-	
+
 	// Convert to target type
 	switch targetKind {
 	case reflect.Int:
@@ -77,7 +77,7 @@ func convertNumeric(target, source reflect.Value) reflect.Value {
 	case reflect.Float64:
 		return reflect.ValueOf(numValue)
 	}
-	
+
 	return source
 }
 
@@ -85,6 +85,8 @@ func convertToString(value reflect.Value) string {
 	switch value.Kind() {
 	case reflect.String:
 		return value.String()
+	case reflect.Slice:
+		return string(value.Interface().([]byte))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return strconv.FormatInt(value.Int(), 10)
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
