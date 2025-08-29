@@ -5,6 +5,7 @@ import (
 	"github.com/saichler/l8types/go/testtypes"
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/tests/utils"
+	"reflect"
 	"testing"
 )
 
@@ -390,5 +391,401 @@ func TestDeepClone_ComplexStructure(t *testing.T) {
 	}
 	if cloned.Tags["status"] == "inactive" {
 		t.Error("Clone tags was affected by original change")
+	}
+}
+
+// Test missing numeric types
+func TestDeepClone_MissingNumericTypes(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	// Test int8
+	originalInt8 := int8(127)
+	clonedInt8 := cloner.Clone(originalInt8).(int8)
+	if clonedInt8 != originalInt8 {
+		t.Errorf("Expected %d, got %d", originalInt8, clonedInt8)
+	}
+	
+	// Test int16
+	originalInt16 := int16(32767)
+	clonedInt16 := cloner.Clone(originalInt16).(int16)
+	if clonedInt16 != originalInt16 {
+		t.Errorf("Expected %d, got %d", originalInt16, clonedInt16)
+	}
+	
+	// Test uint8
+	originalUint8 := uint8(255)
+	clonedUint8 := cloner.Clone(originalUint8).(uint8)
+	if clonedUint8 != originalUint8 {
+		t.Errorf("Expected %d, got %d", originalUint8, clonedUint8)
+	}
+	
+	// Test uint16
+	originalUint16 := uint16(65535)
+	clonedUint16 := cloner.Clone(originalUint16).(uint16)
+	if clonedUint16 != originalUint16 {
+		t.Errorf("Expected %d, got %d", originalUint16, clonedUint16)
+	}
+}
+
+// Test complex types
+func TestDeepClone_ComplexTypes(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	// Test complex64
+	originalComplex64 := complex64(3.14 + 2.71i)
+	clonedComplex64 := cloner.Clone(originalComplex64).(complex64)
+	if clonedComplex64 != originalComplex64 {
+		t.Errorf("Expected %v, got %v", originalComplex64, clonedComplex64)
+	}
+	
+	// Test complex128
+	originalComplex128 := complex128(3.141592653589793 + 2.718281828459045i)
+	clonedComplex128 := cloner.Clone(originalComplex128).(complex128)
+	if clonedComplex128 != originalComplex128 {
+		t.Errorf("Expected %v, got %v", originalComplex128, clonedComplex128)
+	}
+}
+
+// Test array cloning
+func TestDeepClone_Array(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	// Test int array
+	original := [5]int{1, 2, 3, 4, 5}
+	cloned := cloner.Clone(original).([5]int)
+	
+	if len(cloned) != len(original) {
+		t.Errorf("Expected length %d, got %d", len(original), len(cloned))
+	}
+	
+	for i, v := range original {
+		if cloned[i] != v {
+			t.Errorf("At index %d: expected %d, got %d", i, v, cloned[i])
+		}
+	}
+	
+	// Verify they are independent
+	original[0] = 999
+	if cloned[0] == 999 {
+		t.Error("Clone is not independent of original")
+	}
+}
+
+// Test nested array
+func TestDeepClone_NestedArray(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	type Point struct {
+		X, Y int
+	}
+	
+	original := [3]Point{{1, 2}, {3, 4}, {5, 6}}
+	cloned := cloner.Clone(original).([3]Point)
+	
+	for i, p := range original {
+		if cloned[i].X != p.X || cloned[i].Y != p.Y {
+			t.Errorf("At index %d: expected %+v, got %+v", i, p, cloned[i])
+		}
+	}
+	
+	// Verify independence
+	original[0].X = 999
+	if cloned[0].X == 999 {
+		t.Error("Clone is not independent of original")
+	}
+}
+
+// Test interface{} cloning
+func TestDeepClone_Interface(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	// Test with various concrete types in interface{}
+	testCases := []interface{}{
+		42,
+		"test string",
+		true,
+		3.14,
+		[]int{1, 2, 3},
+	}
+	
+	for i, original := range testCases {
+		cloned := cloner.Clone(original)
+		
+		// Check that the types match
+		if fmt.Sprintf("%T", original) != fmt.Sprintf("%T", cloned) {
+			t.Errorf("Test case %d: type mismatch. Expected %T, got %T", i, original, cloned)
+		}
+		
+		// Check that the values match
+		if !reflect.DeepEqual(original, cloned) {
+			t.Errorf("Test case %d: value mismatch. Expected %v, got %v", i, original, cloned)
+		}
+	}
+}
+
+// Test nil interface
+func TestDeepClone_NilInterface(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	var original interface{}
+	cloned := cloner.Clone(original)
+	
+	if cloned != nil {
+		t.Error("Expected nil interface{}, got non-nil")
+	}
+}
+
+// Test interface with pointer
+func TestDeepClone_InterfaceWithPointer(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	type TestStruct struct {
+		Value int
+	}
+	
+	originalStruct := &TestStruct{Value: 42}
+	var original interface{} = originalStruct
+	
+	cloned := cloner.Clone(original).(*TestStruct)
+	
+	if cloned.Value != originalStruct.Value {
+		t.Errorf("Expected %d, got %d", originalStruct.Value, cloned.Value)
+	}
+	
+	// Verify they point to different memory locations
+	if cloned == originalStruct {
+		t.Error("Cloned pointer points to same memory location")
+	}
+	
+	// Verify independence
+	originalStruct.Value = 999
+	if cloned.Value == 999 {
+		t.Error("Clone is not independent of original")
+	}
+}
+
+// Test channel cloning
+func TestDeepClone_Channel(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	// Test unbuffered channel
+	original := make(chan int)
+	cloned := cloner.Clone(original).(chan int)
+	
+	// Channels can't be truly cloned, but we should get a new channel of the same type
+	if cloned == original {
+		t.Error("Expected different channel instance")
+	}
+	
+	// Test buffered channel
+	originalBuffered := make(chan string, 5)
+	clonedBuffered := cloner.Clone(originalBuffered).(chan string)
+	
+	if clonedBuffered == originalBuffered {
+		t.Error("Expected different buffered channel instance")
+	}
+}
+
+// Test nil channel
+func TestDeepClone_NilChannel(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	var original chan int
+	cloned := cloner.Clone(original).(chan int)
+	
+	// Nil channels should remain nil
+	if cloned != nil {
+		t.Error("Expected nil channel, got non-nil")
+	}
+}
+
+// Test function cloning
+func TestDeepClone_Function(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	original := func(x int) int { return x * 2 }
+	cloned := cloner.Clone(original).(func(int) int)
+	
+	// Functions can't be cloned, so we expect the same function
+	if fmt.Sprintf("%p", original) != fmt.Sprintf("%p", cloned) {
+		t.Error("Expected same function reference")
+	}
+	
+	// Test that the function still works
+	if cloned(5) != 10 {
+		t.Error("Cloned function doesn't work correctly")
+	}
+}
+
+// Test nil function
+func TestDeepClone_NilFunction(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	var original func(int) int
+	cloned := cloner.Clone(original).(func(int) int)
+	
+	// Nil functions should remain nil
+	if cloned != nil {
+		t.Error("Expected nil function, got non-nil")
+	}
+}
+
+// Test struct with all supported types
+func TestDeepClone_AllTypesStruct(t *testing.T) {
+	cloner := cloning.NewCloner()
+	
+	type AllTypes struct {
+		IntField        int
+		Int8Field       int8
+		Int16Field      int16
+		Int32Field      int32
+		Int64Field      int64
+		UintField       uint
+		Uint8Field      uint8
+		Uint16Field     uint16
+		Uint32Field     uint32
+		Uint64Field     uint64
+		Float32Field    float32
+		Float64Field    float64
+		Complex64Field  complex64
+		Complex128Field complex128
+		BoolField       bool
+		StringField     string
+		ArrayField      [3]int
+		SliceField      []string
+		MapField        map[string]int
+		PtrField        *int
+		InterfaceField  interface{}
+		ChanField       chan int
+		FuncField       func() string
+	}
+	
+	value := 42
+	original := AllTypes{
+		IntField:        1,
+		Int8Field:       2,
+		Int16Field:      3,
+		Int32Field:      4,
+		Int64Field:      5,
+		UintField:       6,
+		Uint8Field:      7,
+		Uint16Field:     8,
+		Uint32Field:     9,
+		Uint64Field:     10,
+		Float32Field:    11.5,
+		Float64Field:    12.5,
+		Complex64Field:  13 + 14i,
+		Complex128Field: 15 + 16i,
+		BoolField:       true,
+		StringField:     "test",
+		ArrayField:      [3]int{1, 2, 3},
+		SliceField:      []string{"a", "b", "c"},
+		MapField:        map[string]int{"key": 100},
+		PtrField:        &value,
+		InterfaceField:  "interface value",
+		ChanField:       make(chan int),
+		FuncField:       func() string { return "test" },
+	}
+	
+	cloned := cloner.Clone(original).(AllTypes)
+	
+	// Test all numeric fields
+	if cloned.IntField != original.IntField {
+		t.Errorf("IntField: expected %d, got %d", original.IntField, cloned.IntField)
+	}
+	if cloned.Int8Field != original.Int8Field {
+		t.Errorf("Int8Field: expected %d, got %d", original.Int8Field, cloned.Int8Field)
+	}
+	if cloned.Int16Field != original.Int16Field {
+		t.Errorf("Int16Field: expected %d, got %d", original.Int16Field, cloned.Int16Field)
+	}
+	if cloned.Int32Field != original.Int32Field {
+		t.Errorf("Int32Field: expected %d, got %d", original.Int32Field, cloned.Int32Field)
+	}
+	if cloned.Int64Field != original.Int64Field {
+		t.Errorf("Int64Field: expected %d, got %d", original.Int64Field, cloned.Int64Field)
+	}
+	if cloned.UintField != original.UintField {
+		t.Errorf("UintField: expected %d, got %d", original.UintField, cloned.UintField)
+	}
+	if cloned.Uint8Field != original.Uint8Field {
+		t.Errorf("Uint8Field: expected %d, got %d", original.Uint8Field, cloned.Uint8Field)
+	}
+	if cloned.Uint16Field != original.Uint16Field {
+		t.Errorf("Uint16Field: expected %d, got %d", original.Uint16Field, cloned.Uint16Field)
+	}
+	if cloned.Uint32Field != original.Uint32Field {
+		t.Errorf("Uint32Field: expected %d, got %d", original.Uint32Field, cloned.Uint32Field)
+	}
+	if cloned.Uint64Field != original.Uint64Field {
+		t.Errorf("Uint64Field: expected %d, got %d", original.Uint64Field, cloned.Uint64Field)
+	}
+	if cloned.Float32Field != original.Float32Field {
+		t.Errorf("Float32Field: expected %f, got %f", original.Float32Field, cloned.Float32Field)
+	}
+	if cloned.Float64Field != original.Float64Field {
+		t.Errorf("Float64Field: expected %f, got %f", original.Float64Field, cloned.Float64Field)
+	}
+	if cloned.Complex64Field != original.Complex64Field {
+		t.Errorf("Complex64Field: expected %v, got %v", original.Complex64Field, cloned.Complex64Field)
+	}
+	if cloned.Complex128Field != original.Complex128Field {
+		t.Errorf("Complex128Field: expected %v, got %v", original.Complex128Field, cloned.Complex128Field)
+	}
+	if cloned.BoolField != original.BoolField {
+		t.Errorf("BoolField: expected %t, got %t", original.BoolField, cloned.BoolField)
+	}
+	if cloned.StringField != original.StringField {
+		t.Errorf("StringField: expected %s, got %s", original.StringField, cloned.StringField)
+	}
+	
+	// Test array field
+	for i, v := range original.ArrayField {
+		if cloned.ArrayField[i] != v {
+			t.Errorf("ArrayField[%d]: expected %d, got %d", i, v, cloned.ArrayField[i])
+		}
+	}
+	
+	// Test slice field
+	if len(cloned.SliceField) != len(original.SliceField) {
+		t.Errorf("SliceField length: expected %d, got %d", len(original.SliceField), len(cloned.SliceField))
+	}
+	for i, v := range original.SliceField {
+		if cloned.SliceField[i] != v {
+			t.Errorf("SliceField[%d]: expected %s, got %s", i, v, cloned.SliceField[i])
+		}
+	}
+	
+	// Test map field
+	if len(cloned.MapField) != len(original.MapField) {
+		t.Errorf("MapField length: expected %d, got %d", len(original.MapField), len(cloned.MapField))
+	}
+	for k, v := range original.MapField {
+		if cloned.MapField[k] != v {
+			t.Errorf("MapField[%s]: expected %d, got %d", k, v, cloned.MapField[k])
+		}
+	}
+	
+	// Test pointer field
+	if *cloned.PtrField != *original.PtrField {
+		t.Errorf("PtrField value: expected %d, got %d", *original.PtrField, *cloned.PtrField)
+	}
+	if cloned.PtrField == original.PtrField {
+		t.Error("PtrField: expected different memory locations")
+	}
+	
+	// Test interface field
+	if cloned.InterfaceField != original.InterfaceField {
+		t.Errorf("InterfaceField: expected %v, got %v", original.InterfaceField, cloned.InterfaceField)
+	}
+	
+	// Test channel field (should be different instances)
+	if cloned.ChanField == original.ChanField {
+		t.Error("ChanField: expected different channel instances")
+	}
+	
+	// Test function field (should be same reference)
+	if fmt.Sprintf("%p", cloned.FuncField) != fmt.Sprintf("%p", original.FuncField) {
+		t.Error("FuncField: expected same function reference")
 	}
 }

@@ -19,25 +19,41 @@ func NewCloner() *Cloner {
 func (this *Cloner) initCloners() {
 	this.cloners = make(map[reflect.Kind]func(reflect.Value, string, map[string]reflect.Value) reflect.Value)
 	this.cloners[reflect.Int] = this.intCloner
+	this.cloners[reflect.Int8] = this.int8Cloner
+	this.cloners[reflect.Int16] = this.int16Cloner
 	this.cloners[reflect.Int32] = this.int32Cloner
-	this.cloners[reflect.Ptr] = this.ptrCloner
-	this.cloners[reflect.Struct] = this.structCloner
-	this.cloners[reflect.String] = this.stringCloner
-	this.cloners[reflect.Slice] = this.sliceCloner
-	this.cloners[reflect.Map] = this.mapCloner
-	this.cloners[reflect.Bool] = this.boolCloner
 	this.cloners[reflect.Int64] = this.int64Cloner
 	this.cloners[reflect.Uint] = this.uintCloner
+	this.cloners[reflect.Uint8] = this.uint8Cloner
+	this.cloners[reflect.Uint16] = this.uint16Cloner
 	this.cloners[reflect.Uint32] = this.uint32Cloner
 	this.cloners[reflect.Uint64] = this.uint64Cloner
 	this.cloners[reflect.Float32] = this.float32Cloner
 	this.cloners[reflect.Float64] = this.float64Cloner
+	this.cloners[reflect.Complex64] = this.complex64Cloner
+	this.cloners[reflect.Complex128] = this.complex128Cloner
+	this.cloners[reflect.Bool] = this.boolCloner
+	this.cloners[reflect.String] = this.stringCloner
+	this.cloners[reflect.Array] = this.arrayCloner
+	this.cloners[reflect.Slice] = this.sliceCloner
+	this.cloners[reflect.Map] = this.mapCloner
+	this.cloners[reflect.Ptr] = this.ptrCloner
+	this.cloners[reflect.Struct] = this.structCloner
+	this.cloners[reflect.Interface] = this.interfaceCloner
+	this.cloners[reflect.Chan] = this.chanCloner
+	this.cloners[reflect.Func] = this.funcCloner
 }
 
 func (this *Cloner) Clone(any interface{}) interface{} {
+	if any == nil {
+		return nil
+	}
 	value := reflect.ValueOf(any)
 	stopLoop := make(map[string]reflect.Value)
 	valueClone := this.clone(value, "", stopLoop)
+	if !valueClone.IsValid() {
+		return nil
+	}
 	return valueClone.Interface()
 }
 
@@ -166,6 +182,78 @@ func (this *Cloner) int64Cloner(value reflect.Value, name string, stopLoop map[s
 func (this *Cloner) stringCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
 	s := value.String()
 	return reflect.ValueOf(s)
+}
+
+func (this *Cloner) int8Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	i := value.Int()
+	return reflect.ValueOf(int8(i))
+}
+
+func (this *Cloner) int16Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	i := value.Int()
+	return reflect.ValueOf(int16(i))
+}
+
+func (this *Cloner) uint8Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	i := value.Uint()
+	return reflect.ValueOf(uint8(i))
+}
+
+func (this *Cloner) uint16Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	i := value.Uint()
+	return reflect.ValueOf(uint16(i))
+}
+
+func (this *Cloner) complex64Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	c := value.Complex()
+	return reflect.ValueOf(complex64(c))
+}
+
+func (this *Cloner) complex128Cloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	c := value.Complex()
+	return reflect.ValueOf(complex128(c))
+}
+
+func (this *Cloner) arrayCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	arrayType := value.Type()
+	newArray := reflect.New(arrayType).Elem()
+	for i := 0; i < value.Len(); i++ {
+		elem := value.Index(i)
+		elemClone := this.clone(elem, name, stopLoop)
+		newArray.Index(i).Set(elemClone)
+	}
+	return newArray
+}
+
+func (this *Cloner) interfaceCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	if value.IsNil() {
+		return value
+	}
+	// Get the concrete value inside the interface
+	concreteValue := value.Elem()
+	// Clone the concrete value
+	clonedConcrete := this.clone(concreteValue, name, stopLoop)
+	// Return it wrapped in the same interface type
+	return clonedConcrete
+}
+
+func (this *Cloner) chanCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	if value.IsNil() {
+		return value
+	}
+	// Create a new channel of the same type
+	// Note: We can't clone channel contents, so we just create a new empty channel
+	chanType := value.Type()
+	newChan := reflect.MakeChan(chanType, 0)
+	return newChan
+}
+
+func (this *Cloner) funcCloner(value reflect.Value, name string, stopLoop map[string]reflect.Value) reflect.Value {
+	if value.IsNil() {
+		return value
+	}
+	// Functions can't be truly cloned in Go, so we return the same function
+	return value
 }
 
 func SkipFieldByName(fieldName string) bool {
