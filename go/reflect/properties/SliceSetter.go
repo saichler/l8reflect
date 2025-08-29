@@ -8,7 +8,7 @@ import (
 
 func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Value) (interface{}, error) {
 	//Replace all the slice
-	if this.key == nil && myValue.IsValid() && !myValue.IsNil() && newSliceValue.Kind() == reflect.Slice {
+	if this.key == nil && newSliceValue.Kind() == reflect.Slice {
 		myValue.Set(newSliceValue)
 		return myValue.Interface(), nil
 	}
