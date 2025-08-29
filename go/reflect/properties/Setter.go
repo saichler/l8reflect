@@ -65,6 +65,14 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		v, e := this.sliceSet(myValue, reflect.ValueOf(value))
 		return v, any, e
 	} else if this.resources.Introspector().Kind(this.node) == reflect.Struct {
+		// Handle setting to nil
+		if value == nil {
+			if myValue.IsValid() && myValue.CanSet() {
+				myValue.Set(reflect.Zero(myValue.Type()))
+			}
+			return nil, any, err
+		}
+		
 		if !myValue.IsValid() || myValue.IsNil() {
 			v := reflect.ValueOf(value)
 			if v.Kind() == reflect.Ptr &&
@@ -82,6 +90,13 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 					}
 				}
 				myValue.Set(newInstance)
+			}
+		} else {
+			// Handle replacing existing struct pointer with new value
+			v := reflect.ValueOf(value)
+			if v.Kind() == reflect.Ptr &&
+				!v.IsNil() && v.Elem().Type().Name() == typ.Name() {
+				myValue.Set(reflect.ValueOf(value))
 			}
 		}
 		return myValue.Interface(), any, err

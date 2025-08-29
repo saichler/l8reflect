@@ -8,9 +8,34 @@ import (
 
 func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Value) (interface{}, error) {
 	//Replace all the slice
-	if this.key == nil && newSliceValue.Kind() == reflect.Slice {
-		myValue.Set(newSliceValue)
-		return myValue.Interface(), nil
+	if this.key == nil {
+		// Handle setting slice to nil or a new slice
+		if newSliceValue.Kind() == reflect.Slice || !newSliceValue.IsValid() {
+			// Check if myValue is valid and settable
+			if myValue.IsValid() && myValue.CanSet() {
+				if !newSliceValue.IsValid() {
+					// Setting to nil - create a zero value of the appropriate slice type
+					sliceType := myValue.Type()
+					nilSlice := reflect.Zero(sliceType)
+					myValue.Set(nilSlice)
+					return nil, nil
+				} else {
+					myValue.Set(newSliceValue)
+					return myValue.Interface(), nil
+				}
+			} else {
+				// If we can't set the value, just return the new value
+				if newSliceValue.IsValid() {
+					return newSliceValue.Interface(), nil
+				}
+				return nil, nil
+			}
+		}
+	}
+
+	// Check if this.key is nil before casting
+	if this.key == nil {
+		return nil, nil // Return nil for setting nil on slice without index
 	}
 
 	index := this.key.(int)
