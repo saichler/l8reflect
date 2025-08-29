@@ -1,13 +1,18 @@
 package properties
 
 import (
-	"github.com/saichler/l8types/go/ifs"
+	"errors"
 	"reflect"
+
+	"github.com/saichler/l8types/go/ifs"
 )
 
 func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Value) (interface{}, error) {
 	//Replace all the slice
 	if this.key == nil || !myValue.IsValid() || myValue.IsNil() || !newSliceValue.IsValid() {
+		if newSliceValue.Kind() != myValue.Kind() {
+			return nil, errors.New("invalid slice type " + newSliceValue.Kind().String())
+		}
 		myValue.Set(newSliceValue)
 		return myValue.Interface(), nil
 	}
