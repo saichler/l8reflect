@@ -63,3 +63,32 @@ func Test_NetworkDevice_Id_Set(t *testing.T) {
 		return
 	}
 }
+
+func Test_NetworkDevice_Nested_map(t *testing.T) {
+	r, aside, zside, yside, updater := createElems()
+	physicalKey := ""
+	for k, _ := range zside.Physicals {
+		physicalKey = k
+		break
+	}
+	zside.Physicals[physicalKey].Id = "other"
+	if !updateElems(updater, aside, zside, yside, r, t) {
+		return
+	}
+	if yside.Physicals[physicalKey].Id != zside.Physicals[physicalKey].Id {
+		r.Logger().Fail(t, "Expected zside.physoicals.Id to equal yside.physicals.Id")
+		return
+	}
+}
+
+func Test_NetworkDevice_Nested_slice(t *testing.T) {
+	r, aside, zside, yside, updater := createElems()
+	zside.NetworkLinks[0].LinkStatus = types.LinkStatus_LINK_STATUS_INACTIVE
+	if !updateElems(updater, aside, zside, yside, r, t) {
+		return
+	}
+	if yside.NetworkLinks[0].LinkStatus != zside.NetworkLinks[0].LinkStatus {
+		r.Logger().Fail(t, "Expected zside.NetworkLinks[0].LinkStatus to equal yside.NetworkLinks[0].LinkStatus")
+		return
+	}
+}

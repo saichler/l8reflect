@@ -1,10 +1,11 @@
 package updating
 
 import (
+	"reflect"
+
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"reflect"
 )
 
 func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
@@ -61,7 +62,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 		return err
 	}
 
-	if size < oldValue.Len() {
+	if size < oldValue.Len() && updates.newItemIsFull {
 		var newSlice reflect.Value
 		if node.IsStruct {
 			newSlice = reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), size, size)
