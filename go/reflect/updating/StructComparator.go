@@ -40,6 +40,10 @@ func structUpdate(property *properties.Property, node *types.RNode, oldValue, ne
 		return nil
 	}
 
+	if !newValue.IsValid() && oldValue.IsValid() {
+		newValue.Set(reflect.New(oldValue.Type()).Elem())
+	}
+
 	if oldValue.Type().Name() != newValue.Type().Name() {
 		return errors.New("Mismatch type, old=" + oldValue.Type().Name() + ", new=" + newValue.Type().Name())
 	}
