@@ -28,10 +28,18 @@ func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 func structUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !oldValue.IsValid() && newValue.IsValid() {
 		oldValue.Set(newValue)
+		updates.addUpdate(property, nil, newValue.Interface())
+		return nil
 	}
-	if oldValue.IsValid() && newValue.IsValid() && updates.isNilValid {
-		oldValue.Set(reflect.New(oldValue.Type()).Elem())
+	if oldValue.IsValid() && !newValue.IsValid() && updates.isNilValid {
+		newValue.Set(reflect.New(oldValue.Type()).Elem())
+		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
+		return nil
 	}
+	if !oldValue.IsValid() && !newValue.IsValid() {
+		return nil
+	}
+
 	if oldValue.Type().Name() != newValue.Type().Name() {
 		return errors.New("Mismatch type, old=" + oldValue.Type().Name() + ", new=" + newValue.Type().Name())
 	}
