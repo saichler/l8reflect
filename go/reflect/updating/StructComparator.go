@@ -2,9 +2,10 @@ package updating
 
 import (
 	"errors"
+	"reflect"
+
 	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"reflect"
 )
 
 func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
@@ -25,6 +26,12 @@ func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 }
 
 func structUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+	if !oldValue.IsValid() && newValue.IsValid() {
+		oldValue.Set(newValue)
+	}
+	if oldValue.IsValid() && newValue.IsValid() && updates.isNilValid {
+		oldValue.Set(reflect.New(oldValue.Type()).Elem())
+	}
 	if oldValue.Type().Name() != newValue.Type().Name() {
 		return errors.New("Mismatch type, old=" + oldValue.Type().Name() + ", new=" + newValue.Type().Name())
 	}
