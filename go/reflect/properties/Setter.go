@@ -72,7 +72,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 			}
 			return nil, any, err
 		}
-		
+
 		if !myValue.IsValid() || myValue.IsNil() {
 			v := reflect.ValueOf(value)
 			if v.Kind() == reflect.Ptr &&
@@ -89,7 +89,12 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 						}
 					}
 				}
-				myValue.Set(newInstance)
+				if myValue.CanSet() {
+					myValue.Set(newInstance)
+				} else {
+					p, _ := this.PropertyId()
+					return nil, any, errors.New("Cannot set value to " + p)
+				}
 			}
 		} else {
 			// Handle replacing existing struct pointer with new value
