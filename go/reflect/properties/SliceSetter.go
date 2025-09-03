@@ -1,6 +1,7 @@
 package properties
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/saichler/l8types/go/ifs"
@@ -91,6 +92,11 @@ func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Valu
 
 	if this.node.IsStruct && !this.IsLeaf() {
 		return oIndexValue.Interface(), nil
+	}
+
+	if newSliceValue.Kind() != reflect.Slice {
+		pid, _ := this.PropertyId()
+		return nil, errors.New("No a slice new value PID: " + pid)
 	}
 
 	nIndexValue := newSliceValue.Index(index)

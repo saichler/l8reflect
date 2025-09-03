@@ -41,6 +41,7 @@ func structUpdate(property *properties.Property, node *types.RNode, oldValue, ne
 	}
 
 	if !newValue.IsValid() && oldValue.IsValid() {
+		newValue = reflect.New(oldValue.Type()).Elem()
 		newValue.Set(reflect.New(oldValue.Type()).Elem())
 	}
 
