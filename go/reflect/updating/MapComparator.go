@@ -16,7 +16,7 @@ func mapUpdate(instance *properties.Property, node *types.RNode, oldValue, newVa
 		oldValue.Set(newValue)
 		return nil
 	}
-	if !oldValue.IsNil() && newValue.IsNil() && updates.isNilValid {
+	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(instance, oldValue, nil)
 		oldValue.Set(newValue)
 		return nil

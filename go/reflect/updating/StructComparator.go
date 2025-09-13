@@ -14,7 +14,7 @@ func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 		oldValue.Set(newValue)
 		return nil
 	}
-	if !oldValue.IsNil() && newValue.IsNil() && updates.isNilValid {
+	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(property, oldValue, nil)
 		oldValue.Set(newValue)
 		return nil
@@ -31,7 +31,7 @@ func structUpdate(property *properties.Property, node *types.RNode, oldValue, ne
 		updates.addUpdate(property, nil, newValue.Interface())
 		return nil
 	}
-	if oldValue.IsValid() && !newValue.IsValid() && updates.isNilValid {
+	if oldValue.IsValid() && !newValue.IsValid() && updates.nilIsValid {
 		newValue.Set(reflect.New(oldValue.Type()).Elem())
 		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
 		return nil

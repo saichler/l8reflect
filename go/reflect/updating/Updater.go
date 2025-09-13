@@ -2,24 +2,25 @@ package updating
 
 import (
 	"errors"
+	"reflect"
+
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"reflect"
 )
 
 type Updater struct {
 	changes       []*Change
 	resources     ifs.IResources
-	isNilValid    bool
+	nilIsValid    bool
 	newItemIsFull bool
 }
 
 func NewUpdater(resources ifs.IResources, isNilValid, newItemIsFull bool) *Updater {
 	upd := &Updater{}
 	upd.resources = resources
-	upd.isNilValid = isNilValid
+	upd.nilIsValid = isNilValid
 	upd.newItemIsFull = newItemIsFull
 	return upd
 }
@@ -53,7 +54,7 @@ func update(instance *properties.Property, node *types.RNode, oldValue, newValue
 	if !newValue.IsValid() {
 		return nil
 	}
-	if newValue.Kind() == reflect.Ptr && newValue.IsNil() && !updates.isNilValid {
+	if newValue.Kind() == reflect.Ptr && newValue.IsNil() && !updates.nilIsValid {
 		return nil
 	}
 
@@ -66,7 +67,7 @@ func update(instance *properties.Property, node *types.RNode, oldValue, newValue
 }
 
 func (this *Updater) addUpdate(prop *properties.Property, oldValue, newValue interface{}) {
-	if !this.isNilValid && newValue == nil {
+	if !this.nilIsValid && newValue == nil {
 		return
 	}
 	if this.changes == nil {

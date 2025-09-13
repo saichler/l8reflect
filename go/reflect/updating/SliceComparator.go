@@ -17,7 +17,7 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 		oldValue.Set(newValue)
 		return nil
 	}
-	if !oldValue.IsNil() && newValue.IsNil() && updates.isNilValid {
+	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(instance, oldValue, nil)
 		oldValue.Set(newValue)
 		return nil
@@ -89,6 +89,9 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 				newV.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newV.Interface())
 		}
+		subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), nil,
+			nil, updates.resources)
+		updates.addUpdate(subProperty, oldValue.Interface(), newSlice.Interface())
 		oldValue.Set(newSlice)
 	}
 

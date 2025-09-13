@@ -37,7 +37,7 @@ func init() {
 }
 
 func intUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.isNilValid) {
+	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.nilIsValid) {
 		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
@@ -45,7 +45,7 @@ func intUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 }
 
 func uintUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.isNilValid) {
+	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
@@ -53,7 +53,7 @@ func uintUpdate(instance *properties.Property, node *types.RNode, oldValue, newV
 }
 
 func stringUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.isNilValid) {
+	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
@@ -64,7 +64,7 @@ func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newV
 	if newValue.Bool() == oldValue.Bool() {
 		return nil
 	}
-	if newValue.Bool() && !oldValue.Bool() || updates.isNilValid {
+	if newValue.Bool() && !oldValue.Bool() || updates.nilIsValid {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
@@ -72,7 +72,7 @@ func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newV
 }
 
 func floatUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
-	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.isNilValid) {
+	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
 	}
