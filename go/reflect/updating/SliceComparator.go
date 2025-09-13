@@ -77,8 +77,8 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 			nil, updates.resources)
 		updates.addUpdate(subProperty, nil, ifs.Deleted_Entry)
 		oldValue.Set(newSlice)
-	} else if size > oldValue.Len() {
-		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), size, size)
+	} else if newValue.Len() > oldValue.Len() {
+		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), newValue.Len(), newValue.Len())
 		for i := 0; i < size; i++ {
 			newSlice.Index(i).Set(oldValue.Index(i))
 		}
@@ -89,9 +89,6 @@ func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, new
 				newV.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newV.Interface())
 		}
-		subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), nil,
-			nil, updates.resources)
-		updates.addUpdate(subProperty, oldValue.Interface(), newSlice.Interface())
 		oldValue.Set(newSlice)
 	}
 
