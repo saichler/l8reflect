@@ -3,7 +3,6 @@ package properties
 import (
 	"errors"
 	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/l8types/go/types"
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"

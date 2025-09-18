@@ -4,7 +4,6 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/properties"
 )
 

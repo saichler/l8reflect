@@ -1,7 +1,6 @@
 package introspecting
 
 import (
-	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
 )

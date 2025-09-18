@@ -2,7 +2,6 @@ package updating
 
 import (
 	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/reflect/go/reflect/properties"
 	"reflect"
 )

@@ -2,7 +2,6 @@ package helping
 
 import (
 	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/l8types/go/types"
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
 	"reflect"
 	"strings"

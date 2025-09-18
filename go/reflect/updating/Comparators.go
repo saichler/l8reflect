@@ -3,7 +3,6 @@ package updating
 import (
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/l8types/go/types"
 	"reflect"
 )
 

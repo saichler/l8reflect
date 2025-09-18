@@ -3,7 +3,6 @@ package introspecting
 import (
 	"errors"
 	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/l8types/go/types"
 	"github.com/saichler/l8utils/go/utils/maps"
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/helping"
