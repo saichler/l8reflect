@@ -1,16 +1,18 @@
 package updating
 
 import (
+	"reflect"
+
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/properties"
-	"reflect"
 )
 
-var comparators map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error
+var comparators map[reflect.Kind]func(*properties.Property, *l8reflect.L8Node, reflect.Value, reflect.Value, *Updater) error
 var deepEqual = cloning.NewDeepEqual()
 
 func init() {
-	comparators = make(map[reflect.Kind]func(*properties.Property, *types.RNode, reflect.Value, reflect.Value, *Updater) error)
+	comparators = make(map[reflect.Kind]func(*properties.Property, *l8reflect.L8Node, reflect.Value, reflect.Value, *Updater) error)
 	comparators[reflect.Int] = intUpdate
 	comparators[reflect.Int32] = intUpdate
 	comparators[reflect.Int64] = intUpdate
@@ -35,7 +37,7 @@ func init() {
 	comparators[reflect.Map] = mapUpdate
 }
 
-func intUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func intUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.nilIsValid) {
 		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -43,7 +45,7 @@ func intUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 	return nil
 }
 
-func uintUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func uintUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -51,7 +53,7 @@ func uintUpdate(instance *properties.Property, node *types.RNode, oldValue, newV
 	return nil
 }
 
-func stringUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func stringUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)
@@ -59,7 +61,7 @@ func stringUpdate(instance *properties.Property, node *types.RNode, oldValue, ne
 	return nil
 }
 
-func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func boolUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if newValue.Bool() == oldValue.Bool() {
 		return nil
 	}
@@ -70,7 +72,7 @@ func boolUpdate(instance *properties.Property, node *types.RNode, oldValue, newV
 	return nil
 }
 
-func floatUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func floatUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
 		oldValue.Set(newValue)

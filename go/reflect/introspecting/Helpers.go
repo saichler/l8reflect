@@ -1,17 +1,19 @@
 package introspecting
 
 import (
-	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
+
+	"github.com/saichler/l8types/go/types/l8reflect"
+	"github.com/saichler/reflect/go/reflect/helping"
 )
 
-func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _fieldName string) *types.RNode {
+func (this *Introspector) addAttribute(node *l8reflect.L8Node, _type reflect.Type, _fieldName string) *l8reflect.L8Node {
 	this.registry.RegisterType(_type)
 	if node != nil && node.Attributes == nil {
-		node.Attributes = make(map[string]*types.RNode)
+		node.Attributes = make(map[string]*l8reflect.L8Node)
 	}
 
-	subNode := &types.RNode{}
+	subNode := &l8reflect.L8Node{}
 	subNode.TypeName = _type.Name()
 	subNode.Parent = node
 	subNode.FieldName = _fieldName
@@ -22,7 +24,7 @@ func (this *Introspector) addAttribute(node *types.RNode, _type reflect.Type, _f
 	return subNode
 }
 
-func (this *Introspector) fixClone(clone *types.RNode, parent *types.RNode, fieldName string) {
+func (this *Introspector) fixClone(clone *l8reflect.L8Node, parent *l8reflect.L8Node, fieldName string) {
 	clone.Parent = parent
 	clone.FieldName = fieldName
 	clone.CachedKey = ""
@@ -35,10 +37,10 @@ func (this *Introspector) fixClone(clone *types.RNode, parent *types.RNode, fiel
 	}
 }
 
-func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fieldName string) (*types.RNode, bool) {
+func (this *Introspector) addNode(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) (*l8reflect.L8Node, bool) {
 	exist, ok := this.typeToNode.Get(_type.Name())
 	if ok && !helping.IsLeaf(exist) {
-		clone := this.cloner.Clone(exist).(*types.RNode)
+		clone := this.cloner.Clone(exist).(*l8reflect.L8Node)
 		this.fixClone(clone, _parent, _fieldName)
 		return clone, true
 	}
@@ -56,7 +58,7 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *types.RNode, _fie
 	return node, false
 }
 
-func (this *Introspector) inspectStruct(_type reflect.Type, _parent *types.RNode, _fieldName string) *types.RNode {
+func (this *Introspector) inspectStruct(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	localNode, isClone := this.addNode(_type, _parent, _fieldName)
 	if isClone {
 		return localNode
@@ -83,7 +85,7 @@ func (this *Introspector) inspectStruct(_type reflect.Type, _parent *types.RNode
 	return localNode
 }
 
-func (this *Introspector) inspectPtr(_type reflect.Type, _parent *types.RNode, _fieldName string) *types.RNode {
+func (this *Introspector) inspectPtr(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	switch _type.Kind() {
 	case reflect.Struct:
 		return this.inspectStruct(_type, _parent, _fieldName)
@@ -91,14 +93,14 @@ func (this *Introspector) inspectPtr(_type reflect.Type, _parent *types.RNode, _
 	panic("unknown ptr kind " + _type.Kind().String())
 }
 
-func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _fieldName string) *types.RNode {
+func (this *Introspector) inspectMap(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsMap = true
 		subNode.IsStruct = true
 		subNode.KeyTypeName = _type.Key().Name()
 		if _parent.Attributes == nil {
-			_parent.Attributes = make(map[string]*types.RNode)
+			_parent.Attributes = make(map[string]*l8reflect.L8Node)
 		}
 		_parent.Attributes[_fieldName] = subNode
 		return subNode
@@ -110,13 +112,13 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *types.RNode, _
 	}
 }
 
-func (this *Introspector) inspectSlice(_type reflect.Type, _parent *types.RNode, _fieldName string) *types.RNode {
+func (this *Introspector) inspectSlice(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
 		subNode.IsSlice = true
 		subNode.IsStruct = true
 		if _parent.Attributes == nil {
-			_parent.Attributes = make(map[string]*types.RNode)
+			_parent.Attributes = make(map[string]*l8reflect.L8Node)
 		}
 		_parent.Attributes[_fieldName] = subNode
 		return subNode

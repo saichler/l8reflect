@@ -2,16 +2,18 @@ package properties
 
 import (
 	"errors"
-	"github.com/saichler/l8types/go/ifs"
-	strings2 "github.com/saichler/l8utils/go/utils/strings"
-	"github.com/saichler/reflect/go/reflect/helping"
 	"reflect"
 	"strings"
+
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8reflect"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
+	"github.com/saichler/reflect/go/reflect/helping"
 )
 
 type Property struct {
 	parent    *Property
-	node      *types.RNode
+	node      *l8reflect.L8Node
 	key       interface{}
 	value     interface{}
 	id        string
@@ -19,7 +21,7 @@ type Property struct {
 	resources ifs.IResources
 }
 
-func NewProperty(node *types.RNode, parent *Property, key interface{}, value interface{}, resources ifs.IResources) *Property {
+func NewProperty(node *l8reflect.L8Node, parent *Property, key interface{}, value interface{}, resources ifs.IResources) *Property {
 	property := &Property{}
 	property.parent = parent
 	property.node = node
@@ -46,7 +48,7 @@ func (this *Property) Parent() ifs.IProperty {
 	return this.parent
 }
 
-func (this *Property) Node() *types.RNode {
+func (this *Property) Node() *l8reflect.L8Node {
 	return this.node
 }
 
@@ -138,7 +140,7 @@ func (this *Property) IsLeaf() bool {
 	return this.isLeaf
 }
 
-func newProperty(node *types.RNode, propertyPath string, resources ifs.IResources) (*Property, error) {
+func newProperty(node *l8reflect.L8Node, propertyPath string, resources ifs.IResources) (*Property, error) {
 	property := &Property{}
 	property.isLeaf = true
 	property.node = node

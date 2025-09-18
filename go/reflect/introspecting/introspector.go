@@ -2,12 +2,14 @@ package introspecting
 
 import (
 	"errors"
+	"reflect"
+	"strings"
+
 	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/l8utils/go/utils/maps"
 	"github.com/saichler/reflect/go/reflect/cloning"
 	"github.com/saichler/reflect/go/reflect/helping"
-	"reflect"
-	"strings"
 )
 
 type Introspector struct {
@@ -32,7 +34,7 @@ func (this *Introspector) Registry() ifs.IRegistry {
 	return this.registry
 }
 
-func (this *Introspector) Inspect(any interface{}) (*types.RNode, error) {
+func (this *Introspector) Inspect(any interface{}) (*l8reflect.L8Node, error) {
 	if any == nil {
 		return nil, errors.New("Cannot introspect a nil value")
 	}
@@ -51,11 +53,11 @@ func (this *Introspector) Inspect(any interface{}) (*types.RNode, error) {
 	return this.inspectStruct(t, nil, ""), nil
 }
 
-func (this *Introspector) Node(path string) (*types.RNode, bool) {
+func (this *Introspector) Node(path string) (*l8reflect.L8Node, bool) {
 	return this.pathToNode.Get(strings.ToLower(path))
 }
 
-func (this *Introspector) NodeByValue(any interface{}) (*types.RNode, bool) {
+func (this *Introspector) NodeByValue(any interface{}) (*l8reflect.L8Node, bool) {
 	val := reflect.ValueOf(any)
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
@@ -63,17 +65,17 @@ func (this *Introspector) NodeByValue(any interface{}) (*types.RNode, bool) {
 	return this.NodeByType(val.Type())
 }
 
-func (this *Introspector) NodeByType(typ reflect.Type) (*types.RNode, bool) {
+func (this *Introspector) NodeByType(typ reflect.Type) (*l8reflect.L8Node, bool) {
 	return this.NodeByTypeName(typ.Name())
 }
 
-func (this *Introspector) NodeByTypeName(name string) (*types.RNode, bool) {
+func (this *Introspector) NodeByTypeName(name string) (*l8reflect.L8Node, bool) {
 	return this.typeToNode.Get(name)
 }
 
-func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*types.RNode {
+func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*l8reflect.L8Node {
 	filter := func(any interface{}) bool {
-		n := any.(*types.RNode)
+		n := any.(*l8reflect.L8Node)
 		if onlyLeafs && !helping.IsLeaf(n) {
 			return false
 		}
@@ -86,7 +88,7 @@ func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*types.RNode {
 	return this.pathToNode.NodesList(filter)
 }
 
-func (this *Introspector) Kind(node *types.RNode) reflect.Kind {
+func (this *Introspector) Kind(node *l8reflect.L8Node) reflect.Kind {
 	info, err := this.registry.Info(node.TypeName)
 	if err != nil {
 		panic(err.Error())
@@ -98,8 +100,8 @@ func (this *Introspector) Clone(any interface{}) interface{} {
 	return this.cloner.Clone(any)
 }
 
-func (this *Introspector) addTableView(node *types.RNode) {
-	tv := &types.TableView{Table: node, Columns: make([]*types.RNode, 0), SubTables: make([]*types.RNode, 0)}
+func (this *Introspector) addTableView(node *l8reflect.L8Node) {
+	tv := &l8reflect.L8TableView{Table: node, Columns: make([]*l8reflect.L8Node, 0), SubTables: make([]*l8reflect.L8Node, 0)}
 	for _, attr := range node.Attributes {
 		if helping.IsLeaf(attr) {
 			tv.Columns = append(tv.Columns, attr)
@@ -110,17 +112,17 @@ func (this *Introspector) addTableView(node *types.RNode) {
 	this.tableViews.Put(node.TypeName, tv)
 }
 
-func (this *Introspector) TableView(name string) (*types.TableView, bool) {
+func (this *Introspector) TableView(name string) (*l8reflect.L8TableView, bool) {
 	tv, ok := this.tableViews.Get(name)
 	if !ok {
 		return nil, ok
 	}
-	return tv.(*types.TableView), ok
+	return tv.(*l8reflect.L8TableView), ok
 }
 
-func (this *Introspector) TableViews() []*types.TableView {
-	list := this.tableViews.ValuesAsList(reflect.TypeOf(&types.TableView{}), nil)
-	return list.([]*types.TableView)
+func (this *Introspector) TableViews() []*l8reflect.L8TableView {
+	list := this.tableViews.ValuesAsList(reflect.TypeOf(&l8reflect.L8TableView{}), nil)
+	return list.([]*l8reflect.L8TableView)
 }
 
 func (this *Introspector) Clean(typeName string) {
@@ -131,7 +133,7 @@ func (this *Introspector) Clean(typeName string) {
 	this.clean(node)
 }
 
-func (this *Introspector) clean(node *types.RNode) {
+func (this *Introspector) clean(node *l8reflect.L8Node) {
 	if node.Attributes != nil {
 		for _, attr := range node.Attributes {
 			this.clean(attr)

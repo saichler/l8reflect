@@ -4,10 +4,11 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/reflect/go/reflect/properties"
 )
 
-func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func ptrUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(property, nil, newValue.Interface())
 		oldValue.Set(newValue)
@@ -24,7 +25,7 @@ func ptrUpdate(property *properties.Property, node *types.RNode, oldValue, newVa
 	return update(property, node, oldValue.Elem(), newValue.Elem(), updates)
 }
 
-func structUpdate(property *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func structUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !oldValue.IsValid() && newValue.IsValid() {
 		oldValue.Set(newValue)
 		updates.addUpdate(property, nil, newValue.Interface())

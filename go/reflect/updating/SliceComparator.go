@@ -4,10 +4,11 @@ import (
 	"reflect"
 
 	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/reflect/go/reflect/properties"
 )
 
-func sliceUpdate(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && newValue.IsNil() {
 		return nil
 	}

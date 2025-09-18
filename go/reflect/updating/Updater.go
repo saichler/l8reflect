@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/reflect/go/reflect/helping"
 	"github.com/saichler/reflect/go/reflect/properties"
 )
@@ -49,7 +50,7 @@ func (this *Updater) Update(old, new interface{}) error {
 	return err
 }
 
-func update(instance *properties.Property, node *types.RNode, oldValue, newValue reflect.Value, updates *Updater) error {
+func update(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !newValue.IsValid() {
 		return nil
 	}

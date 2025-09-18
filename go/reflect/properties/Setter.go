@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/reflect/go/reflect/introspecting"
 )
 
@@ -123,7 +124,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	}
 }
 
-func (this *Property) SetPrimaryKey(node *types.RNode, any interface{}, anyKey interface{}) {
+func (this *Property) SetPrimaryKey(node *l8reflect.L8Node, any interface{}, anyKey interface{}) {
 	if anyKey == nil {
 		return
 	}
