@@ -11,8 +11,8 @@ import (
 	"github.com/saichler/l8utils/go/utils/resources"
 	"github.com/saichler/probler/go/tests"
 	"github.com/saichler/probler/go/types"
-	"github.com/saichler/reflect/go/reflect/introspecting"
-	"github.com/saichler/reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
 func Devices() *types.NetworkDeviceList {

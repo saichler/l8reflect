@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"github.com/saichler/l8types/go/types/l8reflect"
-	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/cloning"
+	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
 var comparators map[reflect.Kind]func(*properties.Property, *l8reflect.L8Node, reflect.Value, reflect.Value, *Updater) error

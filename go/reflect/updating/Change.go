@@ -1,7 +1,7 @@
 package updating
 
 import (
-	"github.com/saichler/reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8utils/go/utils/strings"
 )
 

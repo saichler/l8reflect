@@ -6,9 +6,9 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/probler/go/tests"
 	"github.com/saichler/probler/go/types"
-	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/reflect/go/reflect/updating"
+	"github.com/saichler/l8reflect/go/reflect/cloning"
+	"github.com/saichler/l8reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/updating"
 )
 
 func createElems() (ifs.IResources, *types.NetworkDevice, *types.NetworkDevice, *types.NetworkDevice, *updating.Updater) {

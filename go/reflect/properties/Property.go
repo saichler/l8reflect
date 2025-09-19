@@ -8,7 +8,7 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
-	"github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
 type Property struct {

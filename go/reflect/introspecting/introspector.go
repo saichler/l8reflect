@@ -8,8 +8,8 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/l8utils/go/utils/maps"
-	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/l8reflect/go/reflect/cloning"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
 type Introspector struct {

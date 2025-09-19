@@ -3,9 +3,9 @@ package tests
 import (
 	"github.com/saichler/l8srlz/go/serialize/object"
 	"github.com/saichler/l8types/go/testtypes"
-	"github.com/saichler/reflect/go/reflect/properties"
-	"github.com/saichler/reflect/go/reflect/updating"
-	"github.com/saichler/reflect/go/tests/utils"
+	"github.com/saichler/l8reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/updating"
+	"github.com/saichler/l8reflect/go/tests/utils"
 	"testing"
 )
 

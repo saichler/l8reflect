@@ -3,8 +3,8 @@ package tests
 import (
 	"fmt"
 	"github.com/saichler/l8types/go/testtypes"
-	"github.com/saichler/reflect/go/reflect/cloning"
-	"github.com/saichler/reflect/go/tests/utils"
+	"github.com/saichler/l8reflect/go/reflect/cloning"
+	"github.com/saichler/l8reflect/go/tests/utils"
 	"reflect"
 	"testing"
 )

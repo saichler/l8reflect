@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"github.com/saichler/l8types/go/types/l8reflect"
-	"github.com/saichler/reflect/go/reflect/helping"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
 func (this *Introspector) addAttribute(node *l8reflect.L8Node, _type reflect.Type, _fieldName string) *l8reflect.L8Node {

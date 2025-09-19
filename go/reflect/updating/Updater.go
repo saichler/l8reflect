@@ -6,8 +6,8 @@ import (
 
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
-	"github.com/saichler/reflect/go/reflect/helping"
-	"github.com/saichler/reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/helping"
+	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
 type Updater struct {

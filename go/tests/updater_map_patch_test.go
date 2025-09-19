@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/saichler/probler/go/types"
-	"github.com/saichler/reflect/go/reflect/updating"
+	"github.com/saichler/l8reflect/go/reflect/updating"
 )
 
 func TestPatchMapItem(t *testing.T) {
