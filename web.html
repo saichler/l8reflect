@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Reflection Library - Advanced Reflection Utilities</title>
+    <title>Layer 8 Model Agnostic Infra - Advanced Reflection Utilities</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -17,7 +17,9 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c5aa0 0%, #0f4c81 100%);
+            position: relative;
+            overflow-x: hidden;
         }
 
         .container {
@@ -47,7 +49,7 @@
         .logo {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #667eea;
+            color: #2c5aa0;
             text-decoration: none;
         }
 
@@ -65,15 +67,40 @@
         }
 
         .nav-links a:hover {
-            color: #667eea;
+            color: #2c5aa0;
         }
 
         /* Hero Section */
         .hero {
-            margin-top: 80px;
-            padding: 4rem 0;
+            margin-top: 0;
+            height: 100vh;
+            padding: 0;
             text-align: center;
             color: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%2315416e" stop-opacity="0.3"/><stop offset="100%" stop-color="%232c5aa0" stop-opacity="0.1"/></linearGradient></defs><path d="M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z" fill="url(%23grad1)"/><circle cx="200" cy="300" r="80" fill="%2315416e" opacity="0.2"/><circle cx="800" cy="500" r="120" fill="%232c5aa0" opacity="0.15"/><circle cx="1000" cy="200" r="60" fill="%2315416e" opacity="0.25"/><polygon points="100,600 150,550 200,600 150,650" fill="%232c5aa0" opacity="0.2"/><polygon points="900,150 950,100 1000,150 950,200" fill="%2315416e" opacity="0.2"/></svg>') center/cover no-repeat;
+            transform: translateZ(0);
+            z-index: -1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            transform: translateY(-20px);
+            animation: parallaxFloat 6s ease-in-out infinite;
         }
 
         .hero h1 {
@@ -91,7 +118,7 @@
         .btn {
             display: inline-block;
             padding: 12px 30px;
-            background: #667eea;
+            background: #2c5aa0;
             color: white;
             text-decoration: none;
             border-radius: 50px;
@@ -137,7 +164,7 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #2c5aa0;
         }
 
         .feature-card:hover {
@@ -146,7 +173,7 @@
 
         .feature-icon {
             font-size: 2.5rem;
-            color: #667eea;
+            color: #2c5aa0;
             margin-bottom: 1rem;
         }
 
@@ -178,8 +205,8 @@
         .tab-btn {
             padding: 12px 24px;
             background: white;
-            border: 2px solid #667eea;
-            color: #667eea;
+            border: 2px solid #2c5aa0;
+            color: #2c5aa0;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -188,7 +215,7 @@
 
         .tab-btn.active,
         .tab-btn:hover {
-            background: #667eea;
+            background: #2c5aa0;
             color: white;
         }
 
@@ -242,14 +269,14 @@
         }
 
         .arch-item:hover {
-            background: #667eea;
+            background: #2c5aa0;
             color: white;
             transform: translateY(-3px);
         }
 
         .arch-item i {
             font-size: 3rem;
-            color: #667eea;
+            color: #2c5aa0;
             margin-bottom: 1rem;
         }
 
@@ -259,7 +286,7 @@
 
         /* Installation Section */
         .installation {
-            background: #667eea;
+            background: #2c5aa0;
             color: white;
             padding: 4rem 0;
             text-align: center;
@@ -298,7 +325,7 @@
         }
 
         .footer-links a:hover {
-            color: #667eea;
+            color: #2c5aa0;
         }
 
         .social-links {
@@ -313,7 +340,7 @@
         }
 
         .social-links a:hover {
-            color: #667eea;
+            color: #2c5aa0;
         }
 
         /* Responsive Design */
@@ -353,8 +380,67 @@
             }
         }
 
+        @keyframes parallaxFloat {
+            0%, 100% {
+                transform: translateY(-20px);
+            }
+            50% {
+                transform: translateY(-40px);
+            }
+        }
+
+        @keyframes rotateShape {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .animate-on-scroll {
             animation: fadeInUp 0.6s ease-out;
+        }
+
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .parallax-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(44, 90, 160, 0.1), rgba(21, 65, 110, 0.2));
+            animation: rotateShape 20s linear infinite;
+        }
+
+        .parallax-shape:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-delay: -5s;
+        }
+
+        .parallax-shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 15%;
+            animation-delay: -10s;
+        }
+
+        .parallax-shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            top: 30%;
+            right: 30%;
+            animation-delay: -15s;
         }
 
         /* Documentation Styles */
@@ -399,7 +485,7 @@
         }
 
         .docs-nav a:hover {
-            color: #667eea;
+            color: #2c5aa0;
         }
 
         .docs-content {
@@ -414,7 +500,7 @@
             padding: 1.5rem;
             margin: 1rem 0;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #2c5aa0;
         }
 
         .method-signature {
@@ -432,7 +518,7 @@
     <header>
         <nav class="container">
             <a href="#" class="logo">
-                <i class="fas fa-search"></i> Go Reflect
+                <i class="fas fa-layer-group"></i> L8 Reflect
             </a>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
@@ -446,11 +532,18 @@
 
     <!-- Hero Section -->
     <section class="hero">
+        <div class="parallax-bg">
+            <div class="parallax-shape"></div>
+            <div class="parallax-shape"></div>
+            <div class="parallax-shape"></div>
+        </div>
         <div class="container">
-            <h1>Go Reflection Library</h1>
-            <p>Advanced reflection capabilities for deep cloning, introspection, property management, and change tracking</p>
-            <a href="#installation" class="btn">Get Started</a>
-            <a href="#examples" class="btn btn-secondary">View Examples</a>
+            <div class="hero-content">
+                <h1>Layer 8 Model Agnostic Infra</h1>
+                <p>Advanced reflection capabilities for deep cloning, introspection, property management, and change tracking in Go applications</p>
+                <a href="#installation" class="btn">Get Started</a>
+                <a href="#examples" class="btn btn-secondary">View Examples</a>
+            </div>
         </div>
     </section>
 
@@ -511,7 +604,7 @@
                         <i class="fas fa-search"></i> Basic Introspection
                     </div>
                     <pre><code class="language-go">import (
-    "github.com/saichler/reflect/go/reflect/introspecting"
+    "github.com/saichler/l8reflect/go/reflect/introspecting"
     "github.com/saichler/l8types/go/ifs"
 )
 
@@ -547,7 +640,7 @@ if exists {
                     <div class="example-header">
                         <i class="fas fa-clone"></i> Deep Cloning
                     </div>
-                    <pre><code class="language-go">import "github.com/saichler/reflect/go/reflect/cloning"
+                    <pre><code class="language-go">import "github.com/saichler/l8reflect/go/reflect/cloning"
 
 // Create a cloner
 cloner := cloning.NewCloner()
@@ -582,7 +675,7 @@ fmt.Printf("Clone: %s at %s\n",
                         <i class="fas fa-tags"></i> Property Access
                     </div>
                     <pre><code class="language-go">import (
-    "github.com/saichler/reflect/go/reflect/properties"
+    "github.com/saichler/l8reflect/go/reflect/properties"
     "github.com/saichler/l8types/go/types"
 )
 
@@ -621,7 +714,7 @@ fmt.Printf("Property ID: %s\n", propertyId)</code></pre>
                     <div class="example-header">
                         <i class="fas fa-chart-line"></i> Change Tracking & Updates
                     </div>
-                    <pre><code class="language-go">import "github.com/saichler/reflect/go/reflect/updating"
+                    <pre><code class="language-go">import "github.com/saichler/l8reflect/go/reflect/updating"
 
 // Create an updater
 // Parameters: resources, isNilValid, newItemIsFull
@@ -795,16 +888,56 @@ cd go
         </div>
     </section>
 
+    <!-- Recent Updates Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Recent Updates</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3>Repository Rename</h3>
+                    <p>Updated repository name to reflect Layer 8 Model Agnostic Infrastructure, providing clearer project identity and purpose.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Interface Improvements</h3>
+                    <p>Enhanced interfaces for better compatibility and usability across diverse Go applications and use cases.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Performance Optimizations</h3>
+                    <p>Cleaned up unnecessary imports and improved slice handling for more robust data operations and better performance.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Stability Improvements</h3>
+                    <p>Multiple crash prevention fixes and enhanced updater functionality with better error handling mechanisms.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Installation Section -->
     <section id="installation" class="installation">
         <div class="container">
             <h2 class="section-title">Get Started</h2>
-            <p>Install the Go Reflection Library with a single command:</p>
+            <p>Install the Layer 8 Model Agnostic Infra library with a single command:</p>
             <div class="install-code">
-                $ go get github.com/saichler/reflect/go
+                $ go get github.com/saichler/l8reflect/go
             </div>
             <p>Start using advanced reflection capabilities in your Go projects today!</p>
-            <a href="https://github.com/saichler/reflect" class="btn" target="_blank">
+            <a href="https://github.com/saichler/l8reflect" class="btn" target="_blank">
                 <i class="fab fa-github"></i> View on GitHub
             </a>
         </div>
@@ -818,11 +951,11 @@ cd go
                 <a href="#examples">Examples</a>
                 <a href="#architecture">Architecture</a>
                 <a href="#docs">Documentation</a>
-                <a href="https://github.com/saichler/reflect">GitHub</a>
+                <a href="https://github.com/saichler/l8reflect">GitHub</a>
             </div>
             <p>&copy; 2024 Go Reflection Library. Licensed under the Apache License 2.0.</p>
             <div class="social-links">
-                <a href="https://github.com/saichler/reflect" target="_blank">
+                <a href="https://github.com/saichler/l8reflect" target="_blank">
                     <i class="fab fa-github"></i>
                 </a>
                 <a href="#" target="_blank">
@@ -887,6 +1020,24 @@ cd go
         // Observe feature cards and architecture items
         document.querySelectorAll('.feature-card, .arch-item').forEach(el => {
             observer.observe(el);
+        });
+
+        // Parallax scrolling effect
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const heroContent = document.querySelector('.hero-content');
+            const parallaxShapes = document.querySelectorAll('.parallax-shape');
+
+            // Move background elements at different speeds
+            if (heroContent && scrolled < window.innerHeight) {
+                heroContent.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+
+            parallaxShapes.forEach((shape, index) => {
+                const speed = 0.2 + (index * 0.1);
+                const rotation = scrolled * 0.1 + (index * 120);
+                shape.style.transform = `translateY(${scrolled * speed}px) rotate(${rotation}deg)`;
+            });
         });
 
         // Copy code functionality

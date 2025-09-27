@@ -1,6 +1,6 @@
-# Go Reflection Library
+# Layer 8 Model Agnostic Infra
 
-A comprehensive Go library providing advanced reflection capabilities for deep cloning, introspection, property management, and change tracking of Go objects.
+A comprehensive Go library providing advanced reflection capabilities for deep cloning, introspection, property management, and change tracking of Go objects. This library forms part of the Layer 8 Model Agnostic Infrastructure, enabling robust and type-safe reflection operations across diverse data structures.
 
 ## Overview
 
@@ -35,7 +35,7 @@ This library extends Go's built-in reflection capabilities with a rich set of to
 ## Installation
 
 ```bash
-go get github.com/saichler/reflect/go
+go get github.com/saichler/l8reflect/go
 ```
 
 ## Quick Start
@@ -44,7 +44,7 @@ go get github.com/saichler/reflect/go
 
 ```go
 import (
-    "github.com/saichler/reflect/go/reflect/introspecting"
+    "github.com/saichler/l8reflect/go/reflect/introspecting"
     "github.com/saichler/l8types/go/ifs"
 )
 
@@ -71,7 +71,7 @@ fmt.Printf("Type: %s\n", node.TypeName)
 ### Deep Cloning
 
 ```go
-import "github.com/saichler/reflect/go/reflect/cloning"
+import "github.com/saichler/l8reflect/go/reflect/cloning"
 
 // Create a cloner
 cloner := cloning.NewCloner()
@@ -89,7 +89,7 @@ fmt.Printf("Original: %s, Clone: %s\n", original.Name, cloned.Name)
 
 ```go
 import (
-    "github.com/saichler/reflect/go/reflect/properties"
+    "github.com/saichler/l8reflect/go/reflect/properties"
     "github.com/saichler/l8types/go/types"
 )
 
@@ -108,7 +108,7 @@ if prop.IsLeaf() {
 ### Change Tracking
 
 ```go
-import "github.com/saichler/reflect/go/reflect/updating"
+import "github.com/saichler/l8reflect/go/reflect/updating"
 
 // Create an updater
 updater := updating.NewUpdater(resources, false, true)
@@ -222,4 +222,15 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Support
 
-For questions, issues, or contributions, please visit the [GitHub repository](https://github.com/saichler/reflect).
+For questions, issues, or contributions, please visit the [GitHub repository](https://github.com/saichler/l8reflect).
+
+## Recent Updates
+
+### Latest Changes (September 2024)
+- **Repository Rename**: Updated repository name to reflect Layer 8 Model Agnostic Infrastructure
+- **Interface Improvements**: Enhanced interfaces for better compatibility and usability
+- **Import Optimization**: Cleaned up unnecessary imports for better performance
+- **Slice Handling**: Fixed slice operations for more robust data handling
+- **Updater Enhancements**: Improved updater functionality with better error handling
+- **Crash Prevention**: Multiple stability improvements to prevent runtime crashes
+- **Test Coverage**: Comprehensive test suite with coverage reporting in `go/cover.html`
