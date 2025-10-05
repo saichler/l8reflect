@@ -43,3 +43,16 @@ func NoNestedInspection(rnode *l8reflect.L8Node) bool {
 	}
 	return false
 }
+
+func AddAlwayOverwriteDecorator(rnode *l8reflect.L8Node) {
+	addDecorator(l8reflect.L8DecoratorType_AlwaysFull, true, rnode)
+}
+
+func AlwaysFullDecorator(rnode *l8reflect.L8Node) bool {
+	val := decoratorOf(l8reflect.L8DecoratorType_AlwaysFull, rnode)
+	b, ok := val.(bool)
+	if !ok {
+		return false
+	}
+	return b
+}

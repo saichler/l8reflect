@@ -3,9 +3,10 @@ package updating
 import (
 	"reflect"
 
+	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
-	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
 func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
@@ -18,7 +19,13 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 		return nil
 	}
 	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
-		updates.addUpdate(instance, oldValue, nil)
+		updates.addUpdate(instance, oldValue.Interface(), nil)
+		oldValue.Set(newValue)
+		return nil
+	}
+
+	if introspecting.AlwaysFullDecorator(node) {
+		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
 	}
