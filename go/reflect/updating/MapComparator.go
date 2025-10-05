@@ -24,7 +24,7 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 		return nil
 	}
 
-	if introspecting.AlwaysFullDecorator(node) {
+	if newValue.IsValid() && !newValue.IsNil() && introspecting.AlwaysFullDecorator(node) {
 		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
