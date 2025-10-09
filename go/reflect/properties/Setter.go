@@ -3,10 +3,12 @@ package properties
 import (
 	"errors"
 	"reflect"
+	"strings"
 
+	"github.com/saichler/l8reflect/go/reflect/introspecting"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	strings2 "github.com/saichler/l8utils/go/utils/strings"
 )
 
 func (this *Property) Set(any interface{}, value interface{}) (interface{}, interface{}, error) {
@@ -128,12 +130,14 @@ func (this *Property) SetPrimaryKey(node *l8reflect.L8Node, any interface{}, any
 	if anyKey == nil {
 		return
 	}
-	var fieldsValues []interface{}
-	if reflect.ValueOf(anyKey).Kind() == reflect.Slice {
-		fieldsValues = anyKey.([]interface{})
-	} else {
-		fieldsValues = []interface{}{anyKey}
+	keyString := anyKey.(string)
+	tokens := strings.Split(keyString, "::")
+	fieldsValues := make([]interface{}, len(tokens))
+	for i, token := range tokens {
+		vv, _ := strings2.FromString(token, nil)
+		fieldsValues[i] = vv.Interface()
 	}
+
 	value := reflect.ValueOf(any)
 	if !value.IsValid() {
 		return

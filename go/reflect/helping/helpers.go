@@ -84,10 +84,18 @@ func PrimaryDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.
 		return nil
 	}
 	str := strings2.New()
+	str.TypesPrefix = true
+	first := true
 	for _, field := range fields {
+		if !first {
+			str.TypesPrefix = false
+			str.Add("::")
+			str.TypesPrefix = true
+		}
 		v := value.FieldByName(field).Interface()
 		v2 := str.StringOf(v)
 		str.Add(v2)
+		first = false
 	}
 	return str.String()
 }
