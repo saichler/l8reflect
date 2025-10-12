@@ -2,17 +2,18 @@ package tests
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
+	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	"github.com/saichler/l8reflect/go/reflect/properties"
+	"github.com/saichler/l8reflect/go/reflect/updating"
+	"github.com/saichler/l8reflect/go/tests/utils"
 	"github.com/saichler/l8test/go/infra/t_resources"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/testtypes"
 	"github.com/saichler/l8utils/go/utils/registry"
 	"github.com/saichler/l8utils/go/utils/resources"
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
-	"github.com/saichler/l8reflect/go/reflect/properties"
-	"github.com/saichler/l8reflect/go/reflect/updating"
-	"github.com/saichler/l8reflect/go/tests/utils"
-	"testing"
-	"time"
 )
 
 func newResources() ifs.IResources {
@@ -118,7 +119,7 @@ func TestSetMap(t *testing.T) {
 	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 	aside := utils.CreateTestModelInstance(1)
 	aside.MyString2ModelMap = nil
-	pid := "testproto<{24}root>.mystring2modelmap<{24}sub>.mystring"
+	pid := "testproto<{24}{24}root>.mystring2modelmap<{24}sub>.mystring"
 	//m:=testtypes.TestProtoSub{}
 	prop, err := properties.PropertyOf(pid, res)
 	if err != nil {
@@ -177,7 +178,7 @@ func TestInstance(t *testing.T) {
 	}
 	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 
-	id := "testproto<{24}Hello>"
+	id := "testproto<{24}{24}Hello>"
 	v, ok := propertyOf(id, nil, t, res)
 	if !ok {
 		return

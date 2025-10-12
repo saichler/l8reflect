@@ -54,6 +54,17 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		parentValue = parentValue.MapIndex(reflect.ValueOf(this.key))
 	}
 
+	//Special case where the model is setting the same reference
+	//in different attributes, which is incorrect.
+	if parentValue.Kind() == reflect.Slice {
+		pid, _ := this.PropertyId()
+		strValue, ok := value.(string)
+		if ok && strValue == ifs.Deleted_Entry {
+			this.resources.Logger().Error("The model contain same reference in a map and a slice, pid=" + pid)
+			return nil, nil, nil
+		}
+	}
+
 	myValue := parentValue.FieldByName(this.node.FieldName)
 	info, err := this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {

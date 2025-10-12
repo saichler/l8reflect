@@ -25,7 +25,7 @@ func TestMultiAttrPrimary(t *testing.T) {
 	zside := cloner.Clone(aside).(*l8services.L8ReplicationIndex)
 	zside.Keys = make(map[string]*l8services.L8ReplicationKey)
 	zside.Keys["test"] = &l8services.L8ReplicationKey{}
-	zside.Keys["test"].Location = make(map[string]int64)
+	zside.Keys["test"].Location = make(map[string]int32)
 
 	yside := cloner.Clone(aside).(*l8services.L8ReplicationIndex)
 
