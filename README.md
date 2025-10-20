@@ -178,10 +178,38 @@ The cloning system supports automatic filtering of fields:
 
 ```go
 // Fields automatically skipped during cloning:
-// - "DoNotCompare" 
+// - "DoNotCompare"
 // - "DoNotCopy"
 // - Fields starting with "XXX"
 // - Private fields (lowercase first letter)
+```
+
+### AlwaysOverwrite Decorator
+
+Force complete map structure updates during change tracking:
+
+```go
+import "github.com/saichler/l8reflect/go/reflect/introspecting"
+
+// Add AlwaysOverwrite decorator to a node
+node, _ := introspector.Inspect(&MyStruct{})
+introspecting.AddAlwayOverwriteDecorator(node)
+
+// When this decorator is present, the entire map will be replaced
+// during updates instead of merging individual keys
+```
+
+### Multiple Primary Keys
+
+Support for composite primary keys with multiple attributes:
+
+```go
+// Define multiple fields as primary keys
+node, _ := introspector.Inspect(&MyStruct{})
+introspecting.AddPrimaryKeyDecorator(node, "ServiceName", "ServiceArea")
+
+// The updater will use both fields as a composite key
+// when tracking changes and identifying unique instances
 ```
 
 ### Table Views
@@ -226,11 +254,19 @@ For questions, issues, or contributions, please visit the [GitHub repository](ht
 
 ## Recent Updates
 
-### Latest Changes (September 2024)
+### Latest Changes (October 2024)
+- **AlwaysOverwrite Decorator**: Added new decorator support for forcing full updates on map structures
+- **Multiple Primary Keys**: Fixed handling of composite primary keys with multiple attributes
+- **Map Comparator Enhancement**: Improved map comparison logic with AlwaysFull decorator integration
+- **Performance Optimization**: Added node cache key functionality for improved introspection performance
+- **Test Suite Expansion**: Added comprehensive tests for multi-attribute primary keys
+- **Go Modules**: Added Go module support with `go.mod`, `go.sum`, and vendored dependencies
+- **Test Coverage**: Enhanced test coverage with HTML reports available in `go/cover.html`
+
+### Previous Updates (September 2024)
 - **Repository Rename**: Updated repository name to reflect Layer 8 Model Agnostic Infrastructure
 - **Interface Improvements**: Enhanced interfaces for better compatibility and usability
 - **Import Optimization**: Cleaned up unnecessary imports for better performance
 - **Slice Handling**: Fixed slice operations for more robust data handling
 - **Updater Enhancements**: Improved updater functionality with better error handling
 - **Crash Prevention**: Multiple stability improvements to prevent runtime crashes
-- **Test Coverage**: Comprehensive test suite with coverage reporting in `go/cover.html`
