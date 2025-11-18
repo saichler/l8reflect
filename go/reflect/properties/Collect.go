@@ -27,10 +27,25 @@ func collect(any interface{}, node *l8reflect.L8Node, typeName string, list *[]i
 	}
 	if node.Attributes != nil {
 		for _, attr := range node.Attributes {
-			if attr.IsStruct || attr.IsSlice || attr.IsMap {
+			if attr.IsStruct {
 				value := val.FieldByName(attr.FieldName)
 				if value.IsValid() {
 					collect(value.Interface(), attr, attr.TypeName, list)
+				}
+			} else if attr.IsSlice {
+				value := val.FieldByName(attr.FieldName)
+				if value.IsValid() {
+					for i := 0; i < value.Len(); i++ {
+						collect(value.Index(i).Interface(), attr, attr.TypeName, list)
+					}
+				}
+			} else if attr.IsMap {
+				value := val.FieldByName(attr.FieldName)
+				if value.IsValid() {
+					keys := value.MapKeys()
+					for i := 0; i < len(keys); i++ {
+						collect(value.MapIndex(keys[i]).Interface(), attr, attr.TypeName, list)
+					}
 				}
 			}
 		}
