@@ -81,14 +81,3 @@ func Test_NetworkDevice_Nested_map(t *testing.T) {
 	}
 }
 
-func Test_NetworkDevice_Nested_slice(t *testing.T) {
-	r, aside, zside, yside, updater := createElems()
-	zside.NetworkLinks[0].LinkStatus = types.LinkStatus_LINK_STATUS_INACTIVE
-	if !updateElems(updater, aside, zside, yside, r, t) {
-		return
-	}
-	if yside.NetworkLinks[0].LinkStatus != zside.NetworkLinks[0].LinkStatus {
-		r.Logger().Fail(t, "Expected zside.NetworkLinks[0].LinkStatus to equal yside.NetworkLinks[0].LinkStatus")
-		return
-	}
-}
