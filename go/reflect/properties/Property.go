@@ -17,6 +17,7 @@ type Property struct {
 	key       interface{}
 	value     interface{}
 	id        string
+	displayId string
 	isLeaf    bool
 	resources ifs.IResources
 }
@@ -134,6 +135,33 @@ func (this *Property) PropertyId() (string, error) {
 	}
 	this.id = buff.String()
 	return this.id, nil
+}
+
+func (this *Property) PropertyDisplayId() string {
+	if this.displayId != "" {
+		return this.displayId
+	}
+	buff := strings2.New()
+	if this.parent == nil {
+		buff.Add("[")
+		buff.Add(this.node.TypeName)
+		buff.Add(this.node.CachedKey)
+		buff.Add("]")
+		return buff.String()
+	} else {
+		pi := this.parent.PropertyDisplayId()
+		buff.Add(pi)
+		buff.Add("[")
+		buff.Add(this.node.FieldName)
+	}
+	if this.key != nil {
+		keyStr := strings2.New()
+		buff.Add(" ")
+		buff.Add(keyStr.StringOf(this.key))
+	}
+	buff.Add("]")
+	this.displayId = buff.String()
+	return this.displayId
 }
 
 func (this *Property) IsLeaf() bool {
