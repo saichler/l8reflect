@@ -117,6 +117,7 @@ func (this *Property) PropertyId() (string, error) {
 	if this.parent == nil {
 		buff.Add(strings.ToLower(this.node.TypeName))
 		buff.Add(this.node.CachedKey)
+		return buff.String(), nil
 	} else {
 		pi, err := this.parent.PropertyId()
 		if err != nil {
