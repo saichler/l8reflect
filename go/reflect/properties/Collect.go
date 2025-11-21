@@ -13,8 +13,7 @@ func Collect(root interface{}, r ifs.IResources, typeName string) map[string]int
 	node, _ := r.Introspector().NodeByType(typ)
 	result := make(map[string]interface{}, 0)
 	rootKey := helping.PrimaryDecorator(node, reflect.ValueOf(root).Elem(), r.Registry())
-	rootProp := NewProperty(node, nil, rootKey, root, r)
-	collect(root, node, typeName, rootProp, rootKey, result, r)
+	collect(root, node, typeName, nil, rootKey, result, r)
 	return result
 }
 
