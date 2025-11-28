@@ -4,7 +4,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
 )
@@ -76,52 +75,4 @@ func NodeCacheKey(node *l8reflect.L8Node) string {
 	buff.Add(strings.ToLower(node.FieldName))
 	node.CachedKey = buff.String()
 	return node.CachedKey
-}
-
-func PrimaryDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.IRegistry) interface{} {
-	return decorator(node, l8reflect.L8DecoratorType_Primary, value, registry)
-}
-
-func UniqueDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.IRegistry) interface{} {
-	return decorator(node, l8reflect.L8DecoratorType_Unique, value, registry)
-}
-
-func decorator(node *l8reflect.L8Node, decoratorType l8reflect.L8DecoratorType, value reflect.Value, registry ifs.IRegistry) interface{} {
-	fields := decoratorFields(node, decoratorType, registry)
-	if fields == nil || len(fields) == 0 {
-		return nil
-	}
-	str := strings2.New()
-	str.TypesPrefix = true
-	first := true
-	for _, field := range fields {
-		if !first {
-			str.TypesPrefix = false
-			str.Add("::")
-			str.TypesPrefix = true
-		}
-		v := value.FieldByName(field).Interface()
-		v2 := str.StringOf(v)
-		str.Add(v2)
-		first = false
-	}
-	return str.String()
-}
-
-func PrimaryDecoratorFields(node *l8reflect.L8Node, registry ifs.IRegistry) []string {
-	return decoratorFields(node, l8reflect.L8DecoratorType_Primary, registry)
-}
-
-func UniqueDecoratorFields(node *l8reflect.L8Node, registry ifs.IRegistry) []string {
-	return decoratorFields(node, l8reflect.L8DecoratorType_Unique, registry)
-}
-
-func decoratorFields(node *l8reflect.L8Node, decoratorType l8reflect.L8DecoratorType, registry ifs.IRegistry) []string {
-	decValue := node.Decorators[int32(decoratorType)]
-	v, _ := strings2.InstanceOf(decValue, registry)
-	fields, ok := v.([]string)
-	if !ok {
-		return nil
-	}
-	return fields
 }

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
@@ -160,7 +160,7 @@ func (this *Property) SetPrimaryKey(node *l8reflect.L8Node, any interface{}, any
 		value = value.Elem()
 	}
 
-	f := introspecting.PrimaryKeyDecorator(node)
+	f := helping.PrimaryKeyDecorator(node)
 	if f != nil {
 		fields := f.([]string)
 		for i, attr := range fields {

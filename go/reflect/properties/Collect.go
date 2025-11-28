@@ -12,7 +12,7 @@ func Collect(root interface{}, r ifs.IResources, typeName string) map[string]int
 	typ := reflect.ValueOf(root).Elem().Type()
 	node, _ := r.Introspector().NodeByType(typ)
 	result := make(map[string]interface{}, 0)
-	rootKey := helping.PrimaryDecorator(node, reflect.ValueOf(root).Elem(), r.Registry())
+	rootKey := helping.PrimaryKeyDecoratorValue(node, reflect.ValueOf(root).Elem(), r.Registry())
 	collect(root, node, typeName, nil, rootKey, result, r)
 	return result
 }
