@@ -79,7 +79,15 @@ func NodeCacheKey(node *l8reflect.L8Node) string {
 }
 
 func PrimaryDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.IRegistry) interface{} {
-	fields := PrimaryDecoratorFields(node, registry)
+	return decorator(node, l8reflect.L8DecoratorType_Primary, value, registry)
+}
+
+func UniqueDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.IRegistry) interface{} {
+	return decorator(node, l8reflect.L8DecoratorType_Unique, value, registry)
+}
+
+func decorator(node *l8reflect.L8Node, decoratorType l8reflect.L8DecoratorType, value reflect.Value, registry ifs.IRegistry) interface{} {
+	fields := decoratorFields(node, decoratorType, registry)
 	if fields == nil || len(fields) == 0 {
 		return nil
 	}
@@ -101,7 +109,15 @@ func PrimaryDecorator(node *l8reflect.L8Node, value reflect.Value, registry ifs.
 }
 
 func PrimaryDecoratorFields(node *l8reflect.L8Node, registry ifs.IRegistry) []string {
-	decValue := node.Decorators[int32(l8reflect.L8DecoratorType_Primary)]
+	return decoratorFields(node, l8reflect.L8DecoratorType_Primary, registry)
+}
+
+func UniqueDecoratorFields(node *l8reflect.L8Node, registry ifs.IRegistry) []string {
+	return decoratorFields(node, l8reflect.L8DecoratorType_Unique, registry)
+}
+
+func decoratorFields(node *l8reflect.L8Node, decoratorType l8reflect.L8DecoratorType, registry ifs.IRegistry) []string {
+	decValue := node.Decorators[int32(decoratorType)]
 	v, _ := strings2.InstanceOf(decValue, registry)
 	fields, ok := v.([]string)
 	if !ok {
