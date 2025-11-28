@@ -28,6 +28,10 @@ func AddPrimaryKeyDecorator(rnode *l8reflect.L8Node, fields ...string) {
 	addDecorator(l8reflect.L8DecoratorType_Primary, fields, rnode)
 }
 
+func AddUniqueKeyDecorator(rnode *l8reflect.L8Node, fields ...string) {
+	addDecorator(l8reflect.L8DecoratorType_Unique, fields, rnode)
+}
+
 func PrimaryKeyDecorator(rnode *l8reflect.L8Node) interface{} {
 	return decoratorOf(l8reflect.L8DecoratorType_Primary, rnode)
 }
