@@ -3,16 +3,16 @@ package properties
 import (
 	"reflect"
 
-	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 )
 
 func Collect(root interface{}, r ifs.IResources, typeName string) map[string]interface{} {
-	typ := reflect.ValueOf(root).Elem().Type()
-	node, _ := r.Introspector().NodeByType(typ)
+	rootKey, node, err := r.Introspector().Decorators().PrimaryKeyDecoratorValue(root)
+	if err != nil {
+		return nil
+	}
 	result := make(map[string]interface{}, 0)
-	rootKey := helping.PrimaryKeyDecoratorValue(node, reflect.ValueOf(root).Elem(), r.Registry())
 	collect(root, node, typeName, nil, rootKey, result, r)
 	return result
 }

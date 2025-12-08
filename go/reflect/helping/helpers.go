@@ -1,6 +1,7 @@
 package helping
 
 import (
+	"errors"
 	"reflect"
 	"strings"
 
@@ -15,6 +16,24 @@ func ValueAndType(any interface{}) (reflect.Value, reflect.Type) {
 	}
 	t := v.Type()
 	return v, t
+}
+
+func PtrValue(any interface{}) (reflect.Value, error) {
+	if any == nil {
+		return reflect.Value{}, errors.New("[PtrValueAndType] input is nil")
+	}
+	value := reflect.ValueOf(any)
+	if !value.IsValid() {
+		return reflect.Value{}, errors.New("[PtrValueAndType] Value is invalid")
+	}
+	if value.Kind() != reflect.Ptr {
+		return reflect.Value{}, errors.New("[PtrValueAndType] Value is not Ptr")
+	}
+	if value.IsNil() {
+		return reflect.Value{}, errors.New("[PtrValueAndType] Value is nil")
+	}
+	value = value.Elem()
+	return value, nil
 }
 
 func IsLeaf(node *l8reflect.L8Node) bool {

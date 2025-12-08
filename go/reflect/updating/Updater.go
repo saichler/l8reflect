@@ -4,7 +4,6 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
@@ -39,15 +38,12 @@ func (this *Updater) Update(old, new interface{}) error {
 		oldValue = oldValue.Elem()
 		newValue = newValue.Elem()
 	}
-	node, _ := this.resources.Introspector().Node(oldValue.Type().Name())
-	if node == nil {
-		return errors.New("cannot find node for type " + oldValue.Type().Name() + ", please register it")
+	pKey, node, err := this.resources.Introspector().Decorators().PrimaryKeyDecoratorValue(old)
+	if err != nil {
+		return err
 	}
-
-	pKey := helping.PrimaryKeyDecoratorValue(node, oldValue, this.resources.Registry())
 	prop := properties.NewProperty(node, nil, pKey, oldValue, this.resources)
-	err := update(prop, node, oldValue, newValue, this)
-	return err
+	return update(prop, node, oldValue, newValue, this)
 }
 
 func update(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {

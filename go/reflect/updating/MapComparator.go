@@ -3,7 +3,6 @@ package updating
 import (
 	"reflect"
 
-	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
@@ -24,7 +23,8 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 		return nil
 	}
 
-	if newValue.IsValid() && !newValue.IsNil() && helping.AlwaysFullDecorator(node) {
+	alwaysFullDecorator := instance.Resources().Introspector().Decorators().BoolDecoratorValueForNode(node, l8reflect.L8DecoratorType_AlwaysFull)
+	if newValue.IsValid() && !newValue.IsNil() && alwaysFullDecorator {
 		updates.addUpdate(instance, nil, newValue.Interface())
 		oldValue.Set(newValue)
 		return nil
