@@ -51,6 +51,9 @@ func (this *Introspector) AddNoNestedInspection(any interface{}) error {
 }
 
 func (this *Introspector) NodeFor(any interface{}) (*l8reflect.L8Node, reflect.Value, error) {
+	if any == nil {
+		panic("Node For a nil interface")
+	}
 	v, e := helping.PtrValue(any)
 	if e != nil {
 		return nil, v, e
