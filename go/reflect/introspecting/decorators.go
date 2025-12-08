@@ -32,10 +32,10 @@ func (this *Introspector) AddUniqueKeyDecorator(any interface{}, fields ...strin
 	return nil
 }
 
-func (this *Introspector) AddAlwayOverwriteDecorator(any interface{}) error {
-	node, _, err := this.NodeFor(any)
-	if err != nil {
-		return err
+func (this *Introspector) AddAlwayOverwriteDecorator(nodeId string) error {
+	node, ok := this.Node(nodeId)
+	if !ok {
+		return errors.New(strings2.New("Node for ID ", nodeId, " not found").String())
 	}
 	addAlwayOverwriteDecorator(node)
 	return nil
