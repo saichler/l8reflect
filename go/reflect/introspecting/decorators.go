@@ -16,8 +16,12 @@ func (this *Introspector) Decorators() ifs.IDecorators {
 
 func (this *Introspector) AddPrimaryKeyDecorator(any interface{}, fields ...string) error {
 	node, _, err := this.NodeFor(any)
-	if err != nil {
-		return err
+	if err != nil || node == nil {
+		if any != nil {
+			node, _ = this.Inspect(any)
+		} else {
+			return err
+		}
 	}
 	addDecorator(l8reflect.L8DecoratorType_Primary, fields, node)
 	return nil
@@ -25,8 +29,12 @@ func (this *Introspector) AddPrimaryKeyDecorator(any interface{}, fields ...stri
 
 func (this *Introspector) AddUniqueKeyDecorator(any interface{}, fields ...string) error {
 	node, _, err := this.NodeFor(any)
-	if err != nil {
-		return err
+	if err != nil || node == nil {
+		if any != nil {
+			node, _ = this.Inspect(any)
+		} else {
+			return err
+		}
 	}
 	addDecorator(l8reflect.L8DecoratorType_Unique, fields, node)
 	return nil
