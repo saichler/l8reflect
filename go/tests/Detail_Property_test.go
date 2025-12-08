@@ -3,17 +3,17 @@ package tests
 import (
 	"testing"
 
-	"github.com/saichler/l8types/go/ifs"
-	"github.com/saichler/probler/go/tests"
-	"github.com/saichler/probler/go/types"
 	"github.com/saichler/l8reflect/go/reflect/cloning"
 	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8reflect/go/reflect/updating"
+	"github.com/saichler/l8types/go/ifs"
+	"github.com/saichler/probler/go/tests"
+	"github.com/saichler/probler/go/types"
 )
 
 func createElems() (ifs.IResources, *types.NetworkDevice, *types.NetworkDevice, *types.NetworkDevice, *updating.Updater) {
 	r := newResources()
-	r.Introspector().Inspect(&types.NetworkDevice{})
+	r.Introspector().Decorators().AddPrimaryKeyDecorator(&types.NetworkDevice{}, "Id")
 	deviceList := tests.GenerateExactDeviceTableMockData()
 	c := cloning.NewCloner()
 	for _, device := range deviceList.List {
@@ -80,4 +80,3 @@ func Test_NetworkDevice_Nested_map(t *testing.T) {
 		return
 	}
 }
-

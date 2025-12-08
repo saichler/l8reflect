@@ -1,22 +1,18 @@
 package tests
 
 import (
-	"github.com/saichler/l8types/go/testtypes"
+	"testing"
+
 	"github.com/saichler/l8reflect/go/reflect/updating"
 	"github.com/saichler/l8reflect/go/tests/utils"
-	"testing"
+	"github.com/saichler/l8types/go/testtypes"
 )
 
 func patchUpdate(o, n *testtypes.TestProto, t *testing.T) bool {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, err.Error())
-		return false
-	}
 
 	u := updating.NewUpdater(res, false, true)
-	err = u.Update(o, n)
+	err := u.Update(o, n)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return false

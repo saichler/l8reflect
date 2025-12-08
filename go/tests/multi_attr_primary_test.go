@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/saichler/l8reflect/go/reflect/cloning"
-	"github.com/saichler/l8reflect/go/reflect/introspecting"
 	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8reflect/go/reflect/updating"
 	"github.com/saichler/l8srlz/go/serialize/object"
@@ -34,15 +33,10 @@ func TestMultiAttrPrimary(t *testing.T) {
 
 func patchUpdateIndex(o, n, z *l8services.L8ReplicationIndex, t *testing.T) bool {
 	res := newResources()
-	node, err := res.Introspector().Inspect(&l8services.L8ReplicationIndex{})
-	if err != nil {
-		log.Fail(t, err.Error())
-		return false
-	}
-	introspecting.AddPrimaryKeyDecorator(node, "ServiceName", "ServiceArea")
+	res.Introspector().Decorators().AddPrimaryKeyDecorator(&l8services.L8ReplicationIndex{}, "ServiceName", "ServiceArea")
 
 	u := updating.NewUpdater(res, false, false)
-	err = u.Update(o, n)
+	err := u.Update(o, n)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return false

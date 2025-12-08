@@ -160,7 +160,7 @@ func (this *Property) SetPrimaryKey(node *l8reflect.L8Node, any interface{}, any
 	}
 
 	fields, err := this.resources.Introspector().Decorators().Fields(node, l8reflect.L8DecoratorType_Primary)
-	if err != nil {
+	if err == nil {
 		for i, attr := range fields {
 			fld := value.FieldByName(attr)
 			fld.Set(reflect.ValueOf(fieldsValues[i]))

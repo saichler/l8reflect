@@ -2,29 +2,26 @@ package tests
 
 import (
 	"fmt"
-	"github.com/saichler/l8srlz/go/serialize/object"
-	"github.com/saichler/l8test/go/infra/t_resources"
-	"github.com/saichler/l8types/go/testtypes"
+	"testing"
+
 	"github.com/saichler/l8reflect/go/reflect/cloning"
 	"github.com/saichler/l8reflect/go/reflect/properties"
 	"github.com/saichler/l8reflect/go/reflect/updating"
 	"github.com/saichler/l8reflect/go/tests/utils"
-	"testing"
+	"github.com/saichler/l8srlz/go/serialize/object"
+	"github.com/saichler/l8test/go/infra/t_resources"
+	"github.com/saichler/l8types/go/testtypes"
 )
 
 func TestUpdater(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
+
 	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := t_resources.CloneTestModel(aside)
 	zside.MyString = "updated"
 	uside := res.Introspector().Clone(aside).(*testtypes.TestProto)
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -59,17 +56,13 @@ func TestUpdater(t *testing.T) {
 
 func TestEnum(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
+
 	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -82,11 +75,7 @@ func TestEnum(t *testing.T) {
 
 func TestSubMap(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
+
 	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := t_resources.CloneTestModel(aside)
@@ -94,7 +83,7 @@ func TestSubMap(t *testing.T) {
 		sub.Int32Map[0]++
 	}
 
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -117,19 +106,14 @@ func TestSubMap(t *testing.T) {
 
 func TestSubMapDeep(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
 
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
 	upd := updating.NewUpdater(res, false, false)
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	yside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MyString2ModelMap["newone"] = &testtypes.TestProtoSub{MyString: "newone"}
 
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return
@@ -264,12 +248,6 @@ func checkEQ(aside, zside interface{}, t *testing.T) bool {
 
 func TestSubMapDeepAlwaysChanging(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
 
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
@@ -303,7 +281,7 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 	zside.MyString2ModelMap["newone"].MySubs["newsub"].MyString = "newersub"
 
 	upd := updating.NewUpdater(res, false, false)
-	err = upd.Update(aside, zside)
+	upd.Update(aside, zside)
 
 	if len(upd.Changes()) == 0 {
 		log.Fail(t, "Expected changes")
@@ -346,12 +324,6 @@ func TestSubMapDeepAlwaysChanging(t *testing.T) {
 
 func TestSubMapAdd(t *testing.T) {
 	res := newResources()
-	_, err := res.Introspector().Inspect(&testtypes.TestProto{})
-
-	if err != nil {
-		log.Fail(t, err.Error())
-		return
-	}
 
 	key1 := "lv1"
 	key2 := "lv2"
@@ -367,7 +339,7 @@ func TestSubMapAdd(t *testing.T) {
 	xside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	zside.MyString2ModelMap[key1].MySubs[key3] = &testtypes.TestProtoSubSub{MyString: key3}
 
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, err.Error())
 		return

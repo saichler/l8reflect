@@ -21,6 +21,7 @@ func newResources() ifs.IResources {
 	res.Set(registry.NewRegistry())
 	in := introspecting.NewIntrospect(res.Registry())
 	res.Set(in)
+	addPrimary(res)
 	return res
 }
 
@@ -40,20 +41,19 @@ func propertyOf(id string, root interface{}, t *testing.T, res ifs.IResources) (
 	return v, true
 }
 
+func addPrimary(res ifs.IResources) {
+	res.Introspector().Decorators().AddPrimaryKeyDecorator(&testtypes.TestProto{}, "MyString")
+}
+
 func TestPrimaryKey(t *testing.T) {
 	res := newResources()
-	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, "failed with inspect: ", err.Error())
-		return
-	}
-	introspecting.AddPrimaryKeyDecorator(node, "MyString")
+
 	aside := utils.CreateTestModelInstance(1)
 	zside := t_resources.CloneTestModel(aside)
 	zside.MyEnum = testtypes.TestEnum_ValueTwo
 
 	upd := updating.NewUpdater(res, false, false)
-	err = upd.Update(aside, zside)
+	err := upd.Update(aside, zside)
 	if err != nil {
 		log.Fail(t, "failed with update: ", err.Error())
 		return
@@ -111,12 +111,7 @@ func TestPrimaryKey(t *testing.T) {
 
 func TestSetMap(t *testing.T) {
 	res := newResources()
-	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, "failed with inspect: ", err.Error())
-		return
-	}
-	introspecting.AddPrimaryKeyDecorator(node, "MyString")
+
 	aside := utils.CreateTestModelInstance(1)
 	aside.MyString2ModelMap = nil
 	pid := "testproto<{24}{24}root>.mystring2modelmap<{24}sub>.mystring"
@@ -171,12 +166,6 @@ func TestSetMap(t *testing.T) {
 
 func TestInstance(t *testing.T) {
 	res := newResources()
-	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, "failed with inspect: ", err.Error())
-		return
-	}
-	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 
 	id := "testproto<{24}{24}Hello>"
 	v, ok := propertyOf(id, nil, t, res)
@@ -236,12 +225,6 @@ func TestInstance(t *testing.T) {
 
 func TestSubStructProperty(t *testing.T) {
 	res := newResources()
-	node, err := res.Introspector().Inspect(&testtypes.TestProto{})
-	if err != nil {
-		log.Fail(t, "failed with inspect: ", err.Error())
-		return
-	}
-	introspecting.AddPrimaryKeyDecorator(node, "MyString")
 
 	aside := &testtypes.TestProto{MyString: "Hello"}
 	zside := &testtypes.TestProto{MyString: "Hello"}

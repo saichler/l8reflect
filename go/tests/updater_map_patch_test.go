@@ -3,15 +3,15 @@ package tests
 import (
 	"testing"
 
-	"github.com/saichler/probler/go/types"
 	"github.com/saichler/l8reflect/go/reflect/updating"
+	"github.com/saichler/probler/go/types"
 )
 
 func TestPatchMapItem(t *testing.T) {
 	res := newResources()
-	res.Introspector().Inspect(&types.NetworkDevice{})
-	aside := types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Ports: []*types.Port{&types.Port{Id: "id"}}}}}
-	zside := types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Performance: &types.PerformanceMetrics{CpuUsagePercent: 88.0}}}}
+	res.Introspector().Decorators().AddPrimaryKeyDecorator(&types.NetworkDevice{}, "Id")
+	aside := &types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Ports: []*types.Port{&types.Port{Id: "id"}}}}}
+	zside := &types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Performance: &types.PerformanceMetrics{CpuUsagePercent: 88.0}}}}
 
 	updater := updating.NewUpdater(res, false, false)
 
