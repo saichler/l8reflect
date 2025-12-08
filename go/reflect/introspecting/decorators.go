@@ -120,6 +120,32 @@ func (this *Introspector) Fields(node *l8reflect.L8Node, decoratorType l8reflect
 	return decValue.Fields, nil
 }
 
+func (this *Introspector) KeyForValue(fields []string, value reflect.Value, typeName string, returnError bool) (string, error) {
+	if fields == nil || len(fields) == 0 {
+		if returnError {
+			return "", errors.New(strings2.New("Primary Key Decorator is empty for type ", typeName).String())
+		}
+		return "", nil
+	}
+	switch len(fields) {
+	case 1:
+		return strings2.New(value.FieldByName(fields[0]).Interface()).String(), nil
+	case 2:
+		return strings2.New(value.FieldByName(fields[0]).Interface(), value.FieldByName(fields[1]).Interface()).String(), nil
+	case 3:
+		return strings2.New(value.FieldByName(fields[0]).Interface(),
+			value.FieldByName(fields[1]).Interface(),
+			value.FieldByName(fields[2]).Interface()).String(), nil
+	default:
+		result := strings2.New()
+		for i := 0; i < len(fields); i++ {
+			result.Add(result.StringOf(value.FieldByName(fields[i]).Interface()))
+		}
+		return result.String(), nil
+	}
+	return "", errors.New("Unexpected code")
+}
+
 func addDecorator(decoratorType l8reflect.L8DecoratorType, fields []string, node *l8reflect.L8Node) {
 	if node.Decorators == nil {
 		node.Decorators = make(map[int32]*l8reflect.L8Decorator)
