@@ -73,7 +73,7 @@ func (this *Introspector) PrimaryKeyDecoratorValue(any interface{}) (string, *l8
 	if err != nil {
 		return "", node, err
 	}
-	return this.primaryKeyDecoratorValue(node, v)
+	return this.PrimaryKeyDecoratorFromValue(node, v)
 }
 
 func (this *Introspector) UniqueKeyDecoratorValue(any interface{}) (string, *l8reflect.L8Node, error) {
@@ -88,7 +88,7 @@ func (this *Introspector) uniqueKeyDecoratorValue(node *l8reflect.L8Node, value 
 	return this.decoratorKey(node, l8reflect.L8DecoratorType_Unique, value)
 }
 
-func (this *Introspector) primaryKeyDecoratorValue(node *l8reflect.L8Node, value reflect.Value) (string, *l8reflect.L8Node, error) {
+func (this *Introspector) PrimaryKeyDecoratorFromValue(node *l8reflect.L8Node, value reflect.Value) (string, *l8reflect.L8Node, error) {
 	return this.decoratorKey(node, l8reflect.L8DecoratorType_Primary, value)
 }
 
