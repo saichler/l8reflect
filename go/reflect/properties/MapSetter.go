@@ -34,10 +34,8 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 	if !myMapValue.IsValid() {
 		if this.node.IsStruct {
 			myMapValue = reflect.MakeMap(reflect.MapOf(kInfo.Type(), reflect.PointerTo(vInfo.Type())))
-			myMapValue = reflect.ValueOf(myMapValue.Interface())
 		} else {
 			myMapValue = reflect.MakeMap(reflect.MapOf(kInfo.Type(), vInfo.Type()))
-			myMapValue = reflect.ValueOf(myMapValue.Interface())
 		}
 	}
 
@@ -47,6 +45,15 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 			myMapValue.Set(reflect.MakeMap(reflect.MapOf(kInfo.Type(), reflect.PointerTo(vInfo.Type()))))
 		} else {
 			myMapValue.Set(reflect.MakeMap(reflect.MapOf(kInfo.Type(), vInfo.Type())))
+		}
+	}
+
+	//create the map if it is nil
+	if !newMapValue.IsValid() {
+		if this.node.IsStruct {
+			newMapValue = reflect.MakeMap(reflect.MapOf(kInfo.Type(), reflect.PointerTo(vInfo.Type())))
+		} else {
+			newMapValue = reflect.MakeMap(reflect.MapOf(kInfo.Type(), vInfo.Type()))
 		}
 	}
 
