@@ -51,6 +51,12 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		return this.value, any, nil
 	} else if parentValue.Kind() == reflect.Map {
 		parentValue = parentValue.MapIndex(reflect.ValueOf(this.key))
+		// If the map entry doesn't exist, parentValue will be a zero Value.
+		// We need to check this and return an error, as we cannot navigate further.
+		if !parentValue.IsValid() {
+			pid, _ := this.PropertyId()
+			return nil, nil, errors.New("map entry does not exist for property " + pid)
+		}
 	}
 
 	//Special case where the model is setting the same reference
@@ -63,7 +69,7 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 			return nil, nil, nil
 		}
 	}
-
+	
 	myValue := parentValue.FieldByName(this.node.FieldName)
 	info, err := this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {

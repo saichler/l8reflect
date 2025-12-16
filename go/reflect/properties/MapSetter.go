@@ -22,8 +22,15 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 		return nil, err
 	}
 
+	// If myMapValue is a zero Value (not addressable), we cannot set it.
+	// This happens when the parent struct doesn't exist (e.g., missing map entry).
+	if !myMapValue.IsValid() {
+		pid, _ := this.PropertyId()
+		return nil, errors.New("cannot set map value: parent struct does not exist for property " + pid)
+	}
+
 	//create the map if it is nil
-	if !myMapValue.IsValid() || myMapValue.IsNil() {
+	if myMapValue.IsNil() {
 		if this.node.IsStruct {
 			myMapValue.Set(reflect.MakeMap(reflect.MapOf(kInfo.Type(), reflect.PointerTo(vInfo.Type()))))
 		} else {
