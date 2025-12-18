@@ -32,6 +32,15 @@ func (this *Introspector) AddUniqueKeyDecorator(any interface{}, fields ...strin
 	return nil
 }
 
+func (this *Introspector) AddNonUniqueKeyDecorator(any interface{}, fields ...string) error {
+	node, _, err := this.NodeFor(any)
+	if err != nil || node == nil {
+		return err
+	}
+	addDecorator(l8reflect.L8DecoratorType_NonUnique, fields, node)
+	return nil
+}
+
 func (this *Introspector) AddAlwayOverwriteDecorator(nodeId string) error {
 	node, ok := this.Node(nodeId)
 	if !ok {
@@ -84,8 +93,20 @@ func (this *Introspector) UniqueKeyDecoratorValue(any interface{}) (string, *l8r
 	return this.uniqueKeyDecoratorValue(node, v)
 }
 
+func (this *Introspector) NonUniqueKeyDecoratorValue(any interface{}) (string, *l8reflect.L8Node, error) {
+	node, v, err := this.NodeFor(any)
+	if err != nil {
+		return "", node, err
+	}
+	return this.nonUniqueKeyDecoratorValue(node, v)
+}
+
 func (this *Introspector) uniqueKeyDecoratorValue(node *l8reflect.L8Node, value reflect.Value) (string, *l8reflect.L8Node, error) {
 	return this.decoratorKey(node, l8reflect.L8DecoratorType_Unique, value)
+}
+
+func (this *Introspector) nonUniqueKeyDecoratorValue(node *l8reflect.L8Node, value reflect.Value) (string, *l8reflect.L8Node, error) {
+	return this.decoratorKey(node, l8reflect.L8DecoratorType_NonUnique, value)
 }
 
 func (this *Introspector) PrimaryKeyDecoratorFromValue(node *l8reflect.L8Node, value reflect.Value) (string, *l8reflect.L8Node, error) {
