@@ -1,3 +1,19 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file contains utility functions for value conversion during property set operations.
+// Handles type coercion between numeric types, strings, and other Go primitives.
+
 package properties
 
 import (
@@ -5,6 +21,9 @@ import (
 	"strconv"
 )
 
+// ConvertValue converts a source value to match the target's type.
+// Handles numeric conversions and string conversions. Returns the source
+// unchanged if no conversion is possible or needed.
 func ConvertValue(target, source reflect.Value) reflect.Value {
 	targetKind := target.Kind()
 	sourceKind := source.Kind()
@@ -23,6 +42,8 @@ func ConvertValue(target, source reflect.Value) reflect.Value {
 	return source
 }
 
+// IsNumeric returns true if the given reflect.Kind is a numeric type.
+// Includes all integer, unsigned integer, float, and complex types.
 func IsNumeric(kind reflect.Kind) bool {
 	switch kind {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -33,6 +54,8 @@ func IsNumeric(kind reflect.Kind) bool {
 	return false
 }
 
+// convertNumeric performs numeric type conversion from source to target type.
+// Handles integer, float, and complex number conversions with overflow protection.
 func convertNumeric(target, source reflect.Value) reflect.Value {
 	targetKind := target.Kind()
 	sourceKind := source.Kind()
@@ -148,6 +171,8 @@ func convertNumeric(target, source reflect.Value) reflect.Value {
 	return source
 }
 
+// convertToString converts a reflect.Value to its string representation.
+// Handles strings, byte slices, numeric types, booleans, and complex numbers.
 func convertToString(value reflect.Value) string {
 	switch value.Kind() {
 	case reflect.String:

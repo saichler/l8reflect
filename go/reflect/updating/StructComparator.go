@@ -1,3 +1,19 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file contains struct and pointer comparators for detecting changes.
+// Handles recursive comparison of struct fields and pointer dereferencing.
+
 package updating
 
 import (
@@ -8,6 +24,8 @@ import (
 	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
+// ptrUpdate compares and updates pointer values.
+// Handles nil-to-value, value-to-nil, and delegates to nested comparison for valid pointers.
 func ptrUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(property, nil, newValue.Interface())
@@ -25,6 +43,7 @@ func ptrUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, 
 	return update(property, node, oldValue.Elem(), newValue.Elem(), updates)
 }
 
+// structUpdate compares and updates struct values by recursively comparing each field.
 func structUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !oldValue.IsValid() && newValue.IsValid() {
 		oldValue.Set(newValue)

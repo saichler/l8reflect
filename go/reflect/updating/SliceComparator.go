@@ -1,3 +1,19 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file contains the slice comparator for detecting changes in slice fields.
+// Handles slice creation, element updates, additions, and size reductions.
+
 package updating
 
 import (
@@ -8,6 +24,8 @@ import (
 	"github.com/saichler/l8reflect/go/reflect/properties"
 )
 
+// sliceUpdate compares and updates slice values.
+// Detects element changes, new elements, and deleted elements when newItemIsFull is true.
 func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && newValue.IsNil() {
 		return nil

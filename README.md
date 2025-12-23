@@ -246,7 +246,18 @@ if err != nil {
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+© 2025 Sharon Aicler (saichler@gmail.com)
+
+Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ## Support
 
@@ -254,7 +265,17 @@ For questions, issues, or contributions, please visit the [GitHub repository](ht
 
 ## Recent Updates
 
-### Latest Changes (October 2024)
+### Latest Changes (December 2025)
+- **Non Decorator**: Added non decorator support for excluding fields from operations
+- **Unique Decorator**: Added unique decorator for identifying unique instances within collections
+- **Display ID**: Added display id functionality for better property identification and debugging
+- **Property ID Enhancement**: Added propertyid to collect operations for improved tracking
+- **Introspection Refactoring**: Major refactoring of the introspection system for better performance and maintainability
+- **Decorator Refactoring**: Refactored decorator system for cleaner architecture
+- **Interface Alignment**: Aligned interfaces for better API consistency
+- **Crash Prevention**: Multiple fixes for panic conditions including nil inspect and map creation issues
+
+### Previous Updates (December 2024)
 - **AlwaysOverwrite Decorator**: Added new decorator support for forcing full updates on map structures
 - **Multiple Primary Keys**: Fixed handling of composite primary keys with multiple attributes
 - **Map Comparator Enhancement**: Improved map comparison logic with AlwaysFull decorator integration
@@ -263,7 +284,7 @@ For questions, issues, or contributions, please visit the [GitHub repository](ht
 - **Go Modules**: Added Go module support with `go.mod`, `go.sum`, and vendored dependencies
 - **Test Coverage**: Enhanced test coverage with HTML reports available in `go/cover.html`
 
-### Previous Updates (September 2024)
+### Previous Updates (October 2024)
 - **Repository Rename**: Updated repository name to reflect Layer 8 Model Agnostic Infrastructure
 - **Interface Improvements**: Enhanced interfaces for better compatibility and usability
 - **Import Optimization**: Cleaned up unnecessary imports for better performance

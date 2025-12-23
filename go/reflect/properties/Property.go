@@ -1,3 +1,25 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package properties provides path-based access to nested data structures.
+// It allows getting and setting values in complex objects using dot-notation
+// property paths like "person.addresses<home>.street".
+//
+// Key features:
+//   - Path-based property access with map/slice key notation
+//   - Get and set operations on nested structures
+//   - Property tree navigation with parent-child relationships
+//   - Value collection across entire object hierarchies
 package properties
 
 import (
@@ -11,17 +33,30 @@ import (
 	strings2 "github.com/saichler/l8utils/go/utils/strings"
 )
 
+// Property represents a path to a specific location in a data structure.
+// It maintains a chain of parent properties to enable navigation from
+// the root to any nested value.
 type Property struct {
-	parent    *Property
-	node      *l8reflect.L8Node
-	key       interface{}
-	value     interface{}
-	id        string
+	// parent is the Property one level up in the hierarchy
+	parent *Property
+	// node is the L8Node describing this property's type
+	node *l8reflect.L8Node
+	// key is the map/slice key for indexed properties
+	key interface{}
+	// value is the current value at this property (if retrieved)
+	value interface{}
+	// id is the cached property path string
+	id string
+	// displayId is the human-readable property path
 	displayId string
-	isLeaf    bool
+	// isLeaf indicates if this is a leaf property (no children accessed)
+	isLeaf bool
+	// resources provides access to introspection and registry
 	resources ifs.IResources
 }
 
+// NewProperty creates a new Property with the given parameters.
+// Sets up parent-child relationship and marks parent as non-leaf.
 func NewProperty(node *l8reflect.L8Node, parent *Property, key interface{}, value interface{}, resources ifs.IResources) *Property {
 	property := &Property{}
 	property.parent = parent
@@ -36,6 +71,8 @@ func NewProperty(node *l8reflect.L8Node, parent *Property, key interface{}, valu
 	return property
 }
 
+// PropertyOf parses a property path string and returns the corresponding Property.
+// Example path: "person.addresses<home>.street"
 func PropertyOf(propertyId string, resources ifs.IResources) (*Property, error) {
 	propertyKey := helping.PropertyNodeKey(propertyId)
 	node, ok := resources.Introspector().Node(propertyKey)
@@ -45,26 +82,33 @@ func PropertyOf(propertyId string, resources ifs.IResources) (*Property, error) 
 	return newProperty(node, propertyId, resources)
 }
 
+// Parent returns the parent property in the path hierarchy.
 func (this *Property) Parent() ifs.IProperty {
 	return this.parent
 }
 
+// Node returns the L8Node associated with this property.
 func (this *Property) Node() *l8reflect.L8Node {
 	return this.node
 }
 
+// Key returns the map/slice key for this property (nil for non-indexed properties).
 func (this *Property) Key() interface{} {
 	return this.key
 }
 
+// Value returns the value stored at this property.
 func (this *Property) Value() interface{} {
 	return this.value
 }
 
+// Resources returns the resources instance for introspection and registry access.
 func (this *Property) Resources() ifs.IResources {
 	return this.resources
 }
 
+// setKeyValue extracts and sets the key from a property path.
+// Returns the remaining prefix path after extracting the key.
 func (this *Property) setKeyValue(propertyId string) (string, error) {
 	id := propertyId
 	dIndex := strings.LastIndex(propertyId, ".")
@@ -102,6 +146,7 @@ func (this *Property) setKeyValue(propertyId string) (string, error) {
 	return prefix, nil
 }
 
+// IsString returns true if this property holds a string value.
 func (this *Property) IsString() bool {
 	if this.node.TypeName == reflect.String.String() {
 		return true
@@ -109,6 +154,8 @@ func (this *Property) IsString() bool {
 	return false
 }
 
+// PropertyId generates and caches the unique path string for this property.
+// Format: "typename.field<key>.subfield<key>"
 func (this *Property) PropertyId() (string, error) {
 	if this.id != "" {
 		return this.id, nil
@@ -137,6 +184,8 @@ func (this *Property) PropertyId() (string, error) {
 	return this.id, nil
 }
 
+// PropertyDisplayId generates a human-readable display version of the property path.
+// Format: "[TypeName][Field Key][SubField Key]"
 func (this *Property) PropertyDisplayId() string {
 	if this.displayId != "" {
 		return this.displayId
@@ -164,10 +213,13 @@ func (this *Property) PropertyDisplayId() string {
 	return this.displayId
 }
 
+// IsLeaf returns true if no child properties have been accessed through this property.
 func (this *Property) IsLeaf() bool {
 	return this.isLeaf
 }
 
+// newProperty is an internal constructor that builds a Property from a path string.
+// Recursively builds the parent chain from the property path.
 func newProperty(node *l8reflect.L8Node, propertyPath string, resources ifs.IResources) (*Property, error) {
 	property := &Property{}
 	property.isLeaf = true

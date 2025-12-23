@@ -1,3 +1,25 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package introspecting provides runtime type introspection and metadata extraction.
+// It analyzes Go struct types to build a tree representation (L8Node) of their structure,
+// including nested types, maps, slices, and decorators for primary keys and other metadata.
+//
+// Key features:
+//   - Automatic type tree construction from Go structs
+//   - Decorator support for primary keys, unique keys, and custom behaviors
+//   - Table view generation for data representation
+//   - Type registry integration for cross-system type management
 package introspecting
 
 import (
@@ -12,14 +34,24 @@ import (
 	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
+// Introspector provides runtime type analysis and metadata extraction for Go structs.
+// It builds and maintains a tree representation of type structures with caching
+// for efficient repeated access.
 type Introspector struct {
+	// pathToNode maps dot-separated paths to their corresponding L8Node
 	pathToNode *RNodeMap
+	// typeToNode maps type names to their corresponding L8Node
 	typeToNode *RNodeMap
-	registry   ifs.IRegistry
-	cloner     *cloning.Cloner
+	// registry stores type information for serialization/deserialization
+	registry ifs.IRegistry
+	// cloner provides deep cloning for node duplication
+	cloner *cloning.Cloner
+	// tableViews stores table view representations of types
 	tableViews *maps.SyncMap
 }
 
+// NewIntrospect creates a new Introspector with the given type registry.
+// The Introspector is ready to inspect Go structs and build type metadata.
 func NewIntrospect(registry ifs.IRegistry) *Introspector {
 	instrospector := &Introspector{}
 	instrospector.registry = registry
@@ -30,10 +62,14 @@ func NewIntrospect(registry ifs.IRegistry) *Introspector {
 	return instrospector
 }
 
+// Registry returns the type registry associated with this Introspector.
 func (this *Introspector) Registry() ifs.IRegistry {
 	return this.registry
 }
 
+// Inspect analyzes a Go struct and returns its L8Node representation.
+// The node tree is cached for subsequent lookups.
+// Returns an error if the input is nil or not a struct type.
 func (this *Introspector) Inspect(any interface{}) (*l8reflect.L8Node, error) {
 	if any == nil {
 		return nil, errors.New("Cannot introspect a nil value")
@@ -53,10 +89,12 @@ func (this *Introspector) Inspect(any interface{}) (*l8reflect.L8Node, error) {
 	return this.inspectStruct(t, nil, ""), nil
 }
 
+// Node retrieves an L8Node by its dot-separated path (case-insensitive).
 func (this *Introspector) Node(path string) (*l8reflect.L8Node, bool) {
 	return this.pathToNode.Get(strings.ToLower(path))
 }
 
+// NodeByValue retrieves an L8Node for the type of the given value.
 func (this *Introspector) NodeByValue(any interface{}) (*l8reflect.L8Node, bool) {
 	val := reflect.ValueOf(any)
 	if val.Kind() == reflect.Ptr {
@@ -65,14 +103,19 @@ func (this *Introspector) NodeByValue(any interface{}) (*l8reflect.L8Node, bool)
 	return this.NodeByType(val.Type())
 }
 
+// NodeByType retrieves an L8Node for the given reflect.Type.
 func (this *Introspector) NodeByType(typ reflect.Type) (*l8reflect.L8Node, bool) {
 	return this.NodeByTypeName(typ.Name())
 }
 
+// NodeByTypeName retrieves an L8Node by type name.
 func (this *Introspector) NodeByTypeName(name string) (*l8reflect.L8Node, bool) {
 	return this.typeToNode.Get(name)
 }
 
+// Nodes returns a list of L8Nodes, optionally filtered by leaf or root status.
+// Set onlyLeafs=true to return only leaf nodes (no children).
+// Set onlyRoots=true to return only root nodes (no parent).
 func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*l8reflect.L8Node {
 	filter := func(any interface{}) bool {
 		n := any.(*l8reflect.L8Node)
@@ -88,6 +131,7 @@ func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*l8reflect.L8Node {
 	return this.pathToNode.NodesList(filter)
 }
 
+// Kind returns the reflect.Kind for the type represented by the given node.
 func (this *Introspector) Kind(node *l8reflect.L8Node) reflect.Kind {
 	info, err := this.registry.Info(node.TypeName)
 	if err != nil {
@@ -96,10 +140,13 @@ func (this *Introspector) Kind(node *l8reflect.L8Node) reflect.Kind {
 	return info.Type().Kind()
 }
 
+// Clone performs a deep clone of the given value using the internal cloner.
 func (this *Introspector) Clone(any interface{}) interface{} {
 	return this.cloner.Clone(any)
 }
 
+// addTableView creates and stores a table view representation for a node.
+// A table view separates leaf columns from nested subtables.
 func (this *Introspector) addTableView(node *l8reflect.L8Node) {
 	tv := &l8reflect.L8TableView{Table: node, Columns: make([]*l8reflect.L8Node, 0), SubTables: make([]*l8reflect.L8Node, 0)}
 	for _, attr := range node.Attributes {
@@ -112,6 +159,7 @@ func (this *Introspector) addTableView(node *l8reflect.L8Node) {
 	this.tableViews.Put(node.TypeName, tv)
 }
 
+// TableView retrieves a table view by type name.
 func (this *Introspector) TableView(name string) (*l8reflect.L8TableView, bool) {
 	tv, ok := this.tableViews.Get(name)
 	if !ok {
@@ -120,11 +168,13 @@ func (this *Introspector) TableView(name string) (*l8reflect.L8TableView, bool) 
 	return tv.(*l8reflect.L8TableView), ok
 }
 
+// TableViews returns all registered table views.
 func (this *Introspector) TableViews() []*l8reflect.L8TableView {
 	list := this.tableViews.ValuesAsList(reflect.TypeOf(&l8reflect.L8TableView{}), nil)
 	return list.([]*l8reflect.L8TableView)
 }
 
+// Clean removes a type and all its nested types from the introspector caches.
 func (this *Introspector) Clean(typeName string) {
 	node, ok := this.NodeByTypeName(typeName)
 	if !ok {

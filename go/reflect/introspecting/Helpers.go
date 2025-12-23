@@ -1,3 +1,16 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package introspecting
 
 import (
@@ -7,6 +20,8 @@ import (
 	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
+// addAttribute creates a new L8Node for a field and adds it to the parent node's attributes.
+// Registers the type in the registry and establishes parent-child relationship.
 func (this *Introspector) addAttribute(node *l8reflect.L8Node, _type reflect.Type, _fieldName string) *l8reflect.L8Node {
 	this.registry.RegisterType(_type)
 	if node != nil && node.Attributes == nil {
@@ -24,6 +39,8 @@ func (this *Introspector) addAttribute(node *l8reflect.L8Node, _type reflect.Typ
 	return subNode
 }
 
+// fixClone updates a cloned node tree with correct parent references and cache keys.
+// Called recursively to fix all nodes in a cloned subtree.
 func (this *Introspector) fixClone(clone *l8reflect.L8Node, parent *l8reflect.L8Node, fieldName string) {
 	clone.Parent = parent
 	clone.FieldName = fieldName
@@ -37,6 +54,8 @@ func (this *Introspector) fixClone(clone *l8reflect.L8Node, parent *l8reflect.L8
 	}
 }
 
+// addNode creates a new node for a type or returns a clone of an existing non-leaf node.
+// Returns (node, true) if an existing node was cloned, (node, false) for new nodes.
 func (this *Introspector) addNode(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) (*l8reflect.L8Node, bool) {
 	exist, ok := this.typeToNode.Get(_type.Name())
 	if ok && !helping.IsLeaf(exist) {
@@ -58,6 +77,8 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *l8reflect.L8Node,
 	return node, false
 }
 
+// inspectStruct recursively inspects a struct type and builds its node tree.
+// Iterates through all exported fields, handling slices, maps, pointers, and primitives.
 func (this *Introspector) inspectStruct(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	localNode, isClone := this.addNode(_type, _parent, _fieldName)
 	if isClone {
@@ -85,6 +106,8 @@ func (this *Introspector) inspectStruct(_type reflect.Type, _parent *l8reflect.L
 	return localNode
 }
 
+// inspectPtr handles pointer type inspection by delegating to the appropriate handler.
+// Currently only supports pointers to structs.
 func (this *Introspector) inspectPtr(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	switch _type.Kind() {
 	case reflect.Struct:
@@ -93,6 +116,8 @@ func (this *Introspector) inspectPtr(_type reflect.Type, _parent *l8reflect.L8No
 	panic("unknown ptr kind " + _type.Kind().String())
 }
 
+// inspectMap inspects a map type and creates appropriate nodes.
+// Handles maps with struct pointer values specially by inspecting the struct.
 func (this *Introspector) inspectMap(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)
@@ -112,6 +137,8 @@ func (this *Introspector) inspectMap(_type reflect.Type, _parent *l8reflect.L8No
 	}
 }
 
+// inspectSlice inspects a slice type and creates appropriate nodes.
+// Handles slices of struct pointers specially by inspecting the struct.
 func (this *Introspector) inspectSlice(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	if _type.Elem().Kind() == reflect.Ptr && _type.Elem().Elem().Kind() == reflect.Struct {
 		subNode := this.inspectStruct(_type.Elem().Elem(), _parent, _fieldName)

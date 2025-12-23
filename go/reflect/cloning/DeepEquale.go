@@ -1,19 +1,40 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cloning
 
 import (
 	"reflect"
 )
 
+// DeepEqual provides deep equality comparison for Go data structures.
+// It compares values by recursively examining their contents rather than
+// just comparing memory addresses. It supports all Go primitive types,
+// slices, maps, structs, and pointers.
 type DeepEqual struct {
+	// comparators maps each reflect.Kind to its corresponding comparison function
 	comparators map[reflect.Kind]func(reflect.Value, reflect.Value) bool
 }
 
+// NewDeepEqual creates and initializes a new DeepEqual instance.
+// The returned DeepEqual is ready to compare any Go data structures.
 func NewDeepEqual() *DeepEqual {
 	de := &DeepEqual{}
 	de.initCloners()
 	return de
 }
 
+// initCloners initializes the comparison function registry with handlers for all supported Go types.
 func (this *DeepEqual) initCloners() {
 	this.comparators = make(map[reflect.Kind]func(reflect.Value, reflect.Value) bool)
 	this.comparators[reflect.Int] = this.intComp
@@ -41,12 +62,16 @@ func (this *DeepEqual) initCloners() {
 
 }
 
+// Equal compares two values for deep equality.
+// Returns true if both values have identical contents, false otherwise.
+// Handles nil values, different kinds, and recursively compares composite types.
 func (this *DeepEqual) Equal(aSide, zSide interface{}) bool {
 	aSideValue := reflect.ValueOf(aSide)
 	zSideValue := reflect.ValueOf(zSide)
 	return this.equal(aSideValue, zSideValue)
 }
 
+// equal is the internal recursive comparison function that dispatches to type-specific comparators.
 func (this *DeepEqual) equal(aSideValue, zSideValue reflect.Value) bool {
 	if aSideValue.IsValid() && !zSideValue.IsValid() {
 		return false
@@ -69,28 +94,35 @@ func (this *DeepEqual) equal(aSideValue, zSideValue reflect.Value) bool {
 	return comparator(aSideValue, zSideValue)
 }
 
-//---------------------------------------------------------------------------
+// Type-specific comparator functions for primitive and composite types
 
+// intComp compares two integer values (int, int32, int64).
 func (this *DeepEqual) intComp(aSideValue, zSideValue reflect.Value) bool {
 	return aSideValue.Int() == zSideValue.Int()
 }
 
+// uintComp compares two unsigned integer values (uint, uint32, uint64).
 func (this *DeepEqual) uintComp(aSideValue, zSideValue reflect.Value) bool {
 	return aSideValue.Uint() == zSideValue.Uint()
 }
 
+// stringComp compares two string values.
 func (this *DeepEqual) stringComp(aSideValue, zSideValue reflect.Value) bool {
 	return aSideValue.String() == zSideValue.String()
 }
 
+// boolComp compares two boolean values.
 func (this *DeepEqual) boolComp(aSideValue, zSideValue reflect.Value) bool {
 	return aSideValue.Bool() == zSideValue.Bool()
 }
 
+// floatComp compares two floating-point values (float32, float64).
 func (this *DeepEqual) floatComp(aSideValue, zSideValue reflect.Value) bool {
 	return aSideValue.Float() == zSideValue.Float()
 }
 
+// ptrComp compares two pointer values by recursively comparing their pointed-to values.
+// Handles nil pointers appropriately.
 func (this *DeepEqual) ptrComp(aSideValue, zSideValue reflect.Value) bool {
 	if aSideValue.IsNil() && !zSideValue.IsNil() {
 		return false
@@ -104,6 +136,9 @@ func (this *DeepEqual) ptrComp(aSideValue, zSideValue reflect.Value) bool {
 	return this.equal(aSideValue.Elem(), zSideValue.Elem())
 }
 
+// structComp compares two struct values field by field.
+// Skips fields matching SkipFieldByName criteria.
+// Returns false if struct types don't match.
 func (this *DeepEqual) structComp(aSideValue, zSideValue reflect.Value) bool {
 	if aSideValue.Type().Name() != zSideValue.Type().Name() {
 		return false
@@ -123,6 +158,8 @@ func (this *DeepEqual) structComp(aSideValue, zSideValue reflect.Value) bool {
 	return true
 }
 
+// sliceComp compares two slice values element by element.
+// Returns false if lengths differ or any element differs.
 func (this *DeepEqual) sliceComp(aSideValue, zSideValue reflect.Value) bool {
 	if aSideValue.IsNil() && !zSideValue.IsNil() {
 		return false
@@ -149,6 +186,8 @@ func (this *DeepEqual) sliceComp(aSideValue, zSideValue reflect.Value) bool {
 	return true
 }
 
+// mapComp compares two map values by comparing all key-value pairs.
+// Returns false if map sizes differ or any key-value pair differs.
 func (this *DeepEqual) mapComp(aSideValue, zSideValue reflect.Value) bool {
 	if aSideValue.IsNil() && !zSideValue.IsNil() {
 		return false

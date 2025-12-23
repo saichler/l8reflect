@@ -1,3 +1,19 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file contains slice-specific setter logic for property operations.
+// Handles slice creation, resizing, element insertion, and deletion through property paths.
+
 package properties
 
 import (
@@ -7,6 +23,9 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 )
 
+// sliceSet handles setting values within slice fields.
+// Supports replacing entire slices, setting individual elements by index,
+// creating new slices, resizing for larger indices, and handling deletions.
 func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Value) (interface{}, error) {
 	//Replace all the slice
 	if this.key == nil {

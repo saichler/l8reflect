@@ -1,3 +1,19 @@
+// © 2025 Sharon Aicler (saichler@gmail.com)
+//
+// Layer 8 Ecosystem is licensed under the Apache License, Version 2.0.
+// You may obtain a copy of the License at:
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file contains collection functions for gathering all instances of a type
+// from a nested data structure. Useful for extracting all entities of a specific type.
+
 package properties
 
 import (
@@ -7,6 +23,8 @@ import (
 	"github.com/saichler/l8types/go/types/l8reflect"
 )
 
+// Collect traverses a data structure and collects all instances matching typeName.
+// Returns a map keyed by property ID to the collected instances.
 func Collect(root interface{}, r ifs.IResources, typeName string) map[string]interface{} {
 	rootKey, node, err := r.Introspector().Decorators().PrimaryKeyDecoratorValue(root)
 	if err != nil {
