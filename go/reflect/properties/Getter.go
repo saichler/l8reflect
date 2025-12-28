@@ -112,8 +112,11 @@ func (this *Property) GetValue(any reflect.Value) []reflect.Value {
 			sliceItems := this.getSlice(parent)
 			results = append(results, sliceItems...)
 		} else {
-			value := parent.FieldByName(this.node.FieldName)
-			results = append(results, value)
+			var value reflect.Value
+			if parent.IsValid() {
+				value = parent.FieldByName(this.node.FieldName)
+				results = append(results, value)
+			}
 		}
 	}
 	return results
