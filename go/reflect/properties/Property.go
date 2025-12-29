@@ -227,7 +227,10 @@ func (this *Property) IsLeaf() bool {
 // computeFieldIndex finds the struct field index for this property's FieldName
 // in the parent type. Returns -1 if the field cannot be found (e.g., root property).
 func (this *Property) computeFieldIndex() int {
-	if this.node.Parent == nil || this.node.FieldName == "" {
+	if this.node == nil || this.node.Parent == nil || this.node.FieldName == "" {
+		return -1
+	}
+	if this.resources == nil || this.resources.Registry() == nil {
 		return -1
 	}
 	parentTypeName := this.node.Parent.TypeName
