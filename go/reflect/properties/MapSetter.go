@@ -67,6 +67,13 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 		}
 	}
 
+	// Handle setting entire map to nil explicitly
+	// This must be checked before creating an empty map for invalid newMapValue
+	if this.key == nil && !newMapValue.IsValid() {
+		myMapValue.SetZero()
+		return nil, nil
+	}
+
 	//create the map if it is nil
 	if !newMapValue.IsValid() {
 		if this.node.IsStruct {
@@ -78,14 +85,10 @@ func (this *Property) mapSet(myMapValue reflect.Value, newMapValue reflect.Value
 
 	//This means the entire map is new
 	if this.key == nil {
-		if !newMapValue.IsValid() {
-			myMapValue.SetZero()
-		} else {
-			if newMapValue.Kind() != reflect.Map {
-				return nil, errors.New("invalid map type " + newMapValue.Kind().String() + " for map " + myMapValue.Type().String())
-			}
-			myMapValue.Set(newMapValue)
+		if newMapValue.Kind() != reflect.Map {
+			return nil, errors.New("invalid map type " + newMapValue.Kind().String() + " for map " + myMapValue.Type().String())
 		}
+		myMapValue.Set(newMapValue)
 		return myMapValue.Interface(), nil
 	}
 
