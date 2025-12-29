@@ -20,6 +20,15 @@ import (
 	"reflect"
 )
 
+// getField retrieves a field from a struct value using the cached field index.
+// Falls back to FieldByName if fieldIndex is not set (-1).
+func (this *Property) getField(structValue reflect.Value) reflect.Value {
+	if this.fieldIndex >= 0 {
+		return structValue.Field(this.fieldIndex)
+	}
+	return structValue.FieldByName(this.node.FieldName)
+}
+
 // getMap retrieves values from a map field.
 // If a specific key is set in the parent, returns only that entry's field value.
 // Otherwise, returns the field value from all map entries.
@@ -36,7 +45,7 @@ func (this *Property) getMap(parent reflect.Value) []reflect.Value {
 			}
 			myValue = myValue.Elem()
 		}
-		myValue = myValue.FieldByName(this.node.FieldName)
+		myValue = this.getField(myValue)
 		result = append(result, myValue)
 	} else {
 		keys := parent.MapKeys()
@@ -45,7 +54,7 @@ func (this *Property) getMap(parent reflect.Value) []reflect.Value {
 			if value.Kind() == reflect.Ptr {
 				value = value.Elem()
 			}
-			myValue := value.FieldByName(this.node.FieldName)
+			myValue := this.getField(value)
 			result = append(result, myValue)
 		}
 	}
@@ -65,7 +74,7 @@ func (this *Property) getSlice(parent reflect.Value) []reflect.Value {
 			}
 			myValue = myValue.Elem()
 		}
-		myValue = myValue.FieldByName(this.node.FieldName)
+		myValue = this.getField(myValue)
 		result = append(result, myValue)
 	} else {
 		for i := 0; i < parent.Len(); i++ {
@@ -80,7 +89,7 @@ func (this *Property) getSlice(parent reflect.Value) []reflect.Value {
 				value = value.Elem()
 			}
 
-			myValue := value.FieldByName(this.node.FieldName)
+			myValue := this.getField(value)
 			result = append(result, myValue)
 		}
 	}
@@ -112,9 +121,8 @@ func (this *Property) GetValue(any reflect.Value) []reflect.Value {
 			sliceItems := this.getSlice(parent)
 			results = append(results, sliceItems...)
 		} else {
-			var value reflect.Value
 			if parent.IsValid() {
-				value = parent.FieldByName(this.node.FieldName)
+				value := this.getField(parent)
 				results = append(results, value)
 			}
 		}

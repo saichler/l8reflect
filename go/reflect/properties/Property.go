@@ -53,6 +53,9 @@ type Property struct {
 	isLeaf bool
 	// resources provides access to introspection and registry
 	resources ifs.IResources
+	// fieldIndex is the cached struct field index for this property's field
+	// in its parent struct. Pre-computed to avoid FieldByName linear search.
+	fieldIndex int
 }
 
 // NewProperty creates a new Property with the given parameters.
@@ -65,9 +68,12 @@ func NewProperty(node *l8reflect.L8Node, parent *Property, key interface{}, valu
 	property.value = value
 	property.resources = resources
 	property.isLeaf = true
+	property.fieldIndex = -1
 	if parent != nil {
 		parent.isLeaf = false
 	}
+	// Pre-compute field index to avoid FieldByName linear search
+	property.fieldIndex = property.computeFieldIndex()
 	return property
 }
 
@@ -218,6 +224,29 @@ func (this *Property) IsLeaf() bool {
 	return this.isLeaf
 }
 
+// computeFieldIndex finds the struct field index for this property's FieldName
+// in the parent type. Returns -1 if the field cannot be found (e.g., root property).
+func (this *Property) computeFieldIndex() int {
+	if this.node.Parent == nil || this.node.FieldName == "" {
+		return -1
+	}
+	parentTypeName := this.node.Parent.TypeName
+	info, err := this.resources.Registry().Info(parentTypeName)
+	if err != nil {
+		return -1
+	}
+	parentType := info.Type()
+	if parentType.Kind() == reflect.Ptr {
+		parentType = parentType.Elem()
+	}
+	for i := 0; i < parentType.NumField(); i++ {
+		if parentType.Field(i).Name == this.node.FieldName {
+			return i
+		}
+	}
+	return -1
+}
+
 // newProperty is an internal constructor that builds a Property from a path string.
 // Recursively builds the parent chain from the property path.
 func newProperty(node *l8reflect.L8Node, propertyPath string, resources ifs.IResources) (*Property, error) {
@@ -225,6 +254,7 @@ func newProperty(node *l8reflect.L8Node, propertyPath string, resources ifs.IRes
 	property.isLeaf = true
 	property.node = node
 	property.resources = resources
+	property.fieldIndex = -1
 	if node.Parent != nil {
 		prefix, err := property.setKeyValue(propertyPath)
 		if err != nil {
@@ -236,6 +266,8 @@ func newProperty(node *l8reflect.L8Node, propertyPath string, resources ifs.IRes
 		}
 		property.parent = pi
 		pi.isLeaf = false
+		// Pre-compute field index to avoid FieldByName linear search
+		property.fieldIndex = property.computeFieldIndex()
 	} else {
 		index1 := strings.Index(propertyPath, "<")
 		index2 := strings.Index(propertyPath, ">")
