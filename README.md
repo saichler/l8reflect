@@ -1,4 +1,6 @@
-# Layer 8 Model Agnostic Infra
+# Model-Agnostic Runtime - The Universal Data Engine
+
+Most software needs a blueprint of your data before it can do anything with it. Model-Agnostic Runtime reads the blueprint automatically, so it can copy, compare, update, and search through any data - even data it's never seen before.
 
 A comprehensive Go library providing advanced reflection capabilities for deep cloning, introspection, property management, and change tracking of Go objects. This library forms part of the Layer 8 Model Agnostic Infrastructure, enabling robust and type-safe reflection operations across diverse data structures.
 

@@ -152,7 +152,7 @@ func (this *Property) Get(any interface{}) (interface{}, error) {
 		return n, nil
 	}
 	values := this.GetValue(reflect.ValueOf(any))
-	if !values[0].IsValid() {
+	if len(values) == 0 || !values[0].IsValid() {
 		return nil, nil
 	}
 	if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
