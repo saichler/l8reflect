@@ -16,8 +16,8 @@ package introspecting
 import (
 	"reflect"
 
-	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/l8reflect/go/reflect/helping"
+	"github.com/saichler/l8types/go/types/l8reflect"
 )
 
 // addAttribute creates a new L8Node for a field and adds it to the parent node's attributes.
@@ -88,6 +88,17 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *l8reflect.L8Node,
 func (this *Introspector) inspectStruct(_type reflect.Type, _parent *l8reflect.L8Node, _fieldName string) *l8reflect.L8Node {
 	localNode, isClone := this.addNode(_type, _parent, _fieldName)
 	if isClone {
+		f, ok := _type.FieldByName(_fieldName)
+		if ok && f.Type.Kind() == reflect.Slice {
+			localNode.IsSlice = true
+		} else {
+			localNode.IsSlice = false
+		}
+		if ok && f.Type.Kind() == reflect.Map {
+			localNode.IsMap = true
+		} else {
+			localNode.IsMap = false
+		}
 		return localNode
 	}
 	localNode.IsStruct = true
