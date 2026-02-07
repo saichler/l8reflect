@@ -61,6 +61,12 @@ func (this *Introspector) addNode(_type reflect.Type, _parent *l8reflect.L8Node,
 	if ok && !helping.IsLeaf(exist) {
 		clone := this.cloner.Clone(exist).(*l8reflect.L8Node)
 		this.fixClone(clone, _parent, _fieldName)
+		if _parent != nil {
+			if _parent.Attributes == nil {
+				_parent.Attributes = make(map[string]*l8reflect.L8Node)
+			}
+			_parent.Attributes[_fieldName] = clone
+		}
 		return clone, true
 	}
 
