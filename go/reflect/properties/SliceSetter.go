@@ -23,6 +23,30 @@ import (
 	"github.com/saichler/l8types/go/ifs"
 )
 
+const maxTimeSeriesPoints = 100
+
+// timeSeriesAppend appends a single *L8TimeSeriesPoint to the slice.
+// If the slice reaches maxTimeSeriesPoints, the oldest entry (index 0) is dropped.
+func (this *Property) timeSeriesAppend(myValue reflect.Value, newPoint reflect.Value) (interface{}, error) {
+	info, err := this.resources.Registry().Info(this.node.TypeName)
+	if err != nil {
+		return nil, err
+	}
+	// If the slice doesn't exist yet, create it
+	if !myValue.IsValid() || myValue.IsNil() {
+		myValue.Set(reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(info.Type())), 0, 0))
+	}
+
+	// If slice is at capacity, drop the first element
+	if myValue.Len() >= maxTimeSeriesPoints {
+		myValue.Set(myValue.Slice(1, myValue.Len()))
+	}
+
+	// Append the new point
+	myValue.Set(reflect.Append(myValue, newPoint))
+	return myValue.Interface(), nil
+}
+
 // sliceSet handles setting values within slice fields.
 // Supports replacing entire slices, setting individual elements by index,
 // creating new slices, resizing for larger indices, and handling deletions.

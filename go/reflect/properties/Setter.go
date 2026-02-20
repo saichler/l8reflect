@@ -97,6 +97,9 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 	if this.node.IsMap {
 		v, e := this.mapSet(myValue, reflect.ValueOf(value))
 		return v, any, e
+	} else if this.node.IsSlice && this.node.TypeName == "L8TimeSeriesPoint" {
+		v, e := this.timeSeriesAppend(myValue, reflect.ValueOf(value))
+		return v, any, e
 	} else if this.node.IsSlice {
 		v, e := this.sliceSet(myValue, reflect.ValueOf(value))
 		return v, any, e
