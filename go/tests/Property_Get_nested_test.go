@@ -16,6 +16,7 @@ package tests
 import (
 	"testing"
 
+	l8api "github.com/saichler/l8types/go/types/l8api"
 	"github.com/saichler/probler/go/types"
 )
 
@@ -136,13 +137,18 @@ func Test_Get_Deeply_Nested_Chassis_Temperature(t *testing.T) {
 		return
 	}
 
-	floatValue, ok := value.(float64)
+	tsValue, ok := value.([]*l8api.L8TimeSeriesPoint)
 	if !ok {
-		r.Logger().Fail(t, "Expected float64 type for Chassis.Temperature")
+		r.Logger().Fail(t, "Expected []*L8TimeSeriesPoint type for Chassis.Temperature")
 		return
 	}
-	if floatValue != device.Physicals[physicalKey].Chassis[0].Temperature {
-		r.Logger().Fail(t, "Expected Chassis.Temperature to match")
+	expected := device.Physicals[physicalKey].Chassis[0].Temperature
+	if len(tsValue) != len(expected) {
+		r.Logger().Fail(t, "Expected Chassis.Temperature length to match")
+		return
+	}
+	if len(tsValue) > 0 && tsValue[0].Value != expected[0].Value {
+		r.Logger().Fail(t, "Expected Chassis.Temperature value to match")
 		return
 	}
 }
@@ -176,8 +182,12 @@ func Test_Get_Performance_Metrics(t *testing.T) {
 		r.Logger().Fail(t, "Expected *PerformanceMetrics type")
 		return
 	}
-	if perf.CpuUsagePercent != device.Physicals[physicalKey].Performance.CpuUsagePercent {
-		r.Logger().Fail(t, "Expected CpuUsagePercent to match")
+	if len(perf.CpuUsagePercent) != len(device.Physicals[physicalKey].Performance.CpuUsagePercent) {
+		r.Logger().Fail(t, "Expected CpuUsagePercent length to match")
+		return
+	}
+	if len(perf.CpuUsagePercent) > 0 && perf.CpuUsagePercent[0].Value != device.Physicals[physicalKey].Performance.CpuUsagePercent[0].Value {
+		r.Logger().Fail(t, "Expected CpuUsagePercent value to match")
 		return
 	}
 }
@@ -202,13 +212,18 @@ func Test_Get_Performance_CpuUsagePercent(t *testing.T) {
 		return
 	}
 
-	floatValue, ok := value.(float64)
+	tsValue, ok := value.([]*l8api.L8TimeSeriesPoint)
 	if !ok {
-		r.Logger().Fail(t, "Expected float64 type for CpuUsagePercent")
+		r.Logger().Fail(t, "Expected []*L8TimeSeriesPoint type for CpuUsagePercent")
 		return
 	}
-	if floatValue != device.Physicals[physicalKey].Performance.CpuUsagePercent {
-		r.Logger().Fail(t, "Expected CpuUsagePercent to match")
+	expected := device.Physicals[physicalKey].Performance.CpuUsagePercent
+	if len(tsValue) != len(expected) {
+		r.Logger().Fail(t, "Expected CpuUsagePercent length to match")
+		return
+	}
+	if len(tsValue) > 0 && tsValue[0].Value != expected[0].Value {
+		r.Logger().Fail(t, "Expected CpuUsagePercent value to match")
 		return
 	}
 }
@@ -233,13 +248,18 @@ func Test_Get_Performance_MemoryUsagePercent(t *testing.T) {
 		return
 	}
 
-	floatValue, ok := value.(float64)
+	tsValue, ok := value.([]*l8api.L8TimeSeriesPoint)
 	if !ok {
-		r.Logger().Fail(t, "Expected float64 type for MemoryUsagePercent")
+		r.Logger().Fail(t, "Expected []*L8TimeSeriesPoint type for MemoryUsagePercent")
 		return
 	}
-	if floatValue != device.Physicals[physicalKey].Performance.MemoryUsagePercent {
-		r.Logger().Fail(t, "Expected MemoryUsagePercent to match")
+	expected := device.Physicals[physicalKey].Performance.MemoryUsagePercent
+	if len(tsValue) != len(expected) {
+		r.Logger().Fail(t, "Expected MemoryUsagePercent length to match")
+		return
+	}
+	if len(tsValue) > 0 && tsValue[0].Value != expected[0].Value {
+		r.Logger().Fail(t, "Expected MemoryUsagePercent value to match")
 		return
 	}
 }

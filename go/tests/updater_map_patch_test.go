@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"github.com/saichler/l8reflect/go/reflect/updating"
+	l8api "github.com/saichler/l8types/go/types/l8api"
 	"github.com/saichler/probler/go/types"
 )
 
@@ -24,7 +25,7 @@ func TestPatchMapItem(t *testing.T) {
 	res := newResources()
 	res.Introspector().Decorators().AddPrimaryKeyDecorator(&types.NetworkDevice{}, "Id")
 	aside := &types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Ports: []*types.Port{&types.Port{Id: "id"}}}}}
-	zside := &types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Performance: &types.PerformanceMetrics{CpuUsagePercent: 88.0}}}}
+	zside := &types.NetworkDevice{Physicals: map[string]*types.Physical{"1": &types.Physical{Performance: &types.PerformanceMetrics{CpuUsagePercent: []*l8api.L8TimeSeriesPoint{{Stamp: 1, Value: 88.0}}}}}}
 
 	updater := updating.NewUpdater(res, false, false)
 
