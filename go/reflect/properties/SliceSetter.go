@@ -25,8 +25,9 @@ import (
 
 const maxTimeSeriesPoints = 100
 
-// timeSeriesAppend appends a single *L8TimeSeriesPoint to the slice.
-// If the slice reaches maxTimeSeriesPoints, the oldest entry (index 0) is dropped.
+// timeSeriesAppend appends time series points to the slice.
+// Handles both a single *L8TimeSeriesPoint and a full []*L8TimeSeriesPoint slice.
+// If the slice reaches maxTimeSeriesPoints, the oldest entries are dropped.
 func (this *Property) timeSeriesAppend(myValue reflect.Value, newPoint reflect.Value) (interface{}, error) {
 	info, err := this.resources.Registry().Info(this.node.TypeName)
 	if err != nil {
@@ -37,7 +38,18 @@ func (this *Property) timeSeriesAppend(myValue reflect.Value, newPoint reflect.V
 		myValue.Set(reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(info.Type())), 0, 0))
 	}
 
-	// If slice is at capacity, drop the first element
+	// If the incoming value is a slice, append each element individually
+	if newPoint.Kind() == reflect.Slice {
+		for i := 0; i < newPoint.Len(); i++ {
+			if myValue.Len() >= maxTimeSeriesPoints {
+				myValue.Set(myValue.Slice(1, myValue.Len()))
+			}
+			myValue.Set(reflect.Append(myValue, newPoint.Index(i)))
+		}
+		return myValue.Interface(), nil
+	}
+
+	// Single point: drop oldest if at capacity, then append
 	if myValue.Len() >= maxTimeSeriesPoints {
 		myValue.Set(myValue.Slice(1, myValue.Len()))
 	}
