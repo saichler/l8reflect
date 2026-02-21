@@ -70,6 +70,24 @@ func structUpdate(property *properties.Property, node *l8reflect.L8Node, oldValu
 	for _, attr := range node.Attributes {
 		oldFldValue := oldValue.FieldByName(attr.FieldName)
 		newFldValue := newValue.FieldByName(attr.FieldName)
+
+		// Time series slices are append-only: record the whole new slice
+		// as a single change and let timeSeriesAppend handle merging.
+		// Never drill down into individual L8TimeSeriesPoint fields.
+		if attr.IsSlice && attr.TypeName == "L8TimeSeriesPoint" {
+			if !newFldValue.IsValid() || newFldValue.IsNil() || newFldValue.Len() == 0 {
+				continue
+			}
+			if oldFldValue.IsValid() && !oldFldValue.IsNil() &&
+				deepEqual.Equal(oldFldValue.Interface(), newFldValue.Interface()) {
+				continue
+			}
+			subInstance := properties.NewProperty(attr, property, nil, oldFldValue, updates.resources)
+			updates.addUpdate(subInstance, nil, newFldValue.Interface())
+			oldFldValue.Set(newFldValue)
+			continue
+		}
+
 		subInstance := properties.NewProperty(attr, property, nil, oldFldValue, updates.resources)
 		err := update(subInstance, attr, oldFldValue, newFldValue, updates)
 		if err != nil {
