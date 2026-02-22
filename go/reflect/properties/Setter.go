@@ -157,7 +157,15 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 			if v.Kind() != myValue.Kind() {
 				v = ConvertValue(myValue, v)
 			}
-			myValue.Set(v)
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						pid, _ := this.PropertyId()
+						this.resources.Logger().Error("panic in Set: property=", pid, " value=", value, " error=", r)
+					}
+				}()
+				myValue.Set(v)
+			}()
 		}
 		return value, any, err
 	}

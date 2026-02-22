@@ -19,11 +19,12 @@ package properties
 import (
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // ConvertValue converts a source value to match the target's type.
-// Handles numeric conversions and string conversions. Returns the source
-// unchanged if no conversion is possible or needed.
+// Handles numeric conversions, bool conversions, and string conversions.
+// Returns the source unchanged if no conversion is possible or needed.
 func ConvertValue(target, source reflect.Value) reflect.Value {
 	targetKind := target.Kind()
 	sourceKind := source.Kind()
@@ -33,12 +34,45 @@ func ConvertValue(target, source reflect.Value) reflect.Value {
 		return convertNumeric(target, source)
 	}
 
+	// Handle numeric/string to bool conversion (e.g., SNMP returns int64 for bool fields)
+	if targetKind == reflect.Bool {
+		return convertToBool(source)
+	}
+
+	// Handle bool to numeric conversion
+	if sourceKind == reflect.Bool && IsNumeric(targetKind) {
+		v := int64(0)
+		if source.Bool() {
+			v = 1
+		}
+		return convertNumeric(target, reflect.ValueOf(v))
+	}
+
 	// Handle string conversion
 	if targetKind == reflect.String {
 		return reflect.ValueOf(convertToString(source))
 	}
 
 	// Return source unchanged if no conversion needed
+	return source
+}
+
+// convertToBool converts a value to bool. For numeric types, non-zero is true.
+// For strings, "true"/"1" are true, everything else is false.
+func convertToBool(source reflect.Value) reflect.Value {
+	switch source.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return reflect.ValueOf(source.Int() != 0)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return reflect.ValueOf(source.Uint() != 0)
+	case reflect.Float32, reflect.Float64:
+		return reflect.ValueOf(source.Float() != 0)
+	case reflect.String:
+		s := strings.ToLower(source.String())
+		return reflect.ValueOf(s == "true" || s == "1")
+	case reflect.Bool:
+		return source
+	}
 	return source
 }
 
