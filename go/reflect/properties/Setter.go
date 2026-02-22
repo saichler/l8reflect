@@ -145,6 +145,10 @@ func (this *Property) Set(any interface{}, value interface{}) (interface{}, inte
 		}
 		return myValue.Interface(), any, err
 	} else if reflect.ValueOf(value).Kind() == reflect.Int32 || myValue.Kind() == reflect.Int32 {
+		if value == nil {
+			myValue.SetInt(0)
+			return value, any, err
+		}
 		v := reflect.ValueOf(value)
 		if v.Kind() == reflect.String {
 			value = this.resources.Registry().Enum(value.(string))
