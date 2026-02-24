@@ -42,6 +42,7 @@ func (this *Property) timeSeriesAppend(myValue reflect.Value, newPoint reflect.V
 	if newPoint.Kind() == reflect.Slice {
 		for i := 0; i < newPoint.Len(); i++ {
 			if myValue.Len() >= maxTimeSeriesPoints {
+				myValue.Index(0).Set(reflect.Zero(myValue.Type().Elem()))
 				myValue.Set(myValue.Slice(1, myValue.Len()))
 			}
 			myValue.Set(reflect.Append(myValue, newPoint.Index(i)))
@@ -51,6 +52,7 @@ func (this *Property) timeSeriesAppend(myValue reflect.Value, newPoint reflect.V
 
 	// Single point: drop oldest if at capacity, then append
 	if myValue.Len() >= maxTimeSeriesPoints {
+		myValue.Index(0).Set(reflect.Zero(myValue.Type().Elem()))
 		myValue.Set(myValue.Slice(1, myValue.Len()))
 	}
 
