@@ -34,10 +34,13 @@ func (this *Introspector) Decorators() ifs.IDecorators {
 
 // AddPrimaryKeyDecorator marks the specified fields as the primary key for a type.
 // Primary keys are used to uniquely identify instances within collections.
+// This method is thread-safe.
 func (this *Introspector) AddPrimaryKeyDecorator(any interface{}, fields ...string) error {
-	node, _, err := this.NodeFor(any)
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	node, _, err := this.nodeFor(any)
 	if err != nil || node == nil {
-		node, _ = this.Inspect(any)
+		node, _ = this.inspect(any)
 	}
 	addDecorator(l8reflect.L8DecoratorType_Primary, fields, node)
 	return nil
@@ -45,8 +48,11 @@ func (this *Introspector) AddPrimaryKeyDecorator(any interface{}, fields ...stri
 
 // AddUniqueKeyDecorator marks the specified fields as a unique key.
 // Unique keys identify unique instances within collections but are secondary to primary keys.
+// This method is thread-safe.
 func (this *Introspector) AddUniqueKeyDecorator(any interface{}, fields ...string) error {
-	node, _, err := this.NodeFor(any)
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	node, _, err := this.nodeFor(any)
 	if err != nil || node == nil {
 		return err
 	}
@@ -56,8 +62,11 @@ func (this *Introspector) AddUniqueKeyDecorator(any interface{}, fields ...strin
 
 // AddNonUniqueKeyDecorator marks the specified fields as a non-unique key.
 // Non-unique keys are used for grouping or indexing without uniqueness guarantee.
+// This method is thread-safe.
 func (this *Introspector) AddNonUniqueKeyDecorator(any interface{}, fields ...string) error {
-	node, _, err := this.NodeFor(any)
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	node, _, err := this.nodeFor(any)
 	if err != nil || node == nil {
 		return err
 	}
@@ -67,7 +76,10 @@ func (this *Introspector) AddNonUniqueKeyDecorator(any interface{}, fields ...st
 
 // AddAlwayOverwriteDecorator marks a node to always perform full overwrites during updates.
 // When set, updates replace the entire value rather than merging changes.
+// This method is thread-safe.
 func (this *Introspector) AddAlwayOverwriteDecorator(nodeId string) error {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
 	node, ok := this.Node(nodeId)
 	if !ok {
 		return errors.New(strings2.New("Node for ID ", nodeId, " not found").String())
@@ -78,8 +90,11 @@ func (this *Introspector) AddAlwayOverwriteDecorator(nodeId string) error {
 
 // AddNoNestedInspection marks a type to skip nested introspection.
 // The type is registered but its fields are not recursively inspected.
+// This method is thread-safe.
 func (this *Introspector) AddNoNestedInspection(any interface{}) error {
-	node, _, err := this.NodeFor(any)
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	node, _, err := this.nodeFor(any)
 	if err != nil {
 		return err
 	}
@@ -89,7 +104,16 @@ func (this *Introspector) AddNoNestedInspection(any interface{}) error {
 
 // NodeFor retrieves the L8Node and reflect.Value for a given interface.
 // Returns an error if the input is nil or invalid.
+// This method is thread-safe.
 func (this *Introspector) NodeFor(any interface{}) (*l8reflect.L8Node, reflect.Value, error) {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	return this.nodeFor(any)
+}
+
+// nodeFor is the internal unlocked version of NodeFor.
+// Callers must hold this.mutex before calling.
+func (this *Introspector) nodeFor(any interface{}) (*l8reflect.L8Node, reflect.Value, error) {
 	if any == nil {
 		panic("Node For a nil interface")
 	}
@@ -99,7 +123,7 @@ func (this *Introspector) NodeFor(any interface{}) (*l8reflect.L8Node, reflect.V
 	}
 	node, ok := this.Node(v.Type().Name())
 	if !ok {
-		node, e = this.Inspect(any)
+		node, e = this.inspect(any)
 		if e != nil {
 			return nil, v, e
 		}

@@ -26,12 +26,13 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"sync"
 
+	"github.com/saichler/l8reflect/go/reflect/cloning"
+	"github.com/saichler/l8reflect/go/reflect/helping"
 	"github.com/saichler/l8types/go/ifs"
 	"github.com/saichler/l8types/go/types/l8reflect"
 	"github.com/saichler/l8utils/go/utils/maps"
-	"github.com/saichler/l8reflect/go/reflect/cloning"
-	"github.com/saichler/l8reflect/go/reflect/helping"
 )
 
 // Introspector provides runtime type analysis and metadata extraction for Go structs.
@@ -48,18 +49,20 @@ type Introspector struct {
 	cloner *cloning.Cloner
 	// tableViews stores table view representations of types
 	tableViews *maps.SyncMap
+	mutex      *sync.Mutex
 }
 
 // NewIntrospect creates a new Introspector with the given type registry.
 // The Introspector is ready to inspect Go structs and build type metadata.
 func NewIntrospect(registry ifs.IRegistry) *Introspector {
-	instrospector := &Introspector{}
-	instrospector.registry = registry
-	instrospector.cloner = cloning.NewCloner()
-	instrospector.pathToNode = NewIntrospectNodeMap()
-	instrospector.typeToNode = NewIntrospectNodeMap()
-	instrospector.tableViews = maps.NewSyncMap()
-	return instrospector
+	introspector := &Introspector{}
+	introspector.mutex = &sync.Mutex{}
+	introspector.registry = registry
+	introspector.cloner = cloning.NewCloner()
+	introspector.pathToNode = NewIntrospectNodeMap()
+	introspector.typeToNode = NewIntrospectNodeMap()
+	introspector.tableViews = maps.NewSyncMap()
+	return introspector
 }
 
 // Registry returns the type registry associated with this Introspector.
@@ -70,7 +73,16 @@ func (this *Introspector) Registry() ifs.IRegistry {
 // Inspect analyzes a Go struct and returns its L8Node representation.
 // The node tree is cached for subsequent lookups.
 // Returns an error if the input is nil or not a struct type.
+// This method is thread-safe.
 func (this *Introspector) Inspect(any interface{}) (*l8reflect.L8Node, error) {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	return this.inspect(any)
+}
+
+// inspect is the internal unlocked version of Inspect.
+// Callers must hold this.mutex before calling.
+func (this *Introspector) inspect(any interface{}) (*l8reflect.L8Node, error) {
 	if any == nil {
 		return nil, errors.New("Cannot introspect a nil value")
 	}
@@ -175,7 +187,10 @@ func (this *Introspector) TableViews() []*l8reflect.L8TableView {
 }
 
 // Clean removes a type and all its nested types from the introspector caches.
+// This method is thread-safe.
 func (this *Introspector) Clean(typeName string) {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
 	node, ok := this.NodeByTypeName(typeName)
 	if !ok {
 		return
