@@ -91,15 +91,15 @@ func stringUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValu
 }
 
 // boolUpdate compares and updates boolean values.
+// Unlike other primitives, false is a meaningful value for bools (not a "zero"),
+// so any difference is always recorded regardless of nilIsValid.
 func boolUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if newValue.Bool() == oldValue.Bool() {
 		return nil
 	}
-	if newValue.Bool() && !oldValue.Bool() || updates.nilIsValid {
-		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
-		if !updates.dryRun {
-			oldValue.Set(newValue)
-		}
+	updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
+	if !updates.dryRun {
+		oldValue.Set(newValue)
 	}
 	return nil
 }
