@@ -37,6 +37,8 @@ type Updater struct {
 	nilIsValid bool
 	// newItemIsFull when true treats the new item as a complete replacement, detecting deletions
 	newItemIsFull bool
+	// dryRun when true skips mutation of the old instance, only recording changes
+	dryRun bool
 }
 
 // NewUpdater creates a new Updater with the given configuration.
@@ -53,6 +55,14 @@ func NewUpdater(resources ifs.IResources, isNilValid, newItemIsFull bool) *Updat
 // Changes returns the list of changes detected during the update operation.
 func (this *Updater) Changes() []*Change {
 	return this.changes
+}
+
+// DryUpdate compares old and new instances and records all modifications without mutating old.
+// Returns an error if either value is nil or if type comparison fails.
+func (this *Updater) DryUpdate(old, new interface{}) error {
+	this.dryRun = true
+	defer func() { this.dryRun = false }()
+	return this.Update(old, new)
 }
 
 // Update compares old and new instances, applies changes to old, and records all modifications.

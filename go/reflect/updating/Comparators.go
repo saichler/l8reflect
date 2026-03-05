@@ -61,7 +61,9 @@ func init() {
 func intUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Int() != newValue.Int() && (newValue.Int() != 0 || updates.nilIsValid) {
 		updates.addUpdate(property, oldValue.Interface(), newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 	}
 	return nil
 }
@@ -70,7 +72,9 @@ func intUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, 
 func uintUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Uint() != newValue.Uint() && (newValue.Uint() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 	}
 	return nil
 }
@@ -79,7 +83,9 @@ func uintUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue,
 func stringUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.String() != newValue.String() && (newValue.String() != "" || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 	}
 	return nil
 }
@@ -91,7 +97,9 @@ func boolUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue,
 	}
 	if newValue.Bool() && !oldValue.Bool() || updates.nilIsValid {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 	}
 	return nil
 }
@@ -100,7 +108,9 @@ func boolUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue,
 func floatUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.Float() != newValue.Float() && (newValue.Float() != 0 || updates.nilIsValid) {
 		updates.addUpdate(instance, oldValue.Interface(), newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 	}
 	return nil
 }

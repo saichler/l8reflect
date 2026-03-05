@@ -32,12 +32,16 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 	}
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(instance, nil, newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(instance, oldValue, nil)
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 
@@ -56,12 +60,16 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), i,
 				newIndexValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newIndexValue.Interface())
-			oldIndexValue.Set(newIndexValue)
+			if !updates.dryRun {
+				oldIndexValue.Set(newIndexValue)
+			}
 		} else if !oldIndexValue.IsValid() || oldIndexValue.IsNil() {
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property),
 				i, newIndexValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newIndexValue.Interface())
-			oldIndexValue.Set(newIndexValue)
+			if !updates.dryRun {
+				oldIndexValue.Set(newIndexValue)
+			}
 		} else if oldIndexValue.IsValid() && newIndexValue.IsValid() {
 			if deepEqual.Equal(oldIndexValue.Interface(), newIndexValue.Interface()) {
 				continue
@@ -94,7 +102,9 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 		subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), size,
 			nil, updates.resources)
 		updates.addUpdate(subProperty, nil, ifs.Deleted_Entry)
-		oldValue.Set(newSlice)
+		if !updates.dryRun {
+			oldValue.Set(newSlice)
+		}
 	} else if newValue.Len() > oldValue.Len() {
 		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), newValue.Len(), newValue.Len())
 		for i := 0; i < size; i++ {
@@ -107,7 +117,9 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 				newV.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newV.Interface())
 		}
-		oldValue.Set(newSlice)
+		if !updates.dryRun {
+			oldValue.Set(newSlice)
+		}
 	}
 
 	return nil

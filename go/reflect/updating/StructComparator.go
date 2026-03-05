@@ -29,12 +29,16 @@ import (
 func ptrUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(property, nil, newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(property, oldValue, nil)
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 	if oldValue.IsNil() && newValue.IsNil() {
@@ -46,7 +50,9 @@ func ptrUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, 
 // structUpdate compares and updates struct values by recursively comparing each field.
 func structUpdate(property *properties.Property, node *l8reflect.L8Node, oldValue, newValue reflect.Value, updates *Updater) error {
 	if !oldValue.IsValid() && newValue.IsValid() {
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		updates.addUpdate(property, nil, newValue.Interface())
 		return nil
 	}
@@ -84,7 +90,9 @@ func structUpdate(property *properties.Property, node *l8reflect.L8Node, oldValu
 			}
 			subInstance := properties.NewProperty(attr, property, nil, oldFldValue, updates.resources)
 			updates.addUpdate(subInstance, nil, newFldValue.Interface())
-			oldFldValue.Set(newFldValue)
+			if !updates.dryRun {
+				oldFldValue.Set(newFldValue)
+			}
 			continue
 		}
 

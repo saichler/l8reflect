@@ -32,19 +32,25 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 	}
 	if oldValue.IsNil() && !newValue.IsNil() {
 		updates.addUpdate(instance, nil, newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 	if !oldValue.IsNil() && newValue.IsNil() && updates.nilIsValid {
 		updates.addUpdate(instance, oldValue.Interface(), nil)
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 
 	alwaysFullDecorator := instance.Resources().Introspector().Decorators().BoolDecoratorValueForNode(node, l8reflect.L8DecoratorType_AlwaysFull)
 	if newValue.IsValid() && !newValue.IsNil() && alwaysFullDecorator {
 		updates.addUpdate(instance, nil, newValue.Interface())
-		oldValue.Set(newValue)
+		if !updates.dryRun {
+			oldValue.Set(newValue)
+		}
 		return nil
 	}
 
@@ -57,7 +63,9 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(),
 				newKeyValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
-			oldValue.SetMapIndex(key, newKeyValue)
+			if !updates.dryRun {
+				oldValue.SetMapIndex(key, newKeyValue)
+			}
 			continue
 		}
 
@@ -67,7 +75,9 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 			}
 			subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), newKeyValue.Interface(), updates.resources)
 			updates.addUpdate(subProperty, nil, newKeyValue.Interface())
-			oldValue.SetMapIndex(key, newKeyValue)
+			if !updates.dryRun {
+				oldValue.SetMapIndex(key, newKeyValue)
+			}
 		} else if oldKeyValue.IsValid() && newKeyValue.IsValid() {
 			if deepEqual.Equal(oldKeyValue.Interface(), newKeyValue.Interface()) {
 				continue
@@ -88,7 +98,9 @@ func mapUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue, 
 			if !newKeyValue.IsValid() {
 				subProperty := properties.NewProperty(node, instance.Parent().(*properties.Property), key.Interface(), nil, updates.resources)
 				updates.addUpdate(subProperty, oldKeyValue.Interface(), ifs.Deleted_Entry)
-				oldValue.SetMapIndex(key, reflect.Value{})
+				if !updates.dryRun {
+					oldValue.SetMapIndex(key, reflect.Value{})
+				}
 			}
 		}
 	}
