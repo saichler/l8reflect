@@ -17,6 +17,7 @@
 package updating
 
 import (
+	"bytes"
 	"reflect"
 
 	"github.com/saichler/l8types/go/ifs"
@@ -41,6 +42,19 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 		updates.addUpdate(instance, oldValue, nil)
 		if !updates.dryRun {
 			oldValue.Set(newValue)
+		}
+		return nil
+	}
+
+	// Byte slices are treated as atomic values — replace old with new if different.
+	if oldValue.Type().Elem().Kind() == reflect.Uint8 {
+		oldBytes := oldValue.Bytes()
+		newBytes := newValue.Bytes()
+		if !bytes.Equal(oldBytes, newBytes) {
+			updates.addUpdate(instance, oldBytes, newBytes)
+			if !updates.dryRun {
+				oldValue.Set(newValue)
+			}
 		}
 		return nil
 	}

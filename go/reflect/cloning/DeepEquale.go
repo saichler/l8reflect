@@ -14,6 +14,7 @@
 package cloning
 
 import (
+	"bytes"
 	"reflect"
 )
 
@@ -38,10 +39,14 @@ func NewDeepEqual() *DeepEqual {
 func (this *DeepEqual) initCloners() {
 	this.comparators = make(map[reflect.Kind]func(reflect.Value, reflect.Value) bool)
 	this.comparators[reflect.Int] = this.intComp
+	this.comparators[reflect.Int8] = this.intComp
+	this.comparators[reflect.Int16] = this.intComp
 	this.comparators[reflect.Int32] = this.intComp
 	this.comparators[reflect.Int64] = this.intComp
 
 	this.comparators[reflect.Uint] = this.uintComp
+	this.comparators[reflect.Uint8] = this.uintComp
+	this.comparators[reflect.Uint16] = this.uintComp
 	this.comparators[reflect.Uint32] = this.uintComp
 	this.comparators[reflect.Uint64] = this.uintComp
 
@@ -169,6 +174,11 @@ func (this *DeepEqual) sliceComp(aSideValue, zSideValue reflect.Value) bool {
 	}
 	if aSideValue.IsNil() && zSideValue.IsNil() {
 		return true
+	}
+
+	// Byte slices are compared atomically.
+	if aSideValue.Type().Elem().Kind() == reflect.Uint8 {
+		return bytes.Equal(aSideValue.Bytes(), zSideValue.Bytes())
 	}
 
 	if aSideValue.Len() != zSideValue.Len() {

@@ -34,10 +34,14 @@ var deepEqual = cloning.NewDeepEqual()
 func init() {
 	comparators = make(map[reflect.Kind]func(*properties.Property, *l8reflect.L8Node, reflect.Value, reflect.Value, *Updater) error)
 	comparators[reflect.Int] = intUpdate
+	comparators[reflect.Int8] = intUpdate
+	comparators[reflect.Int16] = intUpdate
 	comparators[reflect.Int32] = intUpdate
 	comparators[reflect.Int64] = intUpdate
 
 	comparators[reflect.Uint] = uintUpdate
+	comparators[reflect.Uint8] = uintUpdate
+	comparators[reflect.Uint16] = uintUpdate
 	comparators[reflect.Uint32] = uintUpdate
 	comparators[reflect.Uint64] = uintUpdate
 
