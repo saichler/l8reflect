@@ -129,6 +129,9 @@ func (this *Introspector) NodeByTypeName(name string) (*l8reflect.L8Node, bool) 
 // Set onlyLeafs=true to return only leaf nodes (no children).
 // Set onlyRoots=true to return only root nodes (no parent).
 func (this *Introspector) Nodes(onlyLeafs, onlyRoots bool) []*l8reflect.L8Node {
+	if onlyLeafs && onlyRoots {
+		panic("Nodes: onlyLeafs and onlyRoots cannot both be true — no node can be both a leaf and a root")
+	}
 	filter := func(any interface{}) bool {
 		n := any.(*l8reflect.L8Node)
 		if onlyLeafs && !helping.IsLeaf(n) {
