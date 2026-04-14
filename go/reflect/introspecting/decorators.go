@@ -211,6 +211,28 @@ func (this *Introspector) Fields(node *l8reflect.L8Node, decoratorType l8reflect
 	return decValue.Fields, nil
 }
 
+// fieldInterface returns the interface value of a named field on value.
+// Returns an error (when returnError is true) if value is zero/invalid or the
+// field does not exist — previously these cases caused a reflect panic
+// ("call of reflect.Value.Interface on zero Value") inside KeyForValue.
+func fieldInterface(value reflect.Value, field, typeName string, returnError bool) (interface{}, error) {
+	if !value.IsValid() {
+		if returnError {
+			return nil, errors.New(strings2.New("KeyForValue: zero/invalid value for type ", typeName,
+				" (likely a typed-nil pointer) while resolving field ", field).String())
+		}
+		return nil, nil
+	}
+	fv := value.FieldByName(field)
+	if !fv.IsValid() {
+		if returnError {
+			return nil, errors.New(strings2.New("KeyForValue: field ", field, " not found on type ", typeName).String())
+		}
+		return nil, nil
+	}
+	return fv.Interface(), nil
+}
+
 // KeyForValue builds a key string from the specified fields and value.
 // Supports 1-3 fields efficiently with a fallback for more fields.
 func (this *Introspector) KeyForValue(fields []string, value reflect.Value, typeName string, returnError bool) (string, error) {
@@ -220,23 +242,28 @@ func (this *Introspector) KeyForValue(fields []string, value reflect.Value, type
 		}
 		return "", nil
 	}
-	switch len(fields) {
+	vals := make([]interface{}, len(fields))
+	for i, field := range fields {
+		iv, err := fieldInterface(value, field, typeName, returnError)
+		if err != nil {
+			return "", err
+		}
+		vals[i] = iv
+	}
+	switch len(vals) {
 	case 1:
-		return strings2.New(value.FieldByName(fields[0]).Interface()).String(), nil
+		return strings2.New(vals[0]).String(), nil
 	case 2:
-		return strings2.New(value.FieldByName(fields[0]).Interface(), value.FieldByName(fields[1]).Interface()).String(), nil
+		return strings2.New(vals[0], vals[1]).String(), nil
 	case 3:
-		return strings2.New(value.FieldByName(fields[0]).Interface(),
-			value.FieldByName(fields[1]).Interface(),
-			value.FieldByName(fields[2]).Interface()).String(), nil
+		return strings2.New(vals[0], vals[1], vals[2]).String(), nil
 	default:
 		result := strings2.New()
-		for i := 0; i < len(fields); i++ {
-			result.Add(result.StringOf(value.FieldByName(fields[i]).Interface()))
+		for _, v := range vals {
+			result.Add(result.StringOf(v))
 		}
 		return result.String(), nil
 	}
-	return "", errors.New("Unexpected code")
 }
 
 // addDecorator is an internal helper to add a decorator with fields to a node.
