@@ -116,7 +116,12 @@ func (this *Cloner) sliceCloner(value reflect.Value, name string, stopLoop map[s
 	for i := 0; i < value.Len(); i++ {
 		elem := value.Index(i)
 		elemClone := this.clone(elem, name, stopLoop)
-		newSlice.Index(i).Set(elemClone)
+		dst := newSlice.Index(i)
+		if elemClone.Kind() == reflect.Int32 {
+			dst.SetInt(elemClone.Int())
+		} else {
+			dst.Set(elemClone)
+		}
 	}
 	return newSlice
 }
@@ -176,7 +181,13 @@ func (this *Cloner) mapCloner(value reflect.Value, name string, stopLoop map[str
 	for _, key := range mapKeys {
 		mapElem := value.MapIndex(key)
 		mapElemClone := this.clone(mapElem, name, stopLoop)
-		mapClone.SetMapIndex(key, mapElemClone)
+		if mapElemClone.Kind() == reflect.Int32 {
+			v := reflect.New(value.Type().Elem()).Elem()
+			v.SetInt(mapElemClone.Int())
+			mapClone.SetMapIndex(key, v)
+		} else {
+			mapClone.SetMapIndex(key, mapElemClone)
+		}
 	}
 	return mapClone
 }
@@ -268,7 +279,12 @@ func (this *Cloner) arrayCloner(value reflect.Value, name string, stopLoop map[s
 	for i := 0; i < value.Len(); i++ {
 		elem := value.Index(i)
 		elemClone := this.clone(elem, name, stopLoop)
-		newArray.Index(i).Set(elemClone)
+		dst := newArray.Index(i)
+		if elemClone.Kind() == reflect.Int32 {
+			dst.SetInt(elemClone.Int())
+		} else {
+			dst.Set(elemClone)
+		}
 	}
 	return newArray
 }
