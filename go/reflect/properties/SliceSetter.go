@@ -151,12 +151,21 @@ func (this *Property) sliceSet(myValue reflect.Value, newSliceValue reflect.Valu
 		return oIndexValue.Interface(), nil
 	}
 
-	if newSliceValue.Kind() != reflect.Slice {
+	var nIndexValue reflect.Value
+	switch {
+	case newSliceValue.Kind() == reflect.Slice:
+		nIndexValue = newSliceValue.Index(index)
+	case newSliceValue.IsValid() && newSliceValue.Type().AssignableTo(oIndexValue.Type()):
+		// A change to one element (as the updater records it) carries the
+		// element itself.
+		nIndexValue = newSliceValue
+	case newSliceValue.IsValid() && newSliceValue.Kind() == oIndexValue.Kind():
+		// The same kind under another type name, e.g. an enum as its int32.
+		nIndexValue = newSliceValue.Convert(oIndexValue.Type())
+	default:
 		pid, _ := this.PropertyId()
 		return nil, errors.New("No a slice new value PID: " + pid)
 	}
-
-	nIndexValue := newSliceValue.Index(index)
 
 	//If this is not a leaf property
 	//We need to continue drilling down

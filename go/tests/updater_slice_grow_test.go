@@ -24,13 +24,29 @@ import (
 )
 
 // growSlice updates aside with zside, where zside has a longer slice, and
-// checks that aside ends up with zside's slice.
+// checks that aside ends up with zside's slice. It also detects the changes
+// with a dry run and applies them to a copy, as a cache PATCH does, and
+// checks that the copy ends up with zside's slice too.
 func growSlice(t *testing.T, grow func(*testtypes.TestProto), get func(*testtypes.TestProto) interface{}) {
 	t.Helper()
 	res := newResources()
 	aside := utils.CreateTestModelInstance(0)
 	zside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
+	uside := cloning.NewCloner().Clone(aside).(*testtypes.TestProto)
 	grow(zside)
+
+	dry := updating.NewUpdater(res, false, false)
+	if err := dry.DryUpdate(uside, zside); err != nil {
+		log.Fail(t, err.Error())
+		return
+	}
+	for _, chg := range dry.Changes() {
+		chg.Apply(uside)
+	}
+	if !reflect.DeepEqual(get(uside), get(zside)) {
+		log.Fail(t, "After Apply expected ", get(zside), " got ", get(uside))
+		return
+	}
 
 	upd := updating.NewUpdater(res, false, false)
 	if err := upd.Update(aside, zside); err != nil {
@@ -68,4 +84,13 @@ func TestSliceGrowModel(t *testing.T) {
 		}
 		return out
 	})
+}
+
+func TestSliceElementChange(t *testing.T) {
+	growSlice(t, func(p *testtypes.TestProto) {
+		p.MyStringSlice[0] = "changed"
+	}, func(p *testtypes.TestProto) interface{} { return p.MyStringSlice })
+	growSlice(t, func(p *testtypes.TestProto) {
+		p.MyInt32Slice[0] = 777
+	}, func(p *testtypes.TestProto) interface{} { return p.MyInt32Slice })
 }
