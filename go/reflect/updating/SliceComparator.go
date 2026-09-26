@@ -120,7 +120,13 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 			oldValue.Set(newSlice)
 		}
 	} else if newValue.Len() > oldValue.Len() {
-		newSlice := reflect.MakeSlice(reflect.SliceOf(reflect.PointerTo(vInfo.Type())), newValue.Len(), newValue.Len())
+		// A primitive element (string, ints, bools, floats, enums) is stored
+		// by value; anything else is a message, stored by pointer.
+		elemType := vInfo.Type()
+		if !isPrimitive(elemType) {
+			elemType = reflect.PointerTo(elemType)
+		}
+		newSlice := reflect.MakeSlice(reflect.SliceOf(elemType), newValue.Len(), newValue.Len())
 		for i := 0; i < size; i++ {
 			newSlice.Index(i).Set(oldValue.Index(i))
 		}
@@ -137,4 +143,17 @@ func sliceUpdate(instance *properties.Property, node *l8reflect.L8Node, oldValue
 	}
 
 	return nil
+}
+
+// isPrimitive reports whether t is a primitive value type (what the registry
+// pre-registers: ints, string, bool, floats), not a message.
+func isPrimitive(t reflect.Type) bool {
+	switch t.Kind() {
+	case reflect.String, reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
+		return true
+	}
+	return false
 }
